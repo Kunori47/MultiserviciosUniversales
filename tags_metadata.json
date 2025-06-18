@@ -1,0 +1,33 @@
+[
+    {
+        "name": "Cliente",
+        "description": "Operaciones con Cliente"
+    },
+
+    {
+        "name": "Franquicia",
+        "description": "Operaciones con Franquicia"
+    },
+
+    {
+        "name": "Empleado",
+        "description": "Operaciones con Empleado"
+    },
+
+    {
+        "name": "Marca",
+        "description": "Operaciones con Marca"
+    },
+
+    {
+        "name": "Modelo",
+        "description": "Operaciones con Modelo"
+    },
+
+    {
+        "name": "Vehiculo",
+        "description": "Operaciones con Vehiculo"
+    }
+
+
+]

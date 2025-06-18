@@ -1,12 +1,17 @@
+import json
 from fastapi import FastAPI
 from reactpy import component, html
 from reactpy.backend.fastapi import configure
+from routes import items
 
-app = FastAPI()
+with open("tags_metadata.json") as f:
+    tags_metadata = json.load(f)
 
-@component
-def hello_world():
-    return html.div("Mamalo abstracto")
+app = FastAPI(
+    title="Mulltiservicios Universal API", 
+    description="API for Mulltiservicios Universal",
+    version="0.0.1",
+    openapi_tags=tags_metadata
+)
 
-
-configure(app, hello_world)
+app.include_router(items.router)

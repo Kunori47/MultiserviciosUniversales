@@ -4,4 +4,4 @@ python-dotenv
 bcrypt
 python-multipart
 reactpy[fastapi]
-
+pyodbc
