@@ -1,0 +1,15 @@
+No tienes un entorno virtual creado todavía. Aquí están los pasos que debes seguir:
+Primero, crea el entorno virtual. En tu terminal (PowerShell), ejecuta:
+python -m venv venv
+
+Para activar el entorno virtual en Windows usando bash, tienes dos opciones:
+Si estás usando Git Bash:
+ source venv/Scripts/activate
+
+Si estás usando PowerShell:
+  .\venv\Scripts\activate
+
+Una vez activado, verás que el prompt cambia para mostrar (venv) al inicio, indicando que el entorno virtual está activo.
+
+Después de activar el entorno virtual, puedes instalar las dependencias del proyecto usando:
+pip install -r requirements.txt
