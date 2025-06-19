@@ -45,6 +45,11 @@
     },
 
     {
+        "name": "Actividad",
+        "description": "Operaciones con Actividad"
+    },
+
+    {
         "name": "Linea de Suministro",
         "description": "Operaciones con Linea de suministro"
     },
@@ -67,6 +72,11 @@
     {
         "name": "Orden de Servicio",
         "description": "Operaciones con Orden de Servicio"
+    },
+
+    {
+        "name": "OrdenxActividad",
+        "description": "Operaciones con OrdenxActividad"
     },
 
     {

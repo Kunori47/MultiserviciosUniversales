@@ -283,3 +283,27 @@ async def delete_product_franchise(FranquiciaRIF: str, CodigoProducto: int):
 async def update_product_franchise(FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
     return ProductFranchiseController().update_product_franchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
 
+" Actividad Endpoints "
+
+@router.get("/activity", tags=["Actividad"], response_model=list[Activity])
+async def read_activities():
+    return ActivityController().get_activities()
+
+@router.post("/activity/create", tags=["Actividad"], response_model=dict)
+async def create_activity(CodigoServicio: int, NumeroCorrelativoActividad: int, DescripcionActividad: str, CostoManoDeObra: float):
+    return ActivityController().create_activity(CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra)
+
+@router.delete("/activity/delete", tags=["Actividad"], response_model=dict)
+async def delete_activity(CodigoServicio: int, NumeroCorrelativoActividad: int):
+    return ActivityController().delete_activity(CodigoServicio, NumeroCorrelativoActividad)
+
+
+" OrderxActivity Endpoints "
+
+@router.get("/orderxactivity", tags=["OrdenxActividad"], response_model=list[OrderxActivity])
+async def read_orderxactivities():
+    return OrderxActivityController().get_order_activities()
+
+@router.post("/orderxactivity/create", tags=["OrdenxActividad"], response_model=dict)
+async def create_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
+    return OrderxActivityController().create_order_activity(IDorden, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
