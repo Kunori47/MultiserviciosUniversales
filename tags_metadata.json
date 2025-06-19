@@ -27,6 +27,16 @@
     {
         "name": "Vehiculo",
         "description": "Operaciones con Vehiculo"
+    },
+
+    {
+        "name":"Plan de Mantenimiento",
+        "description": "Operaciones con Plan de Mantenimiento"
+    },
+
+    {
+        "name":"Especialidad",
+        "description": "Operaciones con Especialidad"
     }
 
 

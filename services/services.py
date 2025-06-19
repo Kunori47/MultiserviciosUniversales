@@ -304,15 +304,14 @@ class MaintenancePlanService:
     
     def createMaintenancePlan(
                 self,
-                CodigoMantenimiento: int, 
                 TiempoUso: int, 
                 Kilometraje: int,
                 DescripcionMantenimiento: str,
                 CodigoMarca: int,
                 NumeroCorrelativoModelo: int ):
         try:
-            database.execute("INSERT INTO PlanMantenimiento (CodigoMantenimiento, TiempoUso ,Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo) VALUES (?, ?, ?, ?, ?, ?)",
-                            (CodigoMantenimiento, TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo))
+            database.execute("INSERT INTO PlanMantenimiento (TiempoUso ,Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo) VALUES (?, ?, ?, ?, ?)",
+                            (TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo))
             conn.commit()
             return {"message": "Maintenance plan created successfully"}
         except Exception as e:
@@ -363,11 +362,11 @@ class SpecialtyService:
             DescripcionEspecialidad=row[1],
         ) for row in specialties]
 
-    def createSpecialty(self, CodigoEspecialidad: int, DescripcionEspecialidad: str):
+    def createSpecialty(self, DescripcionEspecialidad: str):
         try:
             database.execute(
-                "INSERT INTO Especialidad (CodigoEspecialidad, DescripcionEspecialidad) VALUES (?, ?)",
-                (CodigoEspecialidad, DescripcionEspecialidad)
+                "INSERT INTO Especialidad (DescripcionEspecialidad) VALUES (?)",
+                (DescripcionEspecialidad)
             )
             conn.commit()
             return {"message": "Especialidad creada exitosamente"}

@@ -103,19 +103,19 @@ async def update_customer(CI: str, NombreCompleto: str, Email: str):
     return CustomerController().update_customer(CI, NombreCompleto, Email)
 
 # --- MaintenancePlan endpoints ---
-@router.get("/maintenanceplan", tags=["PlanMantenimiento"], response_model=list[MaintenancePlan])
+@router.get("/maintenanceplan", tags=["Plan de Mantenimiento"], response_model=list[MaintenancePlan])
 async def read_maintenanceplan():
     return MaintenancePlanController().get_MaintenancePlan()
 
-@router.post("/maintenanceplan/create", tags=["PlanMantenimiento"], response_model=dict)
-async def create_maintenanceplan(CodigoMantenimiento: int, TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
-    return MaintenancePlanController().create_MaintenancePlan(CodigoMantenimiento, TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo)
+@router.post("/maintenanceplan/create", tags=["Plan de Mantenimiento"], response_model=dict)
+async def create_maintenanceplan(TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
+    return MaintenancePlanController().create_MaintenancePlan(TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo)
 
-@router.delete("/maintenanceplan/delete", tags=["PlanMantenimiento"], response_model=dict)
+@router.delete("/maintenanceplan/delete", tags=["Plan de Mantenimiento"], response_model=dict)
 async def delete_maintenanceplan(CodigoMantenimiento: int):
     return MaintenancePlanController().delete_MaintenancePlan(CodigoMantenimiento)
 
-@router.put("/maintenanceplan/update", tags=["PlanMantenimiento"], response_model=dict)
+@router.put("/maintenanceplan/update", tags=["Plan de Mantenimiento"], response_model=dict)
 async def update_maintenanceplan(CodigoMantenimiento: int, TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
     return MaintenancePlanController().update_MaintenancePlan(CodigoMantenimiento, TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo)
 
@@ -125,8 +125,8 @@ async def read_specialties():
     return SpecialtyController().get_specialties()
 
 @router.post("/specialty/create", tags=["Especialidad"], response_model=dict)
-async def create_specialty(CodigoEspecialidad: int, DescripcionEspecialidad: str):
-    return SpecialtyController().create_specialty(CodigoEspecialidad, DescripcionEspecialidad)
+async def create_specialty(DescripcionEspecialidad: str):
+    return SpecialtyController().create_specialty(DescripcionEspecialidad)
 
 @router.delete("/specialty/delete", tags=["Especialidad"], response_model=dict)
 async def delete_specialty(CodigoEspecialidad: int):
