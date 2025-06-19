@@ -10,6 +10,8 @@ router = APIRouter()
 async def read_root():
     return RedirectResponse(url="/docs")
 
+" Franquicia Endpoints "
+
 @router.get("/franchise", tags=["Franquicia"], response_model=list[Franchise])
 async def read_franchise():
     return FranchiseController().get_franchise()
@@ -22,12 +24,15 @@ async def create_franchise(RIF: str, Nombre: str, Ciudad: str, CI_Encargado: Opt
 async def update_franchise(RIF: str, Nombre: str, Ciudad: str, CI_Encargado: Optional[str] = None, FechaInicioEncargado: Optional[str] = None, Estatus: str = "Activo"):
     return FranchiseController().update_franchise(RIF, Nombre, Ciudad, CI_Encargado, FechaInicioEncargado, Estatus)
 
+
+" Empleados Endpoints "
+
 @router.get("/employee", tags=["Empleado"], response_model=list[Employee])
 async def read_employee():
     return EmployeeController().get_employees()
 
 @router.post("/employee/create", tags=["Empleado"], response_model=dict)
-async def create_employee(CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
+async def create_employee(CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: Optional[str] = None):
     return EmployeeController().create_employee(CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF)
 
 @router.delete("/employee/delete", tags=["Empleado"], response_model=dict)
@@ -38,7 +43,10 @@ async def delete_employee(CI: str):
 async def update_employee(CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
     return EmployeeController().update_employee(CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF)
 
-@router.get("/brand", tags=["Marca"], response_model=list[Marca])
+
+" Marcas Endpoints "
+
+@router.get("/brand", tags=["Marca"], response_model=list[Brand])
 async def read_brands():
     return BrandController().get_brands()
 
@@ -53,6 +61,8 @@ async def delete_brand(CodigoMarca: int):
 @router.put("/brand/update", tags=["Marca"], response_model=dict)
 async def update_brand(CodigoMarca: int, Nombre: str):
     return BrandController().update_brand(CodigoMarca, Nombre)
+
+" Modelos Endpoints "
 
 @router.get("/model", tags=["Modelo"], response_model=list[Model])
 async def read_models():
@@ -70,6 +80,9 @@ async def delete_model(CodigoMarca: int, NumeroCorrelativoModelo: int):
 async def update_model(CodigoMarca: int, NumeroCorrelativoModelo: int, DescripcionModelo: str, CantidadPuestos: int, TipoRefrigerante: str, TipoGasolina: str, TipoAceite: str, Peso: float):
     return ModelController().update_model(CodigoMarca, NumeroCorrelativoModelo, DescripcionModelo, CantidadPuestos, TipoRefrigerante, TipoGasolina, TipoAceite, Peso)
 
+
+" Vehiculo Endpoints "
+
 @router.get("/vehicle", tags=["Vehiculo"], response_model=list[Vehicle])
 async def read_vehicles():
     return VehicleController().get_vehicles()
@@ -86,6 +99,9 @@ async def delete_vehicle(CodigoVehiculo: int):
 async def update_vehicle(CodigoVehiculo: int, CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
     return VehicleController().update_vehicle(CodigoVehiculo, CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario)
 
+
+" Cliente Endpoints "
+
 @router.get("/customer", tags=["Cliente"], response_model=list[Customer])
 async def read_customers():
     return CustomerController().get_customers()
@@ -101,3 +117,133 @@ async def delete_customer(CI: str):
 @router.put("/customer/update", tags=["Cliente"], response_model=dict)
 async def update_customer(CI: str, NombreCompleto: str, Email: str):
     return CustomerController().update_customer(CI, NombreCompleto, Email)
+
+
+" Servicio Endpoints "
+
+@router.get("/service", tags=["Servicio"], response_model=list[Service])
+async def read_services():
+    return ServiceController().get_services()
+
+@router.post("/service/create", tags=["Servicio"], response_model=dict)
+async def create_service(NombreServicio: str):
+    return ServiceController().create_service(NombreServicio)
+
+@router.delete("/service/delete", tags=["Servicio"], response_model=dict)
+async def delete_service(CodigoServicio: int):
+    return ServiceController().delete_service(CodigoServicio)
+
+@router.put("/service/update", tags=["Servicio"], response_model=dict)
+async def update_service(CodigoServicio: int, NombreServicio: str):
+    return ServiceController().update_service(CodigoServicio, NombreServicio)
+
+
+" Linea de Suministros Endpoints "
+
+@router.get("/supplier_line", tags=["Linea de Suministro"], response_model=list[SupplierLine])
+async def read_supplier_lines():
+    return SupplierLineController().get_supplier_lines()
+
+@router.post("/supplier_line/create", tags=["Linea de Suministro"], response_model=dict)
+async def create_supplier_line(DescripcionLinea: str):
+    return SupplierLineController().create_supplier_line(DescripcionLinea)
+
+@router.delete("/supplier_line/delete", tags=["Linea de Suministro"], response_model=dict)
+async def delete_supplier_line(CodigoLinea: int):
+    return SupplierLineController().delete_supplier_line(CodigoLinea)
+
+@router.put("/supplier_line/update", tags=["Linea de Suministro"], response_model=dict)
+async def update_supplier_line(CodigoLinea: int, DescripcionLinea: str):
+    return SupplierLineController().update_supplier_line(CodigoLinea, DescripcionLinea)
+
+
+" Producto Endpoints "
+
+@router.get("/product", tags=["Producto"], response_model=list[Product])
+async def read_products():
+    return ProductController().get_products()
+
+@router.post("/product/create", tags=["Producto"], response_model=dict)
+async def create_product(NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int] = None, Tratamiento: Optional[str] = None):
+    return ProductController().create_product(NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento)
+
+@router.delete("/product/delete", tags=["Producto"], response_model=dict)
+async def delete_product(CodigoProducto: int):
+    return ProductController().delete_product(CodigoProducto)
+
+@router.put("/product/update", tags=["Producto"], response_model=dict)
+async def update_product(CodigoProducto: int, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int] = None, Tratamiento: Optional[str] = None):
+    return ProductController().update_product(CodigoProducto, NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento)
+
+" Proveedor Endpoints "
+
+@router.get("/vendor", tags=["Proveedor"], response_model=list[Vendor])
+async def read_vendors():
+    return VendorController().get_vendors()
+
+@router.post("/vendor/create", tags=["Proveedor"], response_model=dict)
+async def create_vendor(RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, Correo: str):
+    return VendorController().create_vendor(RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, Correo)
+
+@router.delete("/vendor/delete", tags=["Proveedor"], response_model=dict)
+async def delete_vendor(RIF: str):
+    return VendorController().delete_vendor(RIF)
+
+@router.put("/vendor/update", tags=["Proveedor"], response_model=dict)
+async def update_vendor(RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+    return VendorController().update_vendor(RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto)
+
+" Orden de Servicio Endpoints "
+
+@router.get("/service_order", tags=["Orden de Servicio"], response_model=list[ServiceOrder])
+async def read_service_orders():
+    return ServiceOrderController().get_service_orders()
+
+@router.post("/service_order/create", tags=["Orden de Servicio"], response_model=dict)
+async def create_service_order(FechaEntrada: str, HoraEntrada: str, FechaSalidaEstimada: str, HoraSalidaEstimada: str, CodigoVehiculo: int):
+    return ServiceOrderController().create_service_order(FechaEntrada, HoraEntrada, FechaSalidaEstimada, HoraSalidaEstimada, CodigoVehiculo)
+
+@router.put("/service_order/update", tags=["Orden de Servicio"], response_model=dict)
+async def update_service_order(ID: int, FechaSalidaReal: Optional[str] = None, HoraSalidaReal: Optional[str] = None, Comentario: Optional[str] = None):
+    return ServiceOrderController().update_service_order(ID, FechaSalidaReal, HoraSalidaReal, Comentario)
+
+" Factura Endpoints "
+
+@router.get("/invoice", tags=["Factura"], response_model=list[Invoice])
+async def read_invoices():
+    return InvoiceController().get_invoices()
+
+@router.post("/invoice/create", tags=["Factura"], response_model=dict)
+async def create_invoice(FechaEmision: str, MontoTotal: float, IVA: float, Descuento: float, OrdenServicioID: int, FranquiciaRIF: str):
+    return InvoiceController().create_invoice(FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF)
+
+
+" Compra Endpoints "
+
+@router.get("/purchase", tags=["Compra"], response_model=list[Purchase])
+async def read_purchases():
+    return PurchaseController().get_purchases()
+
+@router.post("/purchase/create", tags=["Compra"], response_model=dict)
+async def create_purchase(Fecha: str, ProveedorRIF: str):
+    return PurchaseController().create_purchase(Fecha, ProveedorRIF)
+
+
+" Producto Franquicia Endpoints "
+
+@router.get("/product_franchise", tags=["Producto Franquicia"], response_model=list[ProductFranchise])
+async def read_product_franchises():
+    return ProductFranchiseController().get_product_franchises()
+
+@router.post("/product_franchise/create", tags=["Producto Franquicia"], response_model=dict)
+async def create_product_franchise(FranquiciaRIF: str, CodigoProducto: int, Precio: float ,Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+    return ProductFranchiseController().create_product_franchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
+
+@router.delete("/product_franchise/delete", tags=["Producto Franquicia"], response_model=dict)
+async def delete_product_franchise(FranquiciaRIF: str, CodigoProducto: int):
+    return ProductFranchiseController().delete_product_franchise(FranquiciaRIF, CodigoProducto)
+
+@router.put("/product_franchise/update", tags=["Producto Franquicia"], response_model=dict)
+async def update_product_franchise(FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+    return ProductFranchiseController().update_product_franchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
+

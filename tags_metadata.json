@@ -27,7 +27,51 @@
     {
         "name": "Vehiculo",
         "description": "Operaciones con Vehiculo"
-    }
+    },
 
+    {
+        "name": "Servicio",
+        "description": "Operaciones con Servicio"
+    },
+
+    {
+        "name": "Linea de Suministro",
+        "description": "Operaciones con Linea de suministro"
+    },
+
+    {
+        "name": "Producto",
+        "description": "Operaciones con Producto"
+    },
+
+    {
+        "name": "Proveedor",
+        "description": "Operaciones con Proveedor"
+    },
+
+    {
+        "name": "Vehiculo",
+        "description": "Operaciones con Vehiculo"
+    },
+
+    {
+        "name": "Orden de Servicio",
+        "description": "Operaciones con Orden de Servicio"
+    },
+
+    {
+        "name": "Factura",
+        "description": "Operaciones con Factura"
+    },
+
+    {
+        "name": "Compra",
+        "description": "Operaciones con Compra"
+    },
+
+    {
+        "name": "Producto Franquicia",
+        "description": "Operaciones con Producto Franquicia"
+    }
 
 ]

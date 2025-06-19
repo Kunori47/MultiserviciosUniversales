@@ -44,14 +44,16 @@ class FranchiseService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating franchise: {str(e)}")
 
+
 class EmployeeService:
+
     
     def getEmployees(self):
         database.execute("SELECT * FROM Empleado")
         employee = database.fetchall()
         return [Employee(CI=row[0], NombreCompleto=row[1], Direccion=row[2], Telefono=str(row[3]), Salario=row[4], FranquiciaRIF=str(row[5])) for row in employee]
 
-    def createEmployee(self, CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
+    def createEmployee(self, CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: Optional[str]):
         try:
             database.execute("INSERT INTO Empleado (CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF) VALUES (?, ?, ?, ?, ?, ?)",
                             (CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF))
@@ -94,7 +96,7 @@ class BrandService:
     def getBrands(self):
         database.execute("SELECT * FROM Marca")
         brands = database.fetchall()
-        return [Marca(CodigoMarca=row[0], Nombre=row[1]) for row in brands]
+        return [Brand(CodigoMarca=row[0], Nombre=row[1]) for row in brands]
     
     def createBrand(self, Nombre: str):
         try:
@@ -288,3 +290,344 @@ class CustomerService:
         except Exception as e:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating customer: {str(e)}")
+        
+class ServiceService:
+
+    def getServices(self):
+        database.execute("SELECT * FROM Servicio")
+        services = database.fetchall()
+        return [Service(CodigoServicio=row[0], NombreServicio=row[1]) for row in services]
+    
+    def createService(self, NombreServicio: str):
+        try:
+            database.execute("INSERT INTO Servicio (NombreServicio) VALUES (?)", (NombreServicio,))
+            conn.commit()
+            return {"message": "Service created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating service: {str(e)}")
+        
+    def deleteService(self, CodigoServicio: int):
+        try:
+            database.execute("SELECT 1 FROM Servicio WHERE CodigoServicio = ?", (CodigoServicio,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Service not found")
+            database.execute("DELETE FROM Servicio WHERE CodigoServicio = ?", (CodigoServicio,))
+            conn.commit()
+            return {"message": "Service deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting service: {str(e)}")
+        
+    def updateService(self, CodigoServicio: int, NombreServicio: str):
+        try:
+            database.execute("SELECT 1 FROM Servicio WHERE CodigoServicio = ?", (CodigoServicio,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Service not found")
+            database.execute(
+                "UPDATE Servicio SET NombreServicio = ? WHERE CodigoServicio = ?",
+                (NombreServicio, CodigoServicio)
+            )
+            conn.commit()
+            return {"message": "Service updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating service: {str(e)}")
+        
+class SupplierLineService:
+
+    def getSupplierLines(self):
+        database.execute("SELECT * FROM LineaSuministro")
+        supplier_lines = database.fetchall()
+        return [SupplierLine(CodigoLinea=row[0], DescripcionLinea=row[1]) for row in supplier_lines]
+    
+    def createSupplierLine(self, DescripcionLinea: str):
+        try:
+            database.execute("INSERT INTO LineaSuministro (DescripcionLinea) VALUES (?)", (DescripcionLinea,))
+            conn.commit()
+            return {"message": "Supplier line created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating supplier line: {str(e)}")
+        
+    def deleteSupplierLine(self, CodigoLinea: int):
+        try:
+            database.execute("SELECT 1 FROM LineaSuministro WHERE CodigoLinea = ?", (CodigoLinea,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Supplier line not found")
+            database.execute("DELETE FROM LineaSuministro WHERE CodigoLinea = ?", (CodigoLinea,))
+            conn.commit()
+            return {"message": "Supplier line deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting supplier line: {str(e)}")
+        
+    def updateSupplierLine(self, CodigoLinea: int, DescripcionLinea: str):
+        try:
+            database.execute("SELECT 1 FROM LineaSuministro WHERE CodigoLinea = ?", (CodigoLinea,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Supplier line not found")
+            database.execute(
+                "UPDATE LineaSuministro SET DescripcionLinea = ? WHERE CodigoLinea = ?",
+                (DescripcionLinea, CodigoLinea)
+            )
+            conn.commit()
+            return {"message": "Supplier line updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating supplier line: {str(e)}")
+    
+class ProductService:
+
+    def getProducts(self):
+        database.execute("SELECT * FROM Producto")
+        products = database.fetchall()
+        return [Product(
+                    CodigoProducto=row[0], 
+                    NombreProducto=row[1], 
+                    DescripcionProducto=row[2], 
+                    LineaSuministronistro=row[3],
+                    Tipo=row[4],
+                    NivelContaminante=row[5] if row[5] is not None else None,
+                    Tratamiento=row[6] if row[6] is not None else None
+                ) for row in products]
+    
+    def createProduct(self, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: int, Tratamiento: str):
+        try:
+            database.execute("INSERT INTO Producto (NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento) VALUES (?, ?, ?, ?, ?, ?)",
+                            (NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento))
+            conn.commit()
+            return {"message": "Product created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
+        
+    def deleteProduct(self, CodigoProducto: int):
+        try:
+            database.execute("SELECT 1 FROM Producto WHERE CodigoProducto = ?", (CodigoProducto,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Product not found")
+            database.execute("DELETE FROM Producto WHERE CodigoProducto = ?", (CodigoProducto,))
+            conn.commit()
+            return {"message": "Product deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")
+        
+    def updateProduct(self, CodigoProducto: int, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int] = None, Tratamiento: Optional[str] = None):
+        try:
+            database.execute("SELECT 1 FROM Producto WHERE CodigoProducto = ?", (CodigoProducto,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Product not found")
+            database.execute(
+                "UPDATE Producto SET NombreProducto = ?, DescripcionProducto = ?, LineaSuministro = ?, Tipo = ?, NivelContaminante = ?, Tratamiento = ? WHERE CodigoProducto = ?",
+                (NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento, CodigoProducto)
+            )
+            conn.commit()
+            return {"message": "Product updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
+        
+class VendorService:
+
+    def getVendors(self):
+        database.execute("SELECT * FROM Proveedor")
+        vendors = database.fetchall()
+        return [Vendor(RIF=row[0], 
+                       RazonSocial=row[1], 
+                       Direccion=row[2], 
+                       TelefonoLocal=row[3],
+                       TelefonoCelular=row[4],
+                       PersonaContacto=row[5]
+                       ) for row in vendors]
+    
+    def createVendor(self, RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+        try:
+            database.execute("INSERT INTO Proveedor (RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto) VALUES (?, ?, ?, ?, ?, ?)",
+                            (RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto))
+            conn.commit()
+            return {"message": "Vendor created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating vendor: {str(e)}")
+        
+    def deleteVendor(self, RIF: str):
+        try:
+            database.execute("SELECT 1 FROM Proveedor WHERE RIF = ?", (RIF,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Vendor not found")
+            database.execute("DELETE FROM Proveedor WHERE RIF = ?", (RIF,))
+            conn.commit()
+            return {"message": "Vendor deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting vendor: {str(e)}")
+        
+    def updateVendor(self, RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+        try:
+            database.execute("SELECT 1 FROM Proveedor WHERE RIF = ?", (RIF,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Vendor not found")
+            database.execute(
+                "UPDATE Proveedor SET RazonSocial = ?, Direccion = ?, TelefonoLocal = ?, TelefonoCelular = ?, PersonaContacto = ? WHERE RIF = ?",
+                (RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto, RIF)
+            )
+            conn.commit()
+            return {"message": "Vendor updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating vendor: {str(e)}")
+        
+class ServiceOrderService:
+
+    def getServiceOrders(self):
+        database.execute("SELECT * FROM OrdenServicio")
+        service_orders = database.fetchall()
+        return [ServiceOrder(
+                    ID=row[0], 
+                    FechaEntrada=str(row[1]), 
+                    HoraEntrada=str(row[2]),
+                    FechaSalidaEstimada=str(row[3]),
+                    HoraSalidaEstimada=str(row[4]),
+                    FechaSalidaReal=str(row[5]) if row[5] is not None else None,
+                    HoraSalidaReal= str(row[6]) if row[6] is not None else None,
+                    Comentario=row[7] if row[7] is not None else None,
+                    CodigoVehiculo=row[8]
+                    ) for row in service_orders]
+    
+    def createServiceOrder(self, FechaEntrada: str, HoraEntrada: str, FechaSalidaEstimada: str, HoraSalidaEstimada: str, CodigoVehiculo: int):
+        try:
+            database.execute("INSERT INTO OrdenServicio (FechaEntrada, HoraEntrada, FechaSalidaEstimada, HoraSalidaEstimada, CodigoVehiculo) VALUES (?, ?, ?, ?, ?)",
+                            (FechaEntrada, HoraEntrada, FechaSalidaEstimada, HoraSalidaEstimada, CodigoVehiculo))
+            conn.commit()
+            return {"message": "Service order created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating service order: {str(e)}")
+    
+    def updateServiceOrder(self, ID: int, FechaSalidaReal: Optional[str], HoraSalidaReal: Optional[str], Comentario: Optional[str]):
+        try:
+            database.execute("SELECT 1 FROM OrdenServicio WHERE ID = ?", (ID,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Service order not found")
+            database.execute(
+                "UPDATE OrdenServicio SET FechaSalidaReal = ?, HoraSalidaReal = ?, Comentario = ? WHERE ID = ?",
+                (FechaSalidaReal, HoraSalidaReal, Comentario, ID)
+            )
+            conn.commit()
+            return {"message": "Service order updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating service order: {str(e)}")
+        
+class InvoiceService:
+
+    def getInvoices(self):
+        database.execute("SELECT * FROM Factura")
+        invoices = database.fetchall()
+        return [Invoice(
+                    NumeroFactura=row[0],
+                    FechaEmision= str(row[1]),
+                    MontoTotal=row[2],
+                    IVA=row[3],
+                    Descuento=row[4],
+                    OrdenServicioID=row[5],
+                    FranquiciaRIF=row[6]
+                ) for row in invoices]
+    
+    def createInvoice(self, FechaEmision: str, MontoTotal: float, IVA: float, Descuento: float, OrdenServicioID: int, FranquiciaRIF: str):
+        try:
+            database.execute("INSERT INTO Factura (FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF) VALUES (?, ?, ?, ?, ?, ?)",
+                            (FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF))
+            conn.commit()
+            return {"message": "Invoice created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating invoice: {str(e)}")
+        
+class PurchaseService:
+
+    def getPurchases(self):
+        database.execute("SELECT * FROM Compra")
+        purchases = database.fetchall()
+        return [Purchase(
+                    Numero=row[0],
+                    Fecha=str(row[1]),
+                    ProveedorRIF=row[2]
+                ) for row in purchases]
+    
+    def createPurchase(self, Fecha: str, ProveedorRIF: str):
+        try:
+            database.execute("INSERT INTO Compra (Fecha, ProveedorRIF) VALUES (?, ?)",
+                            (Fecha, ProveedorRIF))
+            conn.commit()
+            return {"message": "Purchase created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating purchase: {str(e)}")
+        
+class ProductFranchiseService:
+
+    def getProductFranchises(self):
+        database.execute("SELECT * FROM ProductoFranquicia")
+        product_franchises = database.fetchall()
+        return [ProductFranchise(
+                    FranquiciaRIF=row[0],
+                    CodigoProducto=row[1],
+                    Precio=row[2],
+                    Cantidad=row[3],
+                    CantidadMinima=row[4],
+                    CantidadMaxima=row[5],
+                ) for row in product_franchises]
+    
+    def createProductFranchise(self, FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+        try:
+            database.execute("INSERT INTO ProductoFranquicia (FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima) VALUES (?, ?, ?, ?, ?, ?)",
+                            (FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima))
+            conn.commit()
+            return {"message": "Product franchise created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating product franchise: {str(e)}")
+        
+    def deleteProductFranchise(self, FranquiciaRIF: str, CodigoProducto: int):
+        try:
+            database.execute("SELECT 1 FROM ProductoFranquicia WHERE FranquiciaRIF = ? AND CodigoProducto = ?", (FranquiciaRIF, CodigoProducto))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Product franchise not found")
+            database.execute("DELETE FROM ProductoFranquicia WHERE FranquiciaRIF = ? AND CodigoProducto = ?", (FranquiciaRIF, CodigoProducto))
+            conn.commit()
+            return {"message": "Product franchise deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting product franchise: {str(e)}")
+        
+    def updateProductFranchise(self, FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+        try:
+            database.execute("SELECT 1 FROM ProductoFranquicia WHERE FranquiciaRIF = ? AND CodigoProducto = ?", (FranquiciaRIF, CodigoProducto))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Product franchise not found")
+            database.execute(
+                "UPDATE ProductoFranquicia SET Precio = ?, Cantidad = ?, CantidadMinima = ?, CantidadMaxima = ? WHERE FranquiciaRIF = ? AND CodigoProducto = ?",
+                (Precio, Cantidad, CantidadMinima, CantidadMaxima, FranquiciaRIF, CodigoProducto)
+            )
+            conn.commit()
+            return {"message": "Product franchise updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating product franchise: {str(e)}")
+    
+    
+    

@@ -44,7 +44,7 @@ class EmployeeController:
     def get_employees(self):
         return self.employee_service.getEmployees()
     
-    def create_employee(self, CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
+    def create_employee(self, CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: Optional[str]):
         try:
             if not (0 <= len(CI) <= 10):
                 raise HTTPException(status_code=400, detail="CI must be between 0 and 10 characters")
@@ -54,10 +54,11 @@ class EmployeeController:
                 raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
             if not(0 <= len(Telefono) <= 12):
                 raise HTTPException(status_code=400, detail="Phone number must be between 0 and 15 characters")
-            if not (0 <= Salario <= 1000000):
+            if not (0 <= Salario00):
                 raise HTTPException(status_code=400, detail="Salary must be between 0 and 1,000,000")
-            if not (len(FranquiciaRIF) == 12):
-                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if FranquiciaRIF is not None:
+                if not (len(FranquiciaRIF) == 12):
+                    raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
             return self.employee_service.createEmployee(CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
@@ -80,7 +81,7 @@ class EmployeeController:
                 raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
             if not(0 <= len(Telefono) <= 12):
                 raise HTTPException(status_code=400, detail="Phone number must be between 0 and 15 characters")
-            if not (0 <= Salario <= 1000000):
+            if not (0 <= Salario00):
                 raise HTTPException(status_code=400, detail="Salary must be between 0 and 1,000,000")
             if not (len(FranquiciaRIF) == 12):
                 raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
@@ -105,16 +106,16 @@ class BrandController:
         
     def delete_brand(self, CodigoMarca: int):
         try:
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Brand code must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
             return self.brand_service.deleteBrand(CodigoMarca)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
     def update_brand(self, CodigoMarca: int, Nombre: str):
         try:
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Brand code must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
             if not(0 <= len(Nombre) <= 50):
                 raise HTTPException(status_code=400, detail="Name must be between 0 and 50 characters")
             return self.brand_service.updateBrand(CodigoMarca, Nombre)
@@ -130,10 +131,10 @@ class ModelController:
     
     def create_model(self, CodigoMarca: int, NumeroCorrelativoModelo: int, DescripcionModelo: str, CantidadPuestos: int, TipoRefrigerante: str, TipoGasolina: str, TipoAceite: str, Peso: float):
         try:
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Brand code must be between 0 and 10,000")
-            if not (0 <= NumeroCorrelativoModelo <= 10000):
-                raise HTTPException(status_code=400, detail="Model serial number must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
+            if not (0 <= NumeroCorrelativoModelo):
+                raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
             if not(0 <= len(DescripcionModelo) <= 100):
                 raise HTTPException(status_code=400, detail="Description must be between 0 and 100 characters")
             if not (1 <= CantidadPuestos <= 50):
@@ -152,20 +153,20 @@ class ModelController:
         
     def delete_model(self, CodigoMarca: int, NumeroCorrelativoModelo: int):
         try:
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Model code must be between 0 and 10,000")
-            if not (0 <= NumeroCorrelativoModelo <= 10000):
-                raise HTTPException(status_code=400, detail="Model serial number must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Model code must be a positive integer")
+            if not (0 <= NumeroCorrelativoModelo):
+                raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
             return self.model_service.deleteModel(CodigoMarca, NumeroCorrelativoModelo)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     def update_model(self, CodigoMarca: int, NumeroCorrelativoModelo: int, DescripcionModelo: str, CantidadPuestos: int, TipoRefrigerante: str, TipoGasolina: str, TipoAceite: str, Peso: float):
         try:
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Model code must be between 0 and 10,000")
-            if not (0 <= NumeroCorrelativoModelo <= 10000):
-                raise HTTPException(status_code=400, detail="Model serial number must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Model code must be a positive integer")
+            if not (0 <= NumeroCorrelativoModelo):
+                raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
             if not(0 <= len(DescripcionModelo) <= 100):
                 raise HTTPException(status_code=400, detail="Description must be between 0 and 100 characters")
             if not (1 <= CantidadPuestos <= 50):
@@ -197,36 +198,36 @@ class VehicleController:
                 raise HTTPException(status_code=400, detail="Oil type must be between 0 and 50 characters")
             if not (0 <= len(CI_Propietario) <= 10):
                 raise HTTPException(status_code=400, detail="Owner CI must be between 0 and 10 characters")
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Brand code must be between 0 and 10,000")
-            if not (0 <= NumeroCorrelativoModelo <= 10000):
-                raise HTTPException(status_code=400, detail="Model serial number must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
+            if not (0 <= NumeroCorrelativoModelo):
+                raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
             return self.vehicle_service.createVehicle(CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
     def delete_vehicle(self, CodigoVehiculo: int):
         try:
-            if not (0 <= CodigoVehiculo <= 10000):
-                raise HTTPException(status_code=400, detail="Vehicle code must be between 0 and 10,000")
+            if not (0 <= CodigoVehiculo):
+                raise HTTPException(status_code=400, detail="Vehicle code must be a positive integer")
             return self.vehicle_service.deleteVehicle(CodigoVehiculo)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
     def update_vehicle(self, CodigoVehiculo: int, CodigoMarca:int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
         try:
-            if not (0 <= CodigoVehiculo <= 10000):
-                raise HTTPException(status_code=400, detail="Vehicle code must be between 0 and 10,000")
+            if not (0 <= CodigoVehiculo):
+                raise HTTPException(status_code=400, detail="Vehicle code must be a positive integer")
             if not (len(Placa) == 7):
                 raise HTTPException(status_code=400, detail="Plate number must be between 0 and 10 characters")
             if not (0 <= len(TipoAceite) <= 50):
                 raise HTTPException(status_code=400, detail="Oil type must be between 0 and 50 characters")
             if not (0 <= len(CI_Propietario) <= 10):
                 raise HTTPException(status_code=400, detail="Owner CI must be between 0 and 10 characters")
-            if not (0 <= CodigoMarca <= 10000):
-                raise HTTPException(status_code=400, detail="Brand code must be between 0 and 10,000")
-            if not (0 <= NumeroCorrelativoModelo <= 10000):
-                raise HTTPException(status_code=400, detail="Model serial number must be between 0 and 10,000")
+            if not (0 <= CodigoMarca):
+                raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
+            if not (0 <= NumeroCorrelativoModelo):
+                raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
             return self.vehicle_service.updateVehicle(CodigoVehiculo, CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
@@ -267,5 +268,319 @@ class CustomerController:
             if not(0 <= len(Email) <= 50 and "@" in Email):
                 raise HTTPException(status_code=400, detail="Email must be between 0 and 50 characters and contain '@'")
             return self.customer_service.updateCustomer(CI, NombreCompleto, Email)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+
+class ServiceController:
+
+    def __init__(self):
+        self.service_service = ServiceService()
+
+    def get_services(self):
+        return self.service_service.getServices()
+    
+    def create_service(self, NombreServicio: str):
+        try:
+            if not(0 <= len(NombreServicio) <= 50):
+                raise HTTPException(status_code=400, detail="Service name must be between 0 and 50 characters")
+            return self.service_service.createService(NombreServicio)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_service(self, CodigoServicio: int):
+        try:
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            return self.service_service.deleteService(CodigoServicio)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_service(self, CodigoServicio: int, NombreServicio: str):
+        try:
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            if not(0 <= len(NombreServicio) <= 50):
+                raise HTTPException(status_code=400, detail="Service name must be between 0 and 50 characters")
+            return self.service_service.updateService(CodigoServicio, NombreServicio)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class SupplierLineController:
+
+    def __init__(self):
+        self.supplier_line_service = SupplierLineService()
+
+    def get_supplier_lines(self):
+        return self.supplier_line_service.getSupplierLines()
+    
+    def create_supplier_line(self, DescripcionLinea: str):
+        try:
+            if not(0 <= len(DescripcionLinea) <= 100):
+                raise HTTPException(status_code=400, detail="Supplier line description must be between 0 and 100 characters")
+            return self.supplier_line_service.createSupplierLine(DescripcionLinea)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_supplier_line(self, CodigoLinea: int):
+        try:
+            if not (0 <= CodigoLinea):
+                raise HTTPException(status_code=400, detail="Supplier line code must be a positive integer")
+            return self.supplier_line_service.deleteSupplierLine(CodigoLinea)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_supplier_line(self, CodigoLinea: int, DescripcionLinea: str):
+        try:
+            if not (0 <= CodigoLinea):
+                raise HTTPException(status_code=400, detail="Supplier line code must be a positive integer")
+            if not(0 <= len(DescripcionLinea) <= 100):
+                raise HTTPException(status_code=400, detail="Supplier line description must be between 0 and 100 characters")
+            return self.supplier_line_service.updateSupplierLine(CodigoLinea, DescripcionLinea)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class ProductController:
+
+    def __init__(self):
+        self.product_service = ProductService()
+
+    def get_products(self):
+        return self.product_service.getProducts()
+    
+    def create_product(self, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int], Tratamiento: Optional[str]):
+        try:
+            if not(0 <= len(NombreProducto) <= 50):
+                raise HTTPException(status_code=400, detail="Product name must be between 0 and 50 characters")
+            if not(0 <= len(DescripcionProducto) <= 100):
+                raise HTTPException(status_code=400, detail="Product description must be between 0 and 100 characters")
+            if not (0 <= LineaSuministro):
+                raise HTTPException(status_code=400, detail="Supplier line code must be a positive integer")
+            if not(0 <= len(Tipo) <= 50):
+                raise HTTPException(status_code=400, detail="Product type must be between 0 and 50 characters")
+            if not (NivelContaminante is None):
+                if not(1 <= NivelContaminante <= 5) and NivelContaminante is not None:
+                    raise HTTPException(status_code=400, detail="Pollution level must be between 1 and 5 or null")
+                if not(0 <= len(Tratamiento) <= 100) and Tratamiento is not None:
+                    raise HTTPException(status_code=400, detail="Product treatment must be between 0 and 100 characters or null")
+            return self.product_service.createProduct(NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_product(self, CodigoProducto: int):
+        try:
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            return self.product_service.deleteProduct(CodigoProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_product(self, CodigoProducto: int, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int], Tratamiento: Optional[str]):
+        try:
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not(0 <= len(NombreProducto) <= 50):
+                raise HTTPException(status_code=400, detail="Product name must be between 0 and 50 characters")
+            if not(0 <= len(DescripcionProducto) <= 100):
+                raise HTTPException(status_code=400, detail="Product description must be between 0 and 100 characters")
+            if not (0 <= LineaSuministro):
+                raise HTTPException(status_code=400, detail="Supplier line code must be a positive integer")
+            if not(0 <= len(Tipo) <= 50):
+                raise HTTPException(status_code=400, detail="Product type must be between 0 and 50 characters")
+            if not (NivelContaminante is None):
+                if not(1 <= NivelContaminante <= 5) and NivelContaminante is not None:
+                    raise HTTPException(status_code=400, detail="Pollution level must be between 1 and 5 or null")
+                if not(0 <= len(Tratamiento) <= 100) and Tratamiento is not None:
+                    raise HTTPException(status_code=400, detail="Product treatment must be between 0 and 100 characters or null")
+                return self.product_service.updateProduct(CodigoProducto, NombreProducto, DescripcionProducto, LineaSuministro, Tipo, NivelContaminante, Tratamiento)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class VendorController:
+
+    def __init__(self):
+        self.vendor_service = VendorService()
+
+    def get_vendors(self):
+        return self.vendor_service.getVendors()
+    
+    def create_vendor(self, RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+        try:
+            if not (len(RIF) == 12):
+                raise HTTPException(status_code=400, detail="RIF must be 12 characters")
+            if not(0 <= len(RazonSocial) <= 50):
+                raise HTTPException(status_code=400, detail="Social reason must be between 0 and 100 characters")
+            if not(0 <= len(Direccion) <= 100):
+                raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
+            if not(len(TelefonoLocal) == 12):
+                raise HTTPException(status_code=400, detail="Local phone number must be 12 characters")
+            if not(len(TelefonoCelular) == 12):
+                raise HTTPException(status_code=400, detail="Cell phone number must be 12 characters")
+            if not(0 <= len(PersonaContacto) <= 50 and "@" in PersonaContacto):
+                raise HTTPException(status_code=400, detail="Email must be between 0 and 50 characters and contain '@'")
+            return self.vendor_service.createVendor(RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_vendor(self, RIF: str):
+        try:
+            if not (len(RIF) == 12):
+                raise HTTPException(status_code=400, detail="RIF must be 12 characters")
+            return self.vendor_service.deleteVendor(RIF)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+    def update_vendor(self, RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+        try:
+            if not (len(RIF) == 12):
+                raise HTTPException(status_code=400, detail="RIF must be 12 characters")
+            if not(0 <= len(RazonSocial) <= 50):
+                raise HTTPException(status_code=400, detail="Social reason must be between 0 and 100 characters")
+            if not(0 <= len(Direccion) <= 100):
+                raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
+            if not(len(TelefonoLocal) == 12):
+                raise HTTPException(status_code=400, detail="Local phone number must be 12 characters")
+            if not(len(TelefonoCelular) == 12):
+                raise HTTPException(status_code=400, detail="Cell phone number must be 12 characters")
+            if not(0 <= len(PersonaContacto) <= 50):
+                raise HTTPException(status_code=400, detail="Email must be between 0 and 50 characters and contain '@'")
+            return self.vendor_service.updateVendor(RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class ServiceOrderController:
+
+    def __init__(self):
+        self.service_order_service = ServiceOrderService()
+
+    def get_service_orders(self):
+        return self.service_order_service.getServiceOrders()
+    
+    def create_service_order(self, FechaEntrada: str, HoraEntrada: str, FechaSalidaEstimada: str, HoraSalidaEstimada: str, CodigoVehiculo: int):
+        try:
+            if not(0 <= len(FechaEntrada) <= 10):
+                raise HTTPException(status_code=400, detail="Entry date must be in format YYYY-MM-DD")
+            if not(0 <= len(HoraEntrada) <= 5):
+                raise HTTPException(status_code=400, detail="Entry time must be in format HH:MM")
+            if not(0 <= len(FechaSalidaEstimada) <= 10):
+                raise HTTPException(status_code=400, detail="Estimated exit date must be in format YYYY-MM-DD")
+            if not(0 <= len(HoraSalidaEstimada) <= 5):
+                raise HTTPException(status_code=400, detail="Estimated exit time must be in format HH:MM")
+            if not (0 <= CodigoVehiculo):
+                raise HTTPException(status_code=400, detail="Vehicle code must be a positive integer")
+            return self.service_order_service.createServiceOrder(FechaEntrada, HoraEntrada, FechaSalidaEstimada, HoraSalidaEstimada, CodigoVehiculo)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_service_order(self, ID: int, FechaSalidaReal: Optional[str], HoraSalidaReal: Optional[str], Comentario: Optional[str]):
+        try:
+            if not (0 <= ID):
+                raise HTTPException(status_code=400, detail="Service order ID must be a positive integer")
+            if FechaSalidaReal is not None and not(0 <= len(FechaSalidaReal) <= 10):
+                raise HTTPException(status_code=400, detail="Exit date must be in format YYYY-MM-DD")
+            if HoraSalidaReal is not None and not(0 <= len(HoraSalidaReal) <= 5):
+                raise HTTPException(status_code=400, detail="Exit time must be in format HH:MM")
+            if Comentario is not None and not(0 <= len(Comentario) <= 200):
+                raise HTTPException(status_code=400, detail="Comment must be between 0 and 200 characters")
+            return self.service_order_service.updateServiceOrder(ID, FechaSalidaReal, HoraSalidaReal, Comentario)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class InvoiceController:
+
+    def __init__(self):
+        self.invoice_service = InvoiceService()
+
+    def get_invoices(self):
+        return self.invoice_service.getInvoices()
+
+    def create_invoice(self, FechaEmision: str, MontoTotal: float, IVA: float, Descuento: float, OrdenServicioID: int, FranquiciaRIF: str):
+        try:
+            if not(0 <= len(FechaEmision) <= 10):
+                raise HTTPException(status_code=400, detail="Issue date must be in format YYYY-MM-DD")
+            if not (0 <= MontoTotal):
+                raise HTTPException(status_code=400, detail="Total amount must be a positive number")
+            if not (0 <= IVA):
+                raise HTTPException(status_code=400, detail="VAT amount must be a positive number")
+            if not (0 <= Descuento):
+                raise HTTPException(status_code=400, detail="Discount amount must be a positive number")
+            if not (0 <= OrdenServicioID):
+                raise HTTPException(status_code=400, detail="Service order ID must be a positive integer")
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            return self.invoice_service.createInvoice(FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+        
+class PurchaseController:
+
+    def __init__(self):
+        self.purchase_service = PurchaseService()
+
+    def get_purchases(self):
+        return self.purchase_service.getPurchases()
+    
+    def create_purchase(self, Fecha: str, ProveedorRIF: str):
+        try:
+            if not(0 <= len(Fecha) <= 10):
+                raise HTTPException(status_code=400, detail="Date must be in format YYYY-MM-DD")
+            if not (len(ProveedorRIF) == 12):
+                raise HTTPException(status_code=400, detail="Provider RIF must be 12 characters")
+            return self.purchase_service.createPurchase(Fecha, ProveedorRIF)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class ProductFranchiseController:
+
+    def __init__(self):
+        self.product_franchise_service = ProductFranchiseService()
+
+    def get_product_franchises(self):
+        return self.product_franchise_service.getProductFranchises()
+
+    def create_product_franchise(self, FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not (0 <= Precio):
+                raise HTTPException(status_code=400, detail="Price must be a positive number")
+            if not (0 <= Cantidad):
+                raise HTTPException(status_code=400, detail="Quantity must be a positive integer")
+            if not (0 <= CantidadMinima <= CantidadMaxima):
+                raise HTTPException(status_code=400, detail="Minimum quantity must be less than or equal to maximum quantity")
+            if not (0 <= CantidadMaxima):
+                raise HTTPException(status_code=400, detail="Maximum quantity must be a positive integer")
+            return self.product_franchise_service.createProductFranchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_product_franchise(self, FranquiciaRIF: str, CodigoProducto: int):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            return self.product_franchise_service.deleteProductFranchise(FranquiciaRIF, CodigoProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_product_franchise(self, FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not (0 <= Precio):
+                raise HTTPException(status_code=400, detail="Price must be a positive number")
+            if not (0 <= Cantidad):
+                raise HTTPException(status_code=400, detail="Quantity must be a positive integer")
+            if not (0 <= CantidadMinima <= CantidadMaxima):
+                raise HTTPException(status_code=400, detail="Minimum quantity must be less than or equal to maximum quantity")
+            if not (0 <= CantidadMaxima):
+                raise HTTPException(status_code=400, detail="Maximum quantity must be a positive integer")
+            return self.product_franchise_service.updateProductFranchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
