@@ -271,6 +271,104 @@ class CustomerController:
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
+class MaintenancePlanController:
+    def __init__(self):
+        self.maintenance_plan_service = MaintenancePlanService()
+        
+    def get_MaintenancePlan(self):
+        return self.maintenance_plan_service.getMaintenancePlan()
+    
+    def create_MaintenancePlan(self, 
+                TiempoUso: int, 
+                Kilometraje: int,
+                DescripcionMantenimiento: str,
+                CodigoMarca: int,
+                NumeroCorrelativoModelo: int):
+        try:
+            if not (TiempoUso >= 0):
+                raise HTTPException(status_code=400, detail="TiempoUso debe mayor a 0")
+            if not(Kilometraje >= 0):
+                raise HTTPException(status_code=400, detail="Kilometraje debe ser mayor a 0")
+            if not(0 <= len(DescripcionMantenimiento) <= 100):
+                raise HTTPException(status_code=400, detail="DescripcionMantenimiento must be between 0 and 100 characters ")
+            return self.maintenance_plan_service.createMaintenancePlan(
+                TiempoUso, 
+                Kilometraje,
+                DescripcionMantenimiento,
+                CodigoMarca,
+                NumeroCorrelativoModelo)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_MaintenancePlan(self, CodigoMantenimiento: str):
+        try:
+            if not (0 <= CodigoMantenimiento):
+                raise HTTPException(status_code=400, detail="CodigoMantenimiento debe ser mayor o igual a 0")
+            return self.maintenance_plan_service.deleteMaintenancePlan(CodigoMantenimiento)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_MaintenancePlan(self, 
+                CodigoMantenimiento: int,
+                TiempoUso: int,
+                Kilometraje: int,
+                DescripcionMantenimiento: str,
+                CodigoMarca: int,
+                NumeroCorrelativoModelo: int):
+        try:
+            if not (0 <= CodigoMantenimiento):
+                raise HTTPException(status_code=400, detail="CodigoMantenimiento debe ser mayor o igual a 0")
+            if not (TiempoUso >= 0):
+                raise HTTPException(status_code=400, detail="TiempoUso debe mayor a 0")
+            if not(Kilometraje >= 0):
+                raise HTTPException(status_code=400, detail="Kilometraje debe ser mayor a 0")
+            if not(0 <= len(DescripcionMantenimiento) <= 100):
+                raise HTTPException(status_code=400, detail="DescripcionMantenimiento must be between 0 and 100 characters ")
+            return self.maintenance_plan_service.updateMaintenancePlan(
+                CodigoMantenimiento,
+                TiempoUso,
+                Kilometraje,
+                DescripcionMantenimiento,
+                CodigoMarca,
+                NumeroCorrelativoModelo)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+   
+class SpecialtyController:
+    def __init__(self):
+        self.specialty_service = SpecialtyService()
+
+    def get_specialties(self):
+        return self.specialty_service.getSpecialties()
+
+    def create_specialty(self, DescripcionEspecialidad: str):
+        try:
+            if not(0 < len(DescripcionEspecialidad) <= 50):
+                raise HTTPException(status_code=400, detail="La descripción debe tener entre 1 y 50 caracteres")
+            return self.specialty_service.createSpecialty(DescripcionEspecialidad)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+    def delete_specialty(self, CodigoEspecialidad: int):
+        try:
+            if not (0 <= CodigoEspecialidad):
+                raise HTTPException(status_code=400, detail="El código debe ser mayor o igual a 0")
+            return self.specialty_service.deleteSpecialty(CodigoEspecialidad)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+    def update_specialty(self, CodigoEspecialidad: int, DescripcionEspecialidad: str):
+        try:
+            if not (0 <= CodigoEspecialidad):
+                raise HTTPException(status_code=400, detail="El código debe ser mayor o igual a 0")
+            if not(0 < len(DescripcionEspecialidad) <= 50):
+                raise HTTPException(status_code=400, detail="La descripción debe tener entre 1 y 50 caracteres")
+            return self.specialty_service.updateSpecialty(CodigoEspecialidad, DescripcionEspecialidad)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    
+        
 
 class ServiceController:
 

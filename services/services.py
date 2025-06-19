@@ -291,6 +291,122 @@ class CustomerService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating customer: {str(e)}")
         
+class MaintenancePlanService:
+    def getMaintenancePlan(self):
+        database.execute("SELECT * FROM PlanMantenimiento")
+        maintenancePlan = database.fetchall()
+        return [MaintenancePlan(
+                CodigoMantenimiento=row[0], 
+                TiempoUso=row[1], 
+                Kilometraje=row[2],
+                DescripcionMantenimiento=row[3],
+                CodigoMarca=row[4],
+                NumeroCorrelativoModelo=row[5],              
+            ) for row in maintenancePlan]
+    
+    def createMaintenancePlan(
+                self,
+                TiempoUso: int, 
+                Kilometraje: int,
+                DescripcionMantenimiento: str,
+                CodigoMarca: int,
+                NumeroCorrelativoModelo: int ):
+        try:
+            database.execute("INSERT INTO PlanMantenimiento (TiempoUso ,Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo) VALUES (?, ?, ?, ?, ?)",
+                            (TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo))
+            conn.commit()
+            return {"message": "Maintenance plan created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating Maintenance plan: {str(e)}")
+    
+    def deleteMaintenancePlan(self, CodigoMantenimiento: int):
+        try:
+            database.execute("SELECT 1 FROM PlanMantenimiento WHERE CodigoMantenimiento = ?", (CodigoMantenimiento,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Maintenance Plan not found")
+            database.execute("DELETE FROM PlanMantenimiento WHERE CodigoMantenimiento = ?", (CodigoMantenimiento,))
+            conn.commit()
+            return {"message": "Maintenance Plan deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting Maintenance Plan: {str(e)}") 
+        
+    def updateMaintenancePlan(self, 
+                CodigoMantenimiento: int, 
+                TiempoUso: int, 
+                Kilometraje: int,
+                DescripcionMantenimiento: str,
+                CodigoMarca: int,
+                NumeroCorrelativoModelo: int ):
+        try:
+            database.execute("SELECT 1 FROM PlanMantenimiento WHERE CodigoMantenimiento = ?", (CodigoMantenimiento,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Maintenance Plan not found")
+            database.execute(
+                "UPDATE PlanMantenimiento SET TiempoUso = ?, Kilometraje = ?, DescripcionMantenimiento = ?, CodigoMarca = ?, NumeroCorrelativoModelo = ? WHERE CodigoMantenimiento = ?",
+                (TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo, CodigoMantenimiento)
+            )
+            conn.commit()
+            return {"message": "Maintenance Plan updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating Maintenance Plan: {str(e)}")
+            
+class SpecialtyService:
+    def getSpecialties(self):
+        database.execute("SELECT * FROM Especialidad")
+        specialties = database.fetchall()
+        return [Specialty(
+            CodigoEspecialidad=row[0],
+            DescripcionEspecialidad=row[1],
+        ) for row in specialties]
+
+    def createSpecialty(self, DescripcionEspecialidad: str):
+        try:
+            database.execute(
+                "INSERT INTO Especialidad (DescripcionEspecialidad) VALUES (?)",
+                (DescripcionEspecialidad)
+            )
+            conn.commit()
+            return {"message": "Especialidad creada exitosamente"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error al crear especialidad: {str(e)}")
+
+    def deleteSpecialty(self, CodigoEspecialidad: int):
+        try:
+            database.execute("SELECT 1 FROM Especialidad WHERE CodigoEspecialidad = ?", (CodigoEspecialidad,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Especialidad no encontrada")
+            database.execute("DELETE FROM Especialidad WHERE CodigoEspecialidad = ?", (CodigoEspecialidad,))
+            conn.commit()
+            return {"message": "Especialidad eliminada exitosamente"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error al eliminar especialidad: {str(e)}")
+
+    def updateSpecialty(self, CodigoEspecialidad: int, DescripcionEspecialidad: str):
+        try:
+            database.execute("SELECT 1 FROM Especialidad WHERE CodigoEspecialidad = ?", (CodigoEspecialidad,))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Especialidad no encontrada")
+            database.execute(
+                "UPDATE Especialidad SET DescripcionEspecialidad = ? WHERE CodigoEspecialidad = ?",
+                (DescripcionEspecialidad, CodigoEspecialidad)
+            )
+            conn.commit()
+            return {"message": "Especialidad actualizada exitosamente"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error al actualizar especialidad: {str(e)}")
+
+  
+        
 class ServiceService:
 
     def getServices(self):

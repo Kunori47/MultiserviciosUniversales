@@ -30,6 +30,16 @@
     },
 
     {
+        "name":"Plan de Mantenimiento",
+        "description": "Operaciones con Plan de Mantenimiento"
+    },
+
+    {
+        "name":"Especialidad",
+        "description": "Operaciones con Especialidad"
+    },
+
+    {
         "name": "Servicio",
         "description": "Operaciones con Servicio"
     },

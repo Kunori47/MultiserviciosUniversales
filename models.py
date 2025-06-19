@@ -45,6 +45,18 @@ class Customer(BaseModel):
     CI: str = Field(..., description="The unique identifier of the customer")
     NombreCompleto: str = Field(..., description="The name of the customer")
     Email: str = Field(..., description="The email address of the customer")
+    
+class MaintenancePlan(BaseModel):
+    CodigoMantenimiento: int = Field(..., description="The unique identifier of the maintenance plan")
+    TiempoUso: int = Field(..., description="The vehicle usage time")
+    Kilometraje: int = Field(..., description="The vehicle mileage" )
+    DescripcionMantenimiento: str = Field(..., description="Maintenance description")
+    CodigoMarca: int = Field(..., description="The brand code of the vehicle")
+    NumeroCorrelativoModelo: int = Field(..., description="The model serial number of the vehicle")
+    
+class Specialty(BaseModel):
+    CodigoEspecialidad: int = Field(..., description="The unique identifier of the specialty")
+    DescripcionEspecialidad: str = Field(..., description="The description of the specialty") 
 
 class Service(BaseModel):
     CodigoServicio: int = Field(..., description="The unique identifier for the service")
