@@ -802,3 +802,163 @@ class OrderActivityService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error creating OrderxActivity: {str(e)}")
     
+
+class CorrectionService:
+
+    def getCorrections(self):
+        database.execute("SELECT * FROM Correccion")
+        corrections = database.fetchall()
+        return [Correction(
+                    FranquiciaRIF=row[0],
+                    CodigoProducto=row[1],
+                    FechaCorreccion=str(row[2]),
+                    Cantidad=row[3],
+                    TipoAjuste=row[4],
+                    Comentario=row[5] if row[5] is not None else None
+                ) for row in corrections]
+    
+    def createCorrection(self, FranquiciaRIF: str, CodigoProducto: int, FechaCorreccion: str, Cantidad: int, TipoAjuste: str, Comentario: Optional[str]):
+        try:
+            database.execute("INSERT INTO Correccion (FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario) VALUES (?, ?, ?, ?, ?, ?)",
+                            (FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario))
+            conn.commit()
+            return {"message": "Correction created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating correction: {str(e)}")
+        
+class SupplyService:
+
+    def getSupplies(self):
+        database.execute("SELECT * FROM Suministran")
+        supplies = database.fetchall()
+        return [Supply(
+                    ProveedorRIF=row[0],
+                    CodigoProducto=row[1]
+                ) for row in supplies]
+    
+    def createSupply(self, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            database.execute("INSERT INTO Suministran (ProveedorRIF, CodigoProducto) VALUES (?, ?)",
+                            (ProveedorRIF, CodigoProducto))
+            conn.commit()
+            return {"message": "Supply created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating supply: {str(e)}")
+        
+    def deleteSupply(self, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            database.execute("SELECT 1 FROM Suministran WHERE ProveedorRIF = ? AND CodigoProducto = ?", (ProveedorRIF, CodigoProducto))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Supply not found")
+            database.execute("DELETE FROM Suministran WHERE ProveedorRIF = ? AND CodigoProducto = ?", (ProveedorRIF, CodigoProducto))
+            conn.commit()
+            return {"message": "Supply deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting supply: {str(e)}")
+        
+    def updateSupply(self, NuevoProveedorRIF: str, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            database.execute("SELECT 1 FROM Suministran WHERE ProveedorRIF = ? AND CodigoProducto = ?", (ProveedorRIF, CodigoProducto))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Supply not found")
+            database.execute(
+                "UPDATE Suministran SET ProveedorRIF = ? WHERE ProveedorRIF = ? AND CodigoProducto = ?",
+                (NuevoProveedorRIF, ProveedorRIF, CodigoProducto)
+            )
+            conn.commit()
+            return {"message": "Supply updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating supply: {str(e)}")
+            
+
+class InventoryIncreaseService:
+
+    def getInventoryIncreases(self):
+        database.execute("SELECT * FROM AumentoInventario")
+        increase_inventory = database.fetchall()
+        return [InventoryIncrease(
+                    NumeroCompra=row[0],
+                    FranquiciaRIF=row[1],
+                    CodigoProducto=row[2],
+                    CantidadPedida=row[3],
+                    CantidadDisponible=row[4],
+                    Monto= row[5]
+                ) for row in increase_inventory]
+    
+    def createInventoryIncrease(self, NumeroCompra: int, FranquiciaRIF: str, CodigoProducto: int, CantidadPedida: int, CantidadDisponible: int, Monto: float):
+        try:
+            database.execute("INSERT INTO AumentoInventario (NumeroCompra, FranquiciaRIF, CodigoProducto, CantidadPedida, CantidadDisponible, Monto) VALUES (?, ?, ?, ?, ?, ?)",
+                            (NumeroCompra, FranquiciaRIF, CodigoProducto, CantidadPedida, CantidadDisponible, Monto))
+            conn.commit()
+            return {"message": "Increase inventory created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating increase inventory: {str(e)}")
+
+
+class FranchiseServiceServices:
+
+    def getFranchiseServices(self):
+        database.execute("SELECT * FROM ServiciosFranquicia")
+        franchise_services = database.fetchall()
+        return [FranchiseServices(
+                    FranquiciaRIF=row[0],
+                    CodigoServicio=row[1]
+                ) for row in franchise_services]
+    
+    def createFranchiseService(self, FranquiciaRIF: str, CodigoServicio: int):
+        try:
+            database.execute("INSERT INTO ServiciosFranquicia (FranquiciaRIF, CodigoServicio) VALUES (?, ?)",
+                            (FranquiciaRIF, CodigoServicio))
+            conn.commit()
+            return {"message": "Franchise service created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating franchise service: {str(e)}")
+        
+    def deleteFranchiseService(self, FranquiciaRIF: str, CodigoServicio: int):
+        try:
+            database.execute("SELECT 1 FROM ServiciosFranquicia WHERE FranquiciaRIF = ? AND CodigoServicio = ?", (FranquiciaRIF, CodigoServicio))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Franchise service not found")
+            database.execute("DELETE FROM ServiciosFranquicia WHERE FranquiciaRIF = ? AND CodigoServicio = ?", (FranquiciaRIF, CodigoServicio))
+            conn.commit()
+            return {"message": "Franchise service deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting franchise service: {str(e)}")
+        
+class ProductServiceOrderServices:
+
+    def getProductServiceOrders(self):
+        database.execute("SELECT * FROM ProductosOrdenServicio")
+        product_orders = database.fetchall()
+        return [ProductServiceOrder(
+                    CodigoOrdenServicio=row[0],
+                    CodigoServicio=row[1],
+                    NumeroCorrelativoActividad=row[2],
+                    FranquiciaRIF=row[3],
+                    CodigoProducto=row[4],
+                    CantidadUtilizada=row[5],
+                    PrecioProducto=row[6]
+                ) for row in product_orders]
+    
+    def createProductServiceOrder(self, CodigoOrdenServicio: int, CodigoServicio: int, NumeroCorrelativoActividad: int, FranquiciaRIF: str, CodigoProducto: int, CantidadUtilizada: int, PrecioProducto: float):
+        try:
+            database.execute("INSERT INTO ProductosOrdenServicio (CodigoOrdenServicio, CodigoServicio, NumeroCorrelativoActividad, FranquiciaRIF, CodigoProducto, CantidadUtilizada, PrecioProducto) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            (CodigoOrdenServicio, CodigoServicio, NumeroCorrelativoActividad, FranquiciaRIF, CodigoProducto, CantidadUtilizada, PrecioProducto))
+            conn.commit()
+            return {"message": "Product order created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating product order: {str(e)}")
+        
+
+    

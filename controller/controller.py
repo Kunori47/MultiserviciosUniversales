@@ -54,7 +54,7 @@ class EmployeeController:
                 raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
             if not(0 <= len(Telefono) <= 12):
                 raise HTTPException(status_code=400, detail="Phone number must be between 0 and 15 characters")
-            if not (0 <= Salario00):
+            if not (0 <= Salario):
                 raise HTTPException(status_code=400, detail="Salary must be between 0 and 1,000,000")
             if FranquiciaRIF is not None:
                 if not (len(FranquiciaRIF) == 12):
@@ -81,7 +81,7 @@ class EmployeeController:
                 raise HTTPException(status_code=400, detail="Address must be between 0 and 100 characters")
             if not(0 <= len(Telefono) <= 12):
                 raise HTTPException(status_code=400, detail="Phone number must be between 0 and 15 characters")
-            if not (0 <= Salario00):
+            if not (0 <= Salario):
                 raise HTTPException(status_code=400, detail="Salary must be between 0 and 1,000,000")
             if not (len(FranquiciaRIF) == 12):
                 raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
@@ -736,3 +736,155 @@ class OrderxActivityController:
             return self.order_activity_service.createOrderActivity(ID, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class CorrectionController:
+
+    def __init__(self):
+        self.correction_service = CorrectionService()
+
+    def get_corrections(self):
+        return self.correction_service.getCorrections()
+    
+    def create_correction(self, FranquiciaRIF: str, CodigoProducto: int, FechaCorreccion: str, Cantidad: int, TipoAjuste: str, Comentario: Optional[str]):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not(0 <= len(FechaCorreccion) <= 10):
+                raise HTTPException(status_code=400, detail="Correction date must be in format YYYY-MM-DD")
+            if not (0 <= Cantidad):
+                raise HTTPException(status_code=400, detail="Quantity must be a positive integer")
+            if not(0 <= len(TipoAjuste) <= 50):
+                raise HTTPException(status_code=400, detail="Adjustment type must be between 0 and 50 characters")
+            if Comentario is not None and not(0 <= len(Comentario) <= 200):
+                raise HTTPException(status_code=400, detail="Comment must be between 0 and 200 characters")
+            return self.correction_service.createCorrection(FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class SupplyController:
+
+    def __init__(self):
+        self.supply_service = SupplyService()
+
+    def get_supplies(self):
+        return self.supply_service.getSupplies()
+    
+    def create_supply(self, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            if not (len(ProveedorRIF) == 12):
+                raise HTTPException(status_code=400, detail="Supplier RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            return self.supply_service.createSupply(ProveedorRIF, CodigoProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_supply(self, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            if not (len(ProveedorRIF) == 12):
+                raise HTTPException(status_code=400, detail="Supplier RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            return self.supply_service.deleteSupply(ProveedorRIF, CodigoProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def update_supply(self, NuevoProveedorRIF: str, ProveedorRIF: str, CodigoProducto: int):
+        try:
+            if not (len(NuevoProveedorRIF) == 12):
+                raise HTTPException(status_code=400, detail="New supplier RIF must be 12 characters")
+            if not (len(ProveedorRIF) == 12):
+                raise HTTPException(status_code=400, detail="Supplier RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            return self.supply_service.updateSupply(NuevoProveedorRIF, ProveedorRIF, CodigoProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+
+class InventoryIncreaseController:
+
+    def __init__(self):
+        self.inventory_increase_service = InventoryIncreaseService()
+
+    def get_inventory_increases(self):
+        return self.inventory_increase_service.getInventoryIncreases()
+    
+    def create_inventory_increase(self, NumeroCompra: int, FranquiciaRIF: str, CodigoProducto: int, CantidadPedida: int, CantidadDisponible: int, Monto: float):
+        try:
+            if not (0 <= NumeroCompra):
+                raise HTTPException(status_code=400, detail="Purchase number must be a positive integer")
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not (0 <= CantidadPedida <= CantidadDisponible):
+                raise HTTPException(status_code=400, detail="Requested quantity must be less than or equal to available quantity")
+            if not (0 <= CantidadDisponible):
+                raise HTTPException(status_code=400, detail="Available quantity must be a positive integer")
+            if not (0 <= Monto):
+                raise HTTPException(status_code=400, detail="Amount must be a positive number")
+            return self.inventory_increase_service.createInventoryIncrease(NumeroCompra, FranquiciaRIF, CodigoProducto, CantidadPedida, CantidadDisponible, Monto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+
+class FranchiseServiceController:
+
+    def __init__(self):
+        self.franchise_service = FranchiseServiceServices()
+
+    def get_franchise_services(self):
+        return self.franchise_service.getFranchiseServices()
+    
+    def create_franchise_services(self, FranquiciaRIF: str, CodigoServicio: int):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            return self.franchise_service.createFranchiseService(FranquiciaRIF, CodigoServicio)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_franchise_services(self, FranquiciaRIF: str, CodigoServicio: int):
+        try:
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            return self.franchise_service.deleteFranchiseService(FranquiciaRIF, CodigoServicio)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class ProductServiceOrderController:
+    def __init__(self):
+        self.product_service_order = ProductServiceOrderServices()
+
+    def get_product_service_orders(self):
+        return self.product_service_order.getProductServiceOrders()
+    
+    def create_product_service_order(self, CodigoOrdenServicio: int, CodigoServicio: int, NumeroCorrelativoActividad: int, FranquiciaRIF: str, CodigoProducto: int, CantidadUtilizada: int, PrecioProducto: float):
+        try:
+            if not (0 <= CodigoOrdenServicio):
+                raise HTTPException(status_code=400, detail="Service order code must be a positive integer")
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            if not (0 <= NumeroCorrelativoActividad):
+                raise HTTPException(status_code=400, detail="Activity serial number must be a positive integer")
+            if not (len(FranquiciaRIF) == 12):
+                raise HTTPException(status_code=400, detail="Franchise RIF must be 12 characters")
+            if not (0 <= CodigoProducto):
+                raise HTTPException(status_code=400, detail="Product code must be a positive integer")
+            if not (0 <= CantidadUtilizada):
+                raise HTTPException(status_code=400, detail="Used quantity must be a positive integer")
+            if not (0 <= PrecioProducto):
+                raise HTTPException(status_code=400, detail="Product price must be a positive number")
+            return self.product_service_order.createProductServiceOrder(CodigoOrdenServicio, CodigoServicio, NumeroCorrelativoActividad, FranquiciaRIF, CodigoProducto, CantidadUtilizada, PrecioProducto)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+
+      

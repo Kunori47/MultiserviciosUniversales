@@ -128,3 +128,36 @@ class OrderxActivity(BaseModel):
     CodigoServicio: int = Field(..., description="The service code associated with the order")
     NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
     Costo_Act: float = Field(..., description="The cost of the activity in the order")
+
+class Correction(BaseModel):
+    FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the correction")
+    CodigoProducto: int = Field(..., description="The product code associated with the correction")
+    FechaCorreccion: str = Field(..., description="The correction date")
+    Cantidad: int = Field(..., description="The quantity of the product in the correction")
+    TipoAjuste: str = Field(..., description="The type of adjustment for the correction")
+    Comentario: Optional[str] = Field(..., description="Comments on the correction")
+
+class Supply(BaseModel):
+    ProveedorRIF: str = Field(..., description="The RIF of the supplier associated with the supply")
+    CodigoProducto: int = Field(..., description="The product code associated with the supply")
+
+class InventoryIncrease(BaseModel):
+    NumeroCompra: int = Field(..., description="The unique identifier for the inventory increase")
+    FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the inventory increase")
+    CodigoProducto: int = Field(..., description="The product code associated with the inventory increase")
+    CantidadPedida: int = Field(..., description="The quantity ordered in the inventory increase")
+    CantidadDisponible: int = Field(..., description="The available quantity in the inventory increase")
+    Monto: float = Field(..., description="The amount of the inventory increase")
+
+class FranchiseServices(BaseModel):
+    FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the service")
+    CodigoServicio: int = Field(..., description="The service code associated with the franchise")
+
+class ProductServiceOrder(BaseModel):
+    CodigoOrdenServicio: int = Field(..., description="The unique identifier for the product order service")
+    CodigoServicio: int = Field(..., description="The service code associated with the product order")
+    NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity in the product order")
+    FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the product order")
+    CodigoProducto: int = Field(..., description="The product code associated with the product order")
+    CantidadUtilizada: int = Field(..., description="The quantity used in the product order")
+    PrecioProducto: float = Field(..., description="The price of the product in the product order")

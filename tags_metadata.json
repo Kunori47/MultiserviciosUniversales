@@ -92,6 +92,31 @@
     {
         "name": "Producto Franquicia",
         "description": "Operaciones con Producto Franquicia"
+    },
+
+    {
+        "name": "Correccion de Inventario",
+        "description": "Operaciones con Correccion de Inventario"
+    },
+
+    {
+        "name": "Suministro",
+        "description": "Operaciones con Suministro"
+    },
+
+    {
+        "name": "Aumento de Inventario",
+        "description": "Operaciones con Aumento Inventario"
+    },
+
+    {
+        "name": "Servicios Franquicia",
+        "description": "Operaciones con Servicios Franquicia"
+    },
+
+    {
+        "name": "Productos Orden Servicio",
+        "description": "Operaciones con Productos Orden Servicio"
     }
 
 ]

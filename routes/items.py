@@ -307,3 +307,67 @@ async def read_orderxactivities():
 @router.post("/orderxactivity/create", tags=["OrdenxActividad"], response_model=dict)
 async def create_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
     return OrderxActivityController().create_order_activity(IDorden, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
+
+
+" Correction Endpoints "
+
+@router.get("/correction", tags=["Correccion de Inventario"], response_model=list[Correction])
+async def read_corrections():
+    return CorrectionController().get_corrections()
+
+@router.post("/correction/create", tags=["Correccion de Inventario"], response_model=dict)
+async def create_correction(FranquiciaRIF: str, CodigoProducto: int, FechaCorreccion: str, Cantidad: int, TipoAjuste: str, Comentario: Optional[str] = None):
+    return CorrectionController().create_correction(FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario)
+
+" Suministro Endpoints "
+
+@router.get("/supply", tags=["Suministro"], response_model=list[Supply])
+async def read_supplies():
+    return SupplyController().get_supplies()
+
+@router.post("/supply/create", tags=["Suministro"], response_model=dict)
+async def create_supply(ProveedorRIF: str, CodigoProducto: int):
+    return SupplyController().create_supply(ProveedorRIF, CodigoProducto)
+
+@router.delete("/supply/delete", tags=["Suministro"], response_model=dict)
+async def delete_supply(ProveedorRIF: str, CodigoProducto: int):
+    return SupplyController().delete_supply(ProveedorRIF, CodigoProducto)
+
+@router.put("/supply/update", tags=["Suministro"], response_model=dict)
+async def update_supply(NuevoProveedorRIF: str, ProveedorRIF: str, CodigoProducto: int):
+    return SupplyController().update_supply(NuevoProveedorRIF, ProveedorRIF, CodigoProducto)
+
+" AumentoInventario Endpoints "
+
+@router.get("/inventory_increase", tags=["Aumento de Inventario"], response_model=list[InventoryIncrease])
+async def read_inventory_increases():
+    return InventoryIncreaseController().get_inventory_increases()
+
+@router.post("/inventory_increase/create", tags=["Aumento de Inventario"], response_model=dict)
+async def create_inventory_increase(NumeroCompra: int, FranquiciaRIF: str, CodigoProducto: int, CantidadPedida: int, CantidadDisponible: int, Monto: float):
+    return InventoryIncreaseController().create_inventory_increase(NumeroCompra, FranquiciaRIF, CodigoProducto, CantidadPedida, CantidadDisponible, Monto)
+
+" Servicios Franquicia Endpoints "
+
+@router.get("/franchise_service", tags=["Servicios Franquicia"], response_model=list[FranchiseServices])
+async def read_franchise_services():
+    return FranchiseServiceController().get_franchise_services()
+
+@router.post("/franchise_service/create", tags=["Servicios Franquicia"], response_model=dict)
+async def create_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
+    return FranchiseServiceController().create_franchise_services(FranquiciaRIF, CodigoServicio)
+
+@router.delete("/franchise_service/delete", tags=["Servicios Franquicia"], response_model=dict)
+async def delete_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
+    return FranchiseServiceController().delete_franchise_services(FranquiciaRIF, CodigoServicio)
+
+
+" Producto Orden de Servicio Endpoints "
+
+@router.get("/product_service_order", tags=["Productos Orden Servicio"], response_model=list[ProductServiceOrder])
+async def read_product_service_orders():
+    return ProductServiceOrderController().get_product_service_orders()
+
+@router.post("/product_service_order/create", tags=["Productos Orden Servicio"], response_model=dict)
+async def create_product_service_order(CodigoOrdenServicio: int, CodigoServicio: int, NumeroCorrelativoActividad: int, FranquiciaRIF: str, CodigoProducto: int, CantidadUtilizada: int, PrecioProducto: float):
+    return ProductServiceOrderController().create_product_service_order(CodigoOrdenServicio, CodigoServicio, NumeroCorrelativoActividad, FranquiciaRIF, CodigoProducto, CantidadUtilizada, PrecioProducto)
