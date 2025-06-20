@@ -405,8 +405,7 @@ class SpecialtyService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error al actualizar especialidad: {str(e)}")
 
-  
-        
+         
 class ServiceService:
 
     def getServices(self):
@@ -745,5 +744,333 @@ class ProductFranchiseService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating product franchise: {str(e)}")
     
-    
-    
+
+class PayService:
+
+    def getPays(self):
+        database.execute("SELECT * FROM Pago")
+        pays = database.fetchall()
+        return [Pay(
+            NumeroFactura=row[0],
+            NumeroCorrelativoPago=row[1],
+            Tipo=row[2],
+            # Convertir a date si no es None. Asumiendo que la DB devuelve un objeto date o un string que se puede convertir.
+            # Si la DB devuelve un string, podrías necesitar date.fromisoformat(row[3])
+            FechaTarjeta=row[3] if isinstance(row[3], date) else (date.fromisoformat(row[3]) if row[3] else None),
+            MontoTarjeta=row[4],
+            BancoTarjeta=row[5],
+            ModalidadTarjeta=row[6],
+            NumeroTarjeta=row[7],
+            MontoEfectivo=row[8],
+            MonedaEfectivo=row[9],
+            FechaPagoMovil=row[10] if isinstance(row[10], date) else (date.fromisoformat(row[10]) if row[10] else None),
+            TelefonoPagoMovil=row[11],
+            ReferenciaPagoMovil=row[12],
+            MontoPagoMovil=row[13],
+        ) for row in pays]
+
+    def createPay(self, pay: Pay):
+        try:
+            # Almacenar fechas como ISO format string (YYYY-MM-DD) si la DB no maneja directamente objetos date de Python
+            # O directamente el objeto date si tu driver de DB (pyodbc) y DB lo soportan
+            fecha_tarjeta_db = pay.FechaTarjeta.isoformat() if pay.FechaTarjeta else None
+            fecha_pago_movil_db = pay.FechaPagoMovil.isoformat() if pay.FechaPagoMovil else None
+
+            database.execute(
+                """
+                INSERT INTO Pago (
+                    NumeroFactura, NumeroCorrelativoPago, Tipo, FechaTarjeta, MontoTarjeta,
+                    BancoTarjeta, ModalidadTarjeta, NumeroTarjeta, MontoEfectivo, MonedaEfectivo,
+                    FechaPagoMovil, TelefonoPagoMovil, ReferenciaPagoMovil, MontoPagoMovil
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    pay.NumeroFactura, pay.NumeroCorrelativoPago, pay.Tipo, fecha_tarjeta_db, pay.MontoTarjeta,
+                    pay.BancoTarjeta, pay.ModalidadTarjeta, pay.NumeroTarjeta, pay.MontoEfectivo, pay.MonedaEfectivo,
+                    fecha_pago_movil_db, pay.TelefonoPagoMovil, pay.ReferenciaPagoMovil, pay.MontoPagoMovil
+                )
+            )
+            conn.commit()
+            return {"message": "Payment created successfully"}
+        except Exception as e:
+            conn.rollback()
+            if "duplicate key" in str(e).lower() or "primary key constraint" in str(e).lower():
+                 raise HTTPException(status_code=409, detail=f"Payment with NumeroFactura {pay.NumeroFactura} and NumeroCorrelativoPago {pay.NumeroCorrelativoPago} already exists.")
+            raise HTTPException(status_code=500, detail=f"Error creating payment: {str(e)}")
+
+    def updatePay(self, NumeroFactura: int, NumeroCorrelativoPago: int, pay_data: Pay):
+        try:
+            database.execute(
+                "SELECT 1 FROM Pago WHERE NumeroFactura = ? AND NumeroCorrelativoPago = ?",
+                (NumeroFactura, NumeroCorrelativoPago)
+            )
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Payment not found")
+
+            # Convertir a ISO format string para la DB
+            fecha_tarjeta_db = pay_data.FechaTarjeta.isoformat() if pay_data.FechaTarjeta else None
+            fecha_pago_movil_db = pay_data.FechaPagoMovil.isoformat() if pay_data.FechaPagoMovil else None
+
+            database.execute(
+                """
+                UPDATE Pago SET
+                    Tipo = ?, FechaTarjeta = ?, MontoTarjeta = ?, BancoTarjeta = ?,
+                    ModalidadTarjeta = ?, NumeroTarjeta = ?, MontoEfectivo = ?,
+                    MonedaEfectivo = ?, FechaPagoMovil = ?, TelefonoPagoMovil = ?,
+                    ReferenciaPagoMovil = ?, MontoPagoMovil = ?
+                WHERE NumeroFactura = ? AND NumeroCorrelativoPago = ?
+                """,
+                (
+                    pay_data.Tipo, fecha_tarjeta_db, pay_data.MontoTarjeta, pay_data.BancoTarjeta,
+                    pay_data.ModalidadTarjeta, pay_data.NumeroTarjeta, pay_data.MontoEfectivo,
+                    pay_data.MonedaEfectivo, fecha_pago_movil_db, pay_data.TelefonoPagoMovil,
+                    pay_data.ReferenciaPagoMovil, pay_data.MontoPagoMovil,
+                    NumeroFactura, NumeroCorrelativoPago
+                )
+            )
+            conn.commit()
+            return {"message": "Payment updated successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating payment: {str(e)}")
+
+    def deletePay(self, NumeroFactura: int, NumeroCorrelativoPago: int):
+        try:
+            database.execute(
+                "SELECT 1 FROM Pago WHERE NumeroFactura = ? AND NumeroCorrelativoPago = ?",
+                (NumeroFactura, NumeroCorrelativoPago)
+            )
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Payment not found")
+
+            database.execute(
+                "DELETE FROM Pago WHERE NumeroFactura = ? AND NumeroCorrelativoPago = ?",
+                (NumeroFactura, NumeroCorrelativoPago)
+            )
+            conn.commit()
+            return {"message": "Payment deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting payment: {str(e)}")
+
+
+class CustomerPhoneService:
+    def getCustomerPhones(self):
+        database.execute("SELECT * FROM TelefonosCliente") 
+        rows = database.fetchall()
+        return [CustomerPhone(Cliente=row[0], Telefono=row[1]) for row in rows]
+
+    def createCustomerPhone(self, customer_phone: CustomerPhone):
+        try:
+            database.execute("INSERT INTO TelefonosCliente (Cliente, Telefono) VALUES (?, ?)", (customer_phone.Cliente, customer_phone.Telefono))
+            conn.commit()
+            return {"message": "Customer phone created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "duplicate key" in str(e).lower() or "primary key constraint" in str(e).lower():
+                raise HTTPException(status_code=409, detail=f"Customer phone for Cliente '{customer_phone.Cliente}' and Telefono '{customer_phone.Telefono}' already exists.")
+            raise HTTPException(status_code=500, detail=f"Error creating customer phone: {str(e)}")
+
+    def updateCustomerPhone(self, Cliente: str, Telefono: str, new_telefono: str):
+        try:
+            database.execute("SELECT 1 FROM TelefonosCliente WHERE Cliente = ? AND Telefono = ?", (Cliente, Telefono))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Customer phone not found.")
+            database.execute("UPDATE TelefonosCliente SET Telefono = ? WHERE Cliente = ? AND Telefono = ?", (new_telefono, Cliente, Telefono))
+            conn.commit()
+            return {"message": "Customer phone updated successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error updating customer phone: {str(e)}")
+
+    def deleteCustomerPhone(self, Cliente: str, Telefono: str):
+        try:
+            database.execute("SELECT 1 FROM TelefonosCliente WHERE Cliente = ? AND Telefono = ?", (Cliente, Telefono))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Customer phone not found.")
+
+            database.execute("DELETE FROM TelefonosCliente WHERE Cliente = ? AND Telefono = ?", (Cliente, Telefono))
+            conn.commit()
+            return {"message": "Customer phone deleted successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting customer phone: {str(e)}")
+
+class EmployeeOrderService:
+    def getEmployeeOrders(self):
+        database.execute("SELECT EmpleadoCI, OrdenServicioID FROM EmpleadosOrden")
+        rows = database.fetchall()
+        return [EmployeeOrder(EmpleadoCI=row[0], OrdenServicioID=row[1]) for row in rows]
+
+    def createEmployeeOrder(self, employee_order: EmployeeOrder):
+        try:
+            database.execute("INSERT INTO EmpleadosOrden (EmpleadoCI, OrdenServicioID) VALUES (?, ?)", (employee_order.EmpleadoCI, employee_order.OrdenServicioID))
+            conn.commit()
+            return {"message": "Employee-Service Order association created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "duplicate key" in str(e).lower() or "primary key constraint" in str(e).lower():
+                raise HTTPException(status_code=409, detail=f"Employee-Service Order association for EmpleadoCI '{employee_order.EmpleadoCI}' and OrdenServicioID '{employee_order.OrdenServicioID}' already exists.")
+            raise HTTPException(status_code=500, detail=f"Error creating Employee-Service Order association: {str(e)}")
+
+
+class SpecialtyEmployeeService:
+    def getSpecialtyEmployees(self):
+        database.execute("SELECT EmpleadoCI, CodigoEspecialidad FROM EspecialidadEmpleado")
+        rows = database.fetchall()
+        return [SpecialtyEmployee(EmpleadoCI=row[0], CodigoEspecialidad=row[1]) for row in rows]
+
+    def createSpecialtyEmployee(self, specialty_employee: SpecialtyEmployee):
+        try:
+            database.execute("INSERT INTO EspecialidadEmpleado (EmpleadoCI, CodigoEspecialidad) VALUES (?, ?)", (specialty_employee.EmpleadoCI, specialty_employee.CodigoEspecialidad))
+            conn.commit()
+            return {"message": "Employee-Specialty association created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "duplicate key" in str(e).lower() or "primary key constraint" in str(e).lower():
+                raise HTTPException(status_code=409, detail=f"Employee-Specialty association for EmpleadoCI '{specialty_employee.EmpleadoCI}' and CodigoEspecialidad '{specialty_employee.CodigoEspecialidad}' already exists.")
+            raise HTTPException(status_code=500, detail=f"Error creating Employee-Specialty association: {str(e)}")
+
+    def deleteSpecialtyEmployee(self, EmpleadoCI: str, CodigoEspecialidad: int):
+        try:
+            database.execute("SELECT 1 FROM EspecialidadEmpleado WHERE EmpleadoCI = ? AND CodigoEspecialidad = ?", (EmpleadoCI, CodigoEspecialidad))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Employee-Specialty association not found.")
+
+            database.execute("DELETE FROM EspecialidadEmpleado WHERE EmpleadoCI = ? AND CodigoEspecialidad = ?", (EmpleadoCI, CodigoEspecialidad))
+            conn.commit()
+            return {"message": "Employee-Specialty association deleted successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting Employee-Specialty association: {str(e)}")
+
+class VehicleMaintenanceService:
+    def get_all(self):
+        database.execute("SELECT Vehiculo, FechaMantenimiento, DescripcionMantenimiento FROM MantenimientoVehiculos")
+        rows = database.fetchall()
+        return [VehicleMaintenance(Vehiculo=row[0], FechaMantenimiento=row[1], DescripcionMantenimiento=row[2]) for row in rows]
+
+    def create(self, maintenance: VehicleMaintenance):
+        try:
+            database.execute(
+                "INSERT INTO MantenimientoVehiculos (Vehiculo, FechaMantenimiento, DescripcionMantenimiento) VALUES (?, ?, ?)",
+                (maintenance.Vehiculo, maintenance.FechaMantenimiento, maintenance.DescripcionMantenimiento)
+            )
+            conn.commit()
+            return {"message": "Vehicle maintenance record created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "primary key constraint" in str(e).lower() or "duplicate key" in str(e).lower():
+                raise HTTPException(status_code=409, detail="This vehicle maintenance record already exists.")
+            if "foreign key constraint" in str(e).lower():
+                raise HTTPException(status_code=400, detail="Invalid Vehicle code.")
+            raise HTTPException(status_code=500, detail=f"Error creating vehicle maintenance record: {str(e)}")
+
+    def delete(self, Vehiculo: int, FechaMantenimiento: date, DescripcionMantenimiento: str):
+        try:
+            database.execute(
+                "SELECT 1 FROM MantenimientoVehiculos WHERE Vehiculo = ? AND FechaMantenimiento = ? AND DescripcionMantenimiento = ?",
+                (Vehiculo, FechaMantenimiento, DescripcionMantenimiento)
+            )
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Vehicle maintenance record not found.")
+
+            database.execute(
+                "DELETE FROM MantenimientoVehiculos WHERE Vehiculo = ? AND FechaMantenimiento = ? AND DescripcionMantenimiento = ?",
+                (Vehiculo, FechaMantenimiento, DescripcionMantenimiento)
+            )
+            conn.commit()
+            return {"message": "Vehicle maintenance record deleted successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting vehicle maintenance record: {str(e)}")
+
+class EmployeeResponsibilityService:
+    def get_all(self):
+        database.execute("SELECT EmpleadoCI, CodigoServicio FROM ResponsabilidadEmpleado")
+        rows = database.fetchall()
+        return [EmployeeResponsibility(EmpleadoCI=row[0], CodigoServicio=row[1]) for row in rows]
+
+    def create(self, responsibility: EmployeeResponsibility):
+        try:
+            database.execute(
+                "INSERT INTO ResponsabilidadEmpleado (EmpleadoCI, CodigoServicio) VALUES (?, ?)",
+                (responsibility.EmpleadoCI, responsibility.CodigoServicio)
+            )
+            conn.commit()
+            return {"message": "Employee responsibility created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "primary key constraint" in str(e).lower() or "duplicate key" in str(e).lower():
+                raise HTTPException(status_code=409, detail="This employee responsibility already exists.")
+            if "foreign key constraint" in str(e).lower():
+                raise HTTPException(status_code=400, detail="Invalid EmployeeCI or CodigoServicio.")
+            raise HTTPException(status_code=500, detail=f"Error creating employee responsibility: {str(e)}")
+
+    def delete(self, EmpleadoCI: str, CodigoServicio: int):
+        try:
+            database.execute(
+                "SELECT 1 FROM ResponsabilidadEmpleado WHERE EmpleadoCI = ? AND CodigoEspecialidad = ?",
+                (EmpleadoCI, CodigoServicio)
+            )
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Employee responsibility not found.")
+
+            database.execute(
+                "DELETE FROM ResponsabilidadEmpleado WHERE EmpleadoCI = ? AND CodigoServicio = ?",
+                (EmpleadoCI, CodigoServicio)
+            )
+            conn.commit()
+            return {"message": "Employee responsibility deleted successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting employee responsibility: {str(e)}")
+
+class FranchiseServiceLinkService:
+    def get_all(self):
+        database.execute("SELECT FranquiciaRIF, CodigoServicio FROM ServiciosFranquicia")
+        rows = database.fetchall()
+        return [FranchiseServiceLink(FranquiciaRIF=row[0], CodigoServicio=row[1]) for row in rows]
+
+    def create(self, link: FranchiseServiceLink):
+        try:
+            database.execute(
+                "INSERT INTO ServiciosFranquicia (FranquiciaRIF, CodigoServicio) VALUES (?, ?)",
+                (link.FranquiciaRIF, link.CodigoServicio)
+            )
+            conn.commit()
+            return {"message": "Franchise service link created successfully."}
+        except Exception as e:
+            conn.rollback()
+            if "primary key constraint" in str(e).lower() or "duplicate key" in str(e).lower():
+                raise HTTPException(status_code=409, detail="This franchise service link already exists.")
+            if "foreign key constraint" in str(e).lower():
+                raise HTTPException(status_code=400, detail="Invalid FranquiciaRIF or CodigoServicio.")
+            raise HTTPException(status_code=500, detail=f"Error creating franchise service link: {str(e)}")
+
+    def delete(self, FranquiciaRIF: str, CodigoServicio: int):
+        try:
+            database.execute(
+                "SELECT 1 FROM ServiciosFranquicia WHERE FranquiciaRIF = ? AND CodigoServicio = ?",
+                (FranquiciaRIF, CodigoServicio)
+            )
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Franchise service link not found.")
+
+            database.execute(
+                "DELETE FROM ServiciosFranquicia WHERE FranquiciaRIF = ? AND CodigoServicio = ?",
+                (FranquiciaRIF, CodigoServicio)
+            )
+            conn.commit()
+            return {"message": "Franchise service link deleted successfully."}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting franchise service link: {str(e)}")
