@@ -130,10 +130,6 @@ class OrderxActivity(BaseModel):
     NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
     Costo_Act: float = Field(..., description="The cost of the activity in the order")
     
-class supply(BaseModel):
-    ProveedorRIF: int = Field(..., max_length=12, min_length=12, description=("RIF of the provider"))
-    CodigoProducto: int = Field(..., description="Unique code of the product being supplied")
-    
 class Pay(BaseModel):
     NumeroFactura: int = Field(..., description="Unique invoice number associated with the payment.")
     NumeroCorrelativoPago: int = Field(..., description="Correlative number that identifies the payment within an invoice.")
