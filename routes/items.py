@@ -307,6 +307,115 @@ async def read_orderxactivities():
 @router.post("/orderxactivity/create", tags=["OrdenxActividad"], response_model=dict)
 async def create_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
     return OrderxActivityController().create_order_activity(IDorden, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
+"Pagos Endpoints"
+
+@router.get("/pays", tags=["Pagos"], response_model=list[Pay])
+async def read_pays():
+    return PayController().get_pays()
+
+@router.post("/pays", tags=["Pagos"], response_model=dict)
+async def PayController(pay: Pay):
+    return PayController().create_pay(pay)
+
+@router.put("/pays/{numero_factura}/{numero_correlativo_pago}", tags=["Pagos"], response_model=dict)
+async def update_pay(
+    numero_factura: int,
+    numero_correlativo_pago: int,
+    pay_data: Pay # Usa el modelo Pay para recibir los datos a actualizar
+):
+    return PayController().update_pay(numero_factura, numero_correlativo_pago, pay_data)
+
+@router.delete("/pays/{numero_factura}/{numero_correlativo_pago}", tags=["Pagos"], response_model=dict)
+async def delete_pay(numero_factura: int, numero_correlativo_pago: int):
+    return PayController().delete_pay(numero_factura, numero_correlativo_pago)
+
+"Endpoints para TelefonosCliente"
+
+@router.get("/customer_phone", tags=["TelefonosCliente"], response_model=list[CustomerPhone])
+async def read_customer_phone():
+    return CustomerPhoneController().get_customer_phone()
+
+@router.post("/customer_phone", tags=["TelefonosCliente"], response_model=dict)
+async def create_customer_phone(telefono_cliente: CustomerPhone):
+    return CustomerPhoneController().create_customer_phone(telefono_cliente)
+
+@router.delete("/customer_phone", tags=["TelefonosCliente"], response_model=dict)
+async def delete_customer_phone(cliente: str, telefono: str):
+    return CustomerPhoneController().delete_customer_phone(cliente, telefono)
+
+@router.put("/customer_phone", tags=["TelefonosCliente"], response_model=dict)
+async def update_customer_phone(cliente: str, telefono: str, new_telefono: str):
+    return CustomerPhoneController().update_customer_phone(cliente, telefono, new_telefono)
+
+
+"Endpoints para EmpleadosOrden"
+
+@router.get("/employee_order", tags=["EmpleadosOrden"], response_model=list[EmployeeOrder])
+async def read_employee_order():
+    return EmployeeOrderController().get_employee_order()
+
+@router.post("/employee_order", tags=["EmpleadosOrden"], response_model=dict)
+async def create_empleado_orden(empleado_orden: EmployeeOrder):
+    return EmployeeOrderController().create_employee_order(empleado_orden)
+
+
+" Endpoints para EspecialidadEmpleado  "
+
+@router.get("/specialty_employee", tags=["EspecialidadEmpleado"], response_model=list[SpecialtyEmployee])
+async def read_specialty_employee():
+    return SpecialtyEmployeeController().get_specialty_employee()
+
+@router.post("/specialty_employee", tags=["EspecialidadEmpleado"], response_model=dict)
+async def create_specialty_employee(especialidad_empleado: SpecialtyEmployee):
+    return SpecialtyEmployeeController().create_specialty_employee(especialidad_empleado)
+
+@router.delete("/specialty_employee", tags=["EspecialidadEmpleado"], response_model=dict)
+async def delete_specialty_employee(empleado_ci: str, codigo_especialidad: int):
+    return SpecialtyEmployeeController().delete_specialty_employee(empleado_ci, codigo_especialidad)
+
+
+"Endpoints para MantenimientoVehiculos"
+
+@router.get("/vehicle_maintenances", tags=["Mantenimiento de Vehículos"], response_model=list[VehicleMaintenance])
+async def get_vehicle_maintenances():
+    return VehicleMaintenanceController().get_vehicle_maintenances()
+
+@router.post("/vehicle_maintenances", tags=["Mantenimiento de Vehículos"], response_model=dict)
+async def create_vehicle_maintenance(maintenance: VehicleMaintenance):
+    return VehicleMaintenanceController().create_vehicle_maintenance(maintenance)
+
+@router.delete("/vehicle_maintenances", tags=["Mantenimiento de Vehículos"], response_model=dict)
+async def delete_vehicle_maintenance(vehiculo: int, fecha_mantenimiento: date, descripcion: str):
+    return VehicleMaintenanceController().delete_vehicle_maintenance(vehiculo, fecha_mantenimiento, descripcion)
+
+
+"Endpoints para ResponsabilidadEmpleado"
+
+@router.get("/employee_responsibilities", tags=["Responsabilidad de Empleados"], response_model=list[EmployeeResponsibility])
+async def get_employee_responsibilities():
+    return EmployeeResponsibilityController().get_employee_responsibilities()
+
+@router.post("/employee_responsibilities", tags=["Responsabilidad de Empleados"], response_model=dict)
+async def create_employee_responsibility(responsibility: EmployeeResponsibility):
+    return EmployeeResponsibilityController().create_employee_responsibility(responsibility)
+
+@router.delete("/employee_responsibilities", tags=["Responsabilidad de Empleados"], response_model=dict)
+async def delete_employee_responsibility(empleado_ci: str, codigo_servicio: int):
+    return EmployeeResponsibilityController().delete_employee_responsibility(empleado_ci, codigo_servicio)
+
+"Endpoints para ServiciosFranquicia"
+
+@router.get("/franchise_services", tags=["Servicios de Franquicia"], response_model=list[FranchiseServiceLink])
+async def get_franchise_services():
+    return FranchiseServiceLinkController().get_franchise_service_links()
+
+@router.post("/franchise_services", tags=["Servicios de Franquicia"], response_model=dict)
+async def create_franchise_service(link: FranchiseServiceLink):
+    return FranchiseServiceLinkController().create_franchise_service_link(link)
+
+@router.delete("/franchise_services", tags=["Servicios de Franquicia"], response_model=dict)
+async def delete_franchise_service(franquicia_rif: str, codigo_servicio: int):
+    return FranchiseServiceLinkController().delete_franchise_service_link(franquicia_rif, codigo_servicio)
 
 
 " Correction Endpoints "

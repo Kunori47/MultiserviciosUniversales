@@ -736,6 +736,113 @@ class OrderxActivityController:
             return self.order_activity_service.createOrderActivity(ID, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+
+class PayController:
+
+    def __init__(self):
+        self.pay_service = PayService()
+
+    def get_pays(self):
+        try:
+            return self.pay_service.getPays()
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving payments: {str(e)}")
+
+    def create_pay(self, pay: Pay):
+        try:
+            return self.pay_service.createPay(pay)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating payment: {str(e)}")
+
+    def update_pay(self, NumeroFactura: int, NumeroCorrelativoPago: int, pay_data: Pay):
+        try:
+            return self.pay_service.updatePay(NumeroFactura, NumeroCorrelativoPago, pay_data)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error updating payment: {str(e)}")
+
+    def delete_pay(self, NumeroFactura: int, NumeroCorrelativoPago: int):
+        try:
+            return self.pay_service.deletePay(NumeroFactura, NumeroCorrelativoPago)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting payment: {str(e)}")
+
+class CustomerPhoneController:
+    def __init__(self):
+        self.service = CustomerPhoneService()
+    def get_customer_phone(self):
+        return self.service.getCustomerPhones()
+    def create_customer_phone(self, telefono_cliente: CustomerPhoneService):
+        return self.service.createCustomerPhone(telefono_cliente)
+    def delete_customer_phone(self, Cliente: str, Telefono: str):
+        return self.service.deleteCustomerPhone(Cliente, Telefono)
+    def update_customer_phone(self, Cliente: str, Telefono: str, new_telefono: str):
+        return self.service.updateCustomerPhone(Cliente, Telefono, new_telefono)
+
+class EmployeeOrderController:
+    def __init__(self):
+        self.service = EmployeeOrder()
+    def get_employee_order(self):
+        return self.service.getEmployeeOrders()
+    def create_employee_order(self, empleado_orden: EmployeeOrder):
+        return self.service.createEmployeeOrder(empleado_orden)
+
+class SpecialtyEmployeeController:
+    def __init__(self):
+        self.service = SpecialtyEmployee()
+    def get_specialty_employee(self):
+        return self.service.getSpecialtyEmployee()
+    def create_specialty_employee(self, especialidad_empleado: SpecialtyEmployee):
+        return self.service.createSpecialtyEmployee(especialidad_empleado)
+    def delete_specialty_employee(self, EmpleadoCI: str, CodigoEspecialidad: int):
+        return self.service.deleteSpecialtyEmployee(EmpleadoCI, CodigoEspecialidad)
+
+class VehicleMaintenanceController:
+    def __init__(self):
+        self.service = VehicleMaintenanceService()
+
+    def get_vehicle_maintenances(self):
+        return self.service.get_all()
+
+    def create_vehicle_maintenance(self, maintenance: VehicleMaintenance):
+        return self.service.create(maintenance)
+
+    def delete_vehicle_maintenance(self, Vehiculo: int, FechaMantenimiento: date, DescripcionMantenimiento: str):
+        return self.service.delete(Vehiculo, FechaMantenimiento, DescripcionMantenimiento)
+
+class EmployeeResponsibilityController:
+    def __init__(self):
+        self.service = EmployeeResponsibilityService()
+
+    def get_employee_responsibilities(self):
+        return self.service.get_all()
+
+    def create_employee_responsibility(self, responsibility: EmployeeResponsibility):
+        return self.service.create(responsibility)
+
+    def delete_employee_responsibility(self, EmpleadoCI: str, CodigoServicio: int):
+        return self.service.delete(EmpleadoCI, CodigoServicio)
+
+class FranchiseServiceLinkController:
+    def __init__(self):
+        self.service = FranchiseServiceLinkService()
+
+    def get_franchise_service_links(self):
+        return self.service.get_all()
+
+    def create_franchise_service_link(self, link: FranchiseServiceLink):
+        return self.service.create(link)
+
+    def delete_franchise_service_link(self, FranquiciaRIF: str, CodigoServicio: int):
+        return self.service.delete(FranquiciaRIF, CodigoServicio)
         
 class CorrectionController:
 

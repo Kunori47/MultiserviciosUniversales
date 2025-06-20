@@ -1,6 +1,7 @@
 from fastapi import UploadFile, File
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import date
 
 class Franchise(BaseModel):
     RIF: str = Field(..., description="The unique identifier for the franchise")
@@ -128,6 +129,51 @@ class OrderxActivity(BaseModel):
     CodigoServicio: int = Field(..., description="The service code associated with the order")
     NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
     Costo_Act: float = Field(..., description="The cost of the activity in the order")
+    
+class supply(BaseModel):
+    ProveedorRIF: int = Field(..., max_length=12, min_length=12, description=("RIF of the provider"))
+    CodigoProducto: int = Field(..., description="Unique code of the product being supplied")
+    
+class Pay(BaseModel):
+    NumeroFactura: int = Field(..., description="Unique invoice number associated with the payment.")
+    NumeroCorrelativoPago: int = Field(..., description="Correlative number that identifies the payment within an invoice.")
+    Tipo: str = Field(..., max_length=50, description="Type of payment (e.g., 'Tarjeta', 'Efectivo', 'Pago Móvil').")
+    FechaTarjeta: Optional[date] = Field(None, description="Date of card payment, if applicable.")
+    MontoTarjeta: Optional[float] = Field(None, ge=0, description="Amount paid by card, if applicable. Must be greater than or equal to zero.")
+    BancoTarjeta: Optional[str] = Field(None, max_length=50, description="Bank of the card used for payment, if applicable.")
+    ModalidadTarjeta: Optional[str] = Field(None, max_length=50, description="Card type (e.g., 'Ahorro', 'Corriente'), if applicable.")
+    NumeroTarjeta: Optional[str] = Field(None, max_length=16, min_length=16, description="Card number, if applicable. Must be 16 characters long.")
+    MontoEfectivo: Optional[float] = Field(None, ge=0, description="Amount paid in cash, if applicable. Must be greater than or equal to zero.")
+    MonedaEfectivo: Optional[str] = Field(None, max_length=50, description="Currency of cash payment (e.g., 'Bolívar', 'Dólar', 'Euro'), if applicable.")
+    FechaPagoMovil: Optional[date] = Field(None, description="Date of mobile payment, if applicable.")
+    TelefonoPagoMovil: Optional[str] = Field(None, max_length=12, min_length=12, description="Phone number used for mobile payment, if applicable. Must be 12 characters long.")
+    ReferenciaPagoMovil: Optional[str] = Field(None, max_length=50, description="Reference number for mobile payment, if applicable.")
+    MontoPagoMovil: Optional[float] = Field(None, ge=0, description="Amount paid by mobile payment, if applicable. Must be greater than or equal to zero.")
+    
+class CustomerPhone(BaseModel):
+    Cliente: str = Field(..., max_length=10, description="Customer's ID.")
+    Telefono: str = Field(..., min_length=12, max_length=12, description="Customer's 12-digit phone number.")
+
+class EmployeeOrder(BaseModel):
+    EmpleadoCI: str = Field(..., max_length=10, description="Employee's ID.")
+    OrdenServicioID: int = Field(..., description="Service order ID.")
+
+class SpecialtyEmployee(BaseModel):
+    EmpleadoCI: str = Field(..., max_length=10, description="Employee's ID.")
+    CodigoEspecialidad: int = Field(..., description="Specialty code.")
+
+class VehicleMaintenance(BaseModel):
+    Vehiculo: int = Field(..., description="Vehicle Code")
+    FechaMantenimiento: date = Field(..., description="Maintenance Date")
+    DescripcionMantenimiento: str = Field(..., max_length=100, description="Maintenance Description")
+
+class EmployeeResponsibility(BaseModel):
+    EmpleadoCI: str = Field(..., max_length=10, description="Employee's ID.")
+    CodigoServicio: int = Field(..., description="Service code.")
+
+class FranchiseServiceLink(BaseModel):
+    FranquiciaRIF: str = Field(..., max_length=12, description="Franchise RIF.")
+    CodigoServicio: int = Field(..., description="Service code.")
 
 class Correction(BaseModel):
     FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the correction")

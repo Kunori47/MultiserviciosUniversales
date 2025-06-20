@@ -2,6 +2,7 @@ import os
 import pyodbc
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 db_server = os.getenv('AZURE_SQL_SERVER')
