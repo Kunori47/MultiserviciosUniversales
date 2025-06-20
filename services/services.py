@@ -743,6 +743,64 @@ class ProductFranchiseService:
         except Exception as e:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating product franchise: {str(e)}")
+        
+class ActivityService:
+
+    def getActivities(self):
+        database.execute("SELECT * FROM Actividad")
+        activities = database.fetchall()
+        return [Activity(
+                    CodigoServicio=row[0],
+                    NumeroCorrelativoActividad=row[1],
+                    DescripcionActividad=row[2],
+                    CostoManoDeObra= row[3]
+                ) for row in activities]
+    
+    def createActivity(self, CodigoServicio: int, NumeroCorrelativoActividad: int, DescripcionActividad: str, CostoManoDeObra: float):
+        try:
+            database.execute("INSERT INTO Actividad (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra) VALUES (?, ?, ?, ?)",
+                            (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra))
+            conn.commit()
+            return {"message": "Activity created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating activity: {str(e)}")
+        
+    def deleteActivity(self, CodigoServicio: int, NumeroCorrelativoActividad: int):
+        try:
+            database.execute("SELECT 1 FROM Actividad WHERE CodigoServicio = ? AND NumeroCorrelativoActividad = ?", (CodigoServicio, NumeroCorrelativoActividad))
+            exists = database.fetchone()
+            if not exists:
+                raise HTTPException(status_code=404, detail="Activity not found")
+            database.execute("DELETE FROM Actividad WHERE CodigoServicio = ? AND NumeroCorrelativoActividad = ?", (CodigoServicio, NumeroCorrelativoActividad))
+            conn.commit()
+            return {"message": "Activity deleted successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error deleting activity: {str(e)}")
+
+class OrderActivityService:
+
+    def getOrderActivities(self):
+        database.execute("SELECT * FROM OrdenxActividad")
+        orderx_activities = database.fetchall()
+        return [OrderxActivity(
+                    IDorden=row[0],
+                    CodigoServicio=row[1],
+                    NumeroCorrelativoActividad=row[2],
+                    Costo_Act=row[3]
+                ) for row in orderx_activities]
+    
+    def createOrderActivity(self, IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
+        try:
+            database.execute("INSERT INTO OrdenxActividad (IDorden, CodigoServicio, NumeroCorrelativoActividad, Costo_Act) VALUES (?, ?, ?, ?)",
+                            (IDorden, CodigoServicio, NumeroCorrelativoActividad, Costo_Act))
+            conn.commit()
+            return {"message": "OrderxActivity created successfully"}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating OrderxActivity: {str(e)}")
+    
     
 
 class PayService:

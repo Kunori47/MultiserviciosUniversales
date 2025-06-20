@@ -116,6 +116,19 @@ class ProductFranchise(BaseModel):
     Cantidad: int = Field(..., description="The quantity of the product in the purchase")
     CantidadMinima: int = Field(..., description="The minimum quantity of the product in the purchase")
     CantidadMaxima: int = Field(..., description="The maximum quantity of the product in the purchase")
+
+class Activity(BaseModel):
+    CodigoServicio: int = Field(..., description="The service code associated with the order")
+    NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
+    DescripcionActividad: str = Field(..., description="The description of the activity")
+    CostoManoDeObra: float = Field(..., description="The cost of the activity in the order")
+
+
+class OrderxActivity(BaseModel):
+    IDorden: int = Field(..., description="The unique identifier for the order")
+    CodigoServicio: int = Field(..., description="The service code associated with the order")
+    NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
+    Costo_Act: float = Field(..., description="The cost of the activity in the order")
     
 class supply(BaseModel):
     ProveedorRIF: int = Field(..., max_length=12, min_length=12, description=("RIF of the provider"))

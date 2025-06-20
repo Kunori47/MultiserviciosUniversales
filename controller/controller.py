@@ -682,6 +682,60 @@ class ProductFranchiseController:
             return self.product_franchise_service.updateProductFranchise(FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class ActivityController:
+
+    def __init__(self):
+        self.activity_service = ActivityService()
+
+    def get_activities(self):
+        return self.activity_service.getActivities()
+    
+    def create_activity(self, CodigoServicio: int, NumeroCorrelativoActividad: int, DescripcionActividad: str, CostoManoDeObra: float):
+        try:
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            if not (0 <= NumeroCorrelativoActividad):
+                raise HTTPException(status_code=400, detail="Activity serial number must be a positive integer")
+            if not(0 <= len(DescripcionActividad) <= 100):
+                raise HTTPException(status_code=400, detail="Activity description must be between 0 and 100 characters")
+            if not (0 <= CostoManoDeObra):
+                raise HTTPException(status_code=400, detail="Labor cost must be a positive number")    
+            return self.activity_service.createActivity(CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+    def delete_activity(self, CodigoServicio: int, NumeroCorrelativoActividad: int):
+        try:
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            if not (0 <= NumeroCorrelativoActividad):
+                raise HTTPException(status_code=400, detail="Activity serial number must be a positive integer")
+            return self.activity_service.deleteActivity(CodigoServicio, NumeroCorrelativoActividad)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        
+class OrderxActivityController:
+
+    def __init__(self):
+        self.order_activity_service = OrderActivityService()
+
+    def get_order_activities(self):
+        return self.order_activity_service.getOrderActivities()
+    
+    def create_order_activity(self, ID: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
+        try:
+            if not (0 <= ID):
+                raise HTTPException(status_code=400, detail="Order ID must be a positive integer")
+            if not (0 <= CodigoServicio):
+                raise HTTPException(status_code=400, detail="Service code must be a positive integer")
+            if not (0 <= NumeroCorrelativoActividad):
+                raise HTTPException(status_code=400, detail="Activity serial number must be a positive integer")
+            if not (0 <= Costo_Act):
+                raise HTTPException(status_code=400, detail="Activity cost must be a positive number")
+            return self.order_activity_service.createOrderActivity(ID, CodigoServicio, NumeroCorrelativoActividad, Costo_Act)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 
 class PayController:
