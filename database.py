@@ -13,5 +13,9 @@ db_driver = os.getenv('AZURE_SQL_DRIVER', 'ODBC Driver 17 for SQL Server')
 
 connect_string = f"DRIVER={db_driver};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 
-conn = pyodbc.connect(connect_string)
+conn = pyodbc.connect(
+            "Driver={SQL Server};"
+            "Server=KUNORI\SQLEXPRESS;"
+            "Database=MultiserviciosUniversal;"
+            "Trusted_Connection=yes;")
 database = conn.cursor()
