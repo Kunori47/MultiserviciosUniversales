@@ -46,11 +46,12 @@ def get_connection():
             "Trusted_Connection=yes;"
         )
         cursor = conn.cursor()
+        database = conn.cursor()
         
         print("Conectado a MultiserviciosUniversal")
         print("=" * 60)
         
-        return conn, cursor
+        return conn, cursor, database
         
     except pyodbc.Error as e:
         print(f"Error de conexión: {e}")
@@ -58,4 +59,4 @@ def get_connection():
         raise
 
 # Obtener conexión global
-conn, cursor = get_connection()
+conn, cursor, database = get_connection()
