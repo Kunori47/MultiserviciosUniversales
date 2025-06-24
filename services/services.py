@@ -1,4 +1,4 @@
-from database import database, conn
+from db.database import database, conn
 from models import *
 from fastapi import UploadFile, HTTPException
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 from controller.controller import *
-from database import database
+from db.database import database
 from models import *
 
 router = APIRouter()
