@@ -3,6 +3,4 @@ uvicorn
 python-dotenv
 bcrypt
 python-multipart
-reactpy[fastapi]
 pyodbc
-reactpy-router
