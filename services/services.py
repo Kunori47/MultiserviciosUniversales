@@ -67,6 +67,8 @@ class UpdateService:
 
 class FranchiseService:
 
+    # def getAllFranchise(self)
+
     def getFranchise(self):
         database.execute("SELECT * FROM Franquicia")
         franchise = database.fetchall()
@@ -204,7 +206,7 @@ class ModelService:
         database.execute("SELECT * FROM Modelo")
         models = database.fetchall()
         return [Model(
-                    CodigoModelo=row[0], 
+                    CodigoMarca=row[0], 
                     NumeroCorrelativoModelo=row[1], 
                     DescripcionModelo=row[2], 
                     CantidadPuestos=row[3], 
@@ -263,15 +265,15 @@ class VehicleService:
                     Placa=row[1], 
                     FechaAdquisicion=str(row[2]), 
                     TipoAceite=row[3], 
-                    CI_Propietario=row[4], 
+                    CedulaCliente=row[4], 
                     CodigoMarca=row[5], 
                     NumeroCorrelativoModelo=row[6]
                 ) for row in vehicles]
     
-    def createVehicle(self, CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
+    def createVehicle(self, CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
         try:
             database.execute("INSERT INTO Vehiculo (CodigoMarca, NumeroCorrelativoModelo ,Placa, FechaAdquisicion, TipoAceite, CedulaCliente) VALUES (?, ?, ?, ?, ?, ?)",
-                            (CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario))
+                            (CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CedulaCliente))
             conn.commit()
             return {"message": "Vehicle created successfully"}
         except Exception as e:
@@ -291,7 +293,7 @@ class VehicleService:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error deleting vehicle: {str(e)}")
         
-    def updateVehicle(self, CodigoVehiculo: int ,CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
+    def updateVehicle(self, CodigoVehiculo: int ,CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
         try:
             database.execute("SELECT 1 FROM Vehiculo WHERE CodigoVehiculo = ?", (CodigoVehiculo,))
             exists = database.fetchone()
@@ -299,7 +301,7 @@ class VehicleService:
                 raise HTTPException(status_code=404, detail="Vehicle not found")
             database.execute(
                 "UPDATE Vehiculo SET CodigoMarca = ?, NumeroCorrelativoModelo = ?, Placa = ?, FechaAdquisicion = ?, TipoAceite = ?, CedulaCliente = ? WHERE CodigoVehiculo = ?",
-                (CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario, CodigoVehiculo)
+                (CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CedulaCliente, CodigoVehiculo)
             )
             conn.commit()
             return {"message": "Vehicle updated successfully"}
@@ -567,7 +569,7 @@ class ProductService:
                     CodigoProducto=row[0], 
                     NombreProducto=row[1], 
                     DescripcionProducto=row[2], 
-                    LineaSuministronistro=row[3],
+                    LineaSuministro=row[3],
                     Tipo=row[4],
                     NivelContaminante=row[5] if row[5] is not None else None,
                     Tratamiento=row[6] if row[6] is not None else None

@@ -24,7 +24,7 @@ class Brand(BaseModel):
     Nombre: str = Field(..., description="The name of the brand")
 
 class Model(BaseModel):
-    CodigoModelo: int = Field(..., description="The unique identifier for the model")
+    CodigoMarca: int = Field(..., description="The unique identifier for the model")
     NumeroCorrelativoModelo: int = Field(..., description="The serial number of the model")
     DescripcionModelo: str = Field(..., description="The description of the model")
     CantidadPuestos: int = Field(..., description="The number of seats in the model")
@@ -38,7 +38,7 @@ class Vehicle(BaseModel):
     Placa: str = Field(..., description="The plate number of the vehicle")
     FechaAdquisicion: str = Field(..., description="The acquisition date of the vehicle")
     TipoAceite: str = Field(..., description="The type of oil used in the vehicle")
-    CI_Propietario: str = Field(..., description="The CI of the vehicle owner")
+    CedulaCliente: str = Field(..., description="The CI of the vehicle owner")
     CodigoMarca: int = Field(..., description="The brand code of the vehicle")
     NumeroCorrelativoModelo: int = Field(..., description="The model serial number of the vehicle")
 
@@ -71,7 +71,7 @@ class Product(BaseModel):
     CodigoProducto: int = Field(..., description="The unique identifier for the product")
     NombreProducto: str = Field(..., description="The name of the product")
     DescripcionProducto: str = Field(..., description="The description of the product")
-    LineaSuministronistro: int = Field(..., description="The supplier line code of the product")
+    LineaSuministro: int = Field(..., description="The supplier line code of the product")
     Tipo: str = Field(..., description="The type of the product")
     NivelContaminante: Optional[int] = Field(..., description="The pollution level of the product")
     Tratamiento: Optional[str] = Field(..., description="The treatment of the product")

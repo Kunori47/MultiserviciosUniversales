@@ -231,19 +231,19 @@ class VehicleController:
     def get_vehicles(self):
         return self.vehicle_service.getVehicles()
     
-    def create_vehicle(self, CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
+    def create_vehicle(self, CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
         try:
             if not (len(Placa) == 7):
                 raise HTTPException(status_code=400, detail="Plate number must be between 0 and 10 characters")
             if not (0 <= len(TipoAceite) <= 50):
                 raise HTTPException(status_code=400, detail="Oil type must be between 0 and 50 characters")
-            if not (0 <= len(CI_Propietario) <= 10):
+            if not (0 <= len(CedulaCliente) <= 10):
                 raise HTTPException(status_code=400, detail="Owner CI must be between 0 and 10 characters")
             if not (0 <= CodigoMarca):
                 raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
             if not (0 <= NumeroCorrelativoModelo):
                 raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
-            return self.vehicle_service.createVehicle(CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario)
+            return self.vehicle_service.createVehicle(CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CedulaCliente)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
@@ -255,7 +255,7 @@ class VehicleController:
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         
-    def update_vehicle(self, CodigoVehiculo: int, CodigoMarca:int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CI_Propietario: str):
+    def update_vehicle(self, CodigoVehiculo: int, CodigoMarca:int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
         try:
             if not (0 <= CodigoVehiculo):
                 raise HTTPException(status_code=400, detail="Vehicle code must be a positive integer")
@@ -263,13 +263,13 @@ class VehicleController:
                 raise HTTPException(status_code=400, detail="Plate number must be between 0 and 10 characters")
             if not (0 <= len(TipoAceite) <= 50):
                 raise HTTPException(status_code=400, detail="Oil type must be between 0 and 50 characters")
-            if not (0 <= len(CI_Propietario) <= 10):
+            if not (0 <= len(CedulaCliente) <= 10):
                 raise HTTPException(status_code=400, detail="Owner CI must be between 0 and 10 characters")
             if not (0 <= CodigoMarca):
                 raise HTTPException(status_code=400, detail="Brand code must be a positive integer")
             if not (0 <= NumeroCorrelativoModelo):
                 raise HTTPException(status_code=400, detail="Model serial number must be a positive integer")
-            return self.vehicle_service.updateVehicle(CodigoVehiculo, CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CI_Propietario)
+            return self.vehicle_service.updateVehicle(CodigoVehiculo, CodigoMarca, NumeroCorrelativoModelo, Placa, FechaAdquisicion, TipoAceite, CedulaCliente)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
 

@@ -327,10 +327,7 @@ def crear_base_datos():
         )
         """)
         print("✓ Tabla 'OrdenesActividades' creada")
-        
-        # Crear resto de tablas...
-        # (Continuando con las demás tablas en el mismo formato)
-        
+                
         # Crear tabla Pagos
         cursor.execute("""
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Pagos' AND xtype='U')
@@ -395,7 +392,7 @@ def crear_base_datos():
         """)
         print("✓ Tabla 'Pagos' creada")
         
-        # Crear tablas adicionales (continuando...)
+        # Crear tablas adicionales 
         tablas_adicionales = [
             ("Suministran", """
                 CREATE TABLE Suministran(
