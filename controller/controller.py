@@ -14,6 +14,11 @@ class GetController:
             raise HTTPException(status_code=400, detail="No filters provided")
         return self.get_service.getDataById(table_name, **filters)
     
+    def search(self, table_name: str, query: str):
+        if not query:
+            raise HTTPException(status_code=400, detail="No query provided")
+        return self.get_service.searchDataEmployee(table_name, query)
+    
 class PostController:
     def __init__(self):
         self.post_service = PostService()

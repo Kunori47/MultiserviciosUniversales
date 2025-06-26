@@ -24,31 +24,22 @@ async def read_franchise_by_rif(RIF: str):
     return franchise
 
 @router.post("/franchise/create", tags=["Franquicias"], response_model=dict)
-async def create_franchise(RIF: str, Nombre: str, Ciudad: str, CI_Encargado: str, FechaInicioEncargado: str, Estatus: str):
-    return PostController().post_data(table_name="Franquicias", data={
-        "RIF": RIF,
-        "Nombre": Nombre,
-        "Ciudad": Ciudad,
-        "CI_Encargado": CI_Encargado,
-        "FechaInicioEncargado": FechaInicioEncargado,
-        "Estatus": Estatus
-    })
+async def create_franchise(Franchise: Franchise):
+    return PostController().post_data(table_name="Franquicias", data=Franchise.model_dump())
 
 @router.put("/franchise/update", tags=["Franquicias"], response_model=dict)
-async def update_franchise(RIF: str, Nombre: str, Ciudad: str, CI_Encargado: str, FechaInicioEncargado: str, Estatus: str):
-    return UpdateController().put_data(table_name="Franquicias", RIF=RIF, data={
-        "Nombre": Nombre,
-        "Ciudad": Ciudad,
-        "CI_Encargado": CI_Encargado,
-        "FechaInicioEncargado": FechaInicioEncargado,
-        "Estatus": Estatus
-    })
+async def create_franchise(Franchise: Franchise):
+    return UpdateController().put_data(table_name="Franquicias", data=Franchise.model_dump())
 
 " Empleados Endpoints "
 
 @router.get("/employee", tags=["Empleado"], response_model=list[Employee])
 async def read_employee():
     return GetController().get_all(table_name="Empleados")
+
+@router.get("/employee/search", tags=["Empleado"])
+async def search_employees(q: str):
+    return GetController().search(table_name="Empleados", query=q)
 
 @router.get("/employee/{CI}", tags=["Empleado"], response_model=Employee)
 async def read_employee_by_ci(CI: str):
@@ -58,27 +49,20 @@ async def read_employee_by_ci(CI: str):
     return employee
 
 @router.post("/employee/create", tags=["Empleado"], response_model=dict)
-async def create_employee(CI: str, NombreCompleto: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
-    return PostController().post_data(table_name="Empleados", data={
-        "CI": CI,
-        "NombreCompleto": NombreCompleto,
-        "Direccion": Direccion,
-        "Telefono": Telefono,
-        "Salario": Salario,
-        "FranquiciaRIF": FranquiciaRIF
-    })
+async def create_employee(Employee: Employee):
+    return PostController().post_data(table_name="Empleados", data=Employee.model_dump())
 
 @router.delete("/employee/delete", tags=["Empleado"], response_model=dict)
 async def delete_employee(CI: str):
     return DeleteController().delete_data(table_name="Empleados", CI=CI)
 
 @router.put("/employee/update", tags=["Empleado"], response_model=dict)
-async def update_employee(CI: str, Direccion: str, Telefono: str, Salario: float, FranquiciaRIF: str):
-    return UpdateController().put_data(table_name="Empleados", CI=CI, data={
-        "Direccion": Direccion,
-        "Telefono": Telefono,
-        "Salario": Salario,
-        "FranquiciaRIF": FranquiciaRIF
+async def update_employee(employee: Employee):
+    return UpdateController().put_data(table_name="Empleados", CI=employee.CI, data={
+        "Direccion": employee.Direccion,
+        "Telefono": employee.Telefono,
+        "Salario": employee.Salario,
+        "FranquiciaRIF": employee.FranquiciaRIF
     })
 
 " Marcas Endpoints "
@@ -95,16 +79,16 @@ async def read_brand_by_code(CodigoMarca: int):
     return brand
 
 @router.post("/brand/create", tags=["Marca"], response_model=dict)
-async def create_brand(Nombre: str):
-    return PostController().post_data(table_name="Marcas", data={"Nombre": Nombre})
+async def create_brand(marca: Brand):
+    return PostController().post_data(table_name="Marcas", data=marca.model_dump())
 
 @router.delete("/brand/delete", tags=["Marca"], response_model=dict)
 async def delete_brand(CodigoMarca: int):
     return DeleteController().delete_data(table_name="Marcas", CodigoMarca=CodigoMarca)
 
 @router.put("/brand/update", tags=["Marca"], response_model=dict)
-async def update_brand(CodigoMarca: int, Nombre: str):
-    return UpdateController().put_data(table_name="Marcas", CodigoMarca=CodigoMarca, data={"Nombre": Nombre})
+async def update_brand(marca: Brand):
+    return UpdateController().put_data(table_name="Marcas", CodigoMarca=marca.CodigoMarca, data={"Nombre": marca.Nombre})
 
 " Modelos Endpoints "
 
@@ -120,16 +104,16 @@ async def read_model_by_code(CodigoMarca: int, NumeroCorrelativoModelo: int):
     return model
 
 @router.post("/model/create", tags=["Modelo"], response_model=dict)
-async def create_model(CodigoMarca: int, NumeroCorrelativoModelo: int, DescripcionModelo: str, CantidadPuestos: int, TipoRefrigerante: str, TipoGasolina: str, TipoAceite: str, Peso: float):
+async def create_model(modelo: Model):
     return PostController().post_data(table_name="Modelos", data={
-        "CodigoMarca": CodigoMarca,
-        "NumeroCorrelativoModelo": NumeroCorrelativoModelo,
-        "DescripcionModelo": DescripcionModelo,
-        "CantidadPuestos": CantidadPuestos,
-        "TipoRefrigerante": TipoRefrigerante,
-        "TipoGasolina": TipoGasolina,
-        "TipoAceite": TipoAceite,
-        "Peso": Peso
+        "CodigoMarca": modelo.CodigoMarca,
+        "NumeroCorrelativoModelo": modelo.NumeroCorrelativoModelo,
+        "DescripcionModelo": modelo.DescripcionModelo,
+        "CantidadPuestos": modelo.CantidadPuestos,
+        "TipoRefrigerante": modelo.TipoRefrigerante,
+        "TipoGasolina": modelo.TipoGasolina,
+        "TipoAceite": modelo.TipoAceite,
+        "Peso": modelo.Peso
     })
 
 @router.delete("/model/delete", tags=["Modelo"], response_model=dict)
@@ -137,14 +121,14 @@ async def delete_model(CodigoMarca: int, NumeroCorrelativoModelo: int):
     return DeleteController().delete_data(table_name="Modelos", CodigoMarca=CodigoMarca, NumeroCorrelativoModelo=NumeroCorrelativoModelo)
 
 @router.put("/model/update", tags=["Modelo"], response_model=dict)
-async def update_model(CodigoMarca: int, NumeroCorrelativoModelo: int, DescripcionModelo: str, CantidadPuestos: int, TipoRefrigerante: str, TipoGasolina: str, TipoAceite: str, Peso: float):
-    return UpdateController().put_data(table_name="Modelos", CodigoMarca=CodigoMarca, NumeroCorrelativoModelo=NumeroCorrelativoModelo, data={
-        "DescripcionModelo": DescripcionModelo,
-        "CantidadPuestos": CantidadPuestos,
-        "TipoRefrigerante": TipoRefrigerante,
-        "TipoGasolina": TipoGasolina,
-        "TipoAceite": TipoAceite,
-        "Peso": Peso
+async def update_model(modelo: Brand):
+    return UpdateController().put_data(table_name="Modelos", CodigoMarca=modelo.CodigoMarca, NumeroCorrelativoModelo=modelo.NumeroCorrelativoModelo, data={
+        "DescripcionModelo": modelo.DescripcionModelo,
+        "CantidadPuestos": modelo.CantidadPuestos,
+        "TipoRefrigerante": modelo.TipoRefrigerante,
+        "TipoGasolina": modelo.TipoGasolina,
+        "TipoAceite": modelo.TipoAceite,
+        "Peso": modelo.Peso
     })
 
 " Vehiculo Endpoints "
@@ -161,14 +145,14 @@ async def read_vehicle_by_code(CodigoVehiculo: int):
     return vehicle
 
 @router.post("/vehicle/create", tags=["Vehiculo"], response_model=dict)
-async def create_vehicle(CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
+async def create_vehicle(vehiculo: Vehicle):
     return PostController().post_data(table_name="Vehiculos", data={
-        "CodigoMarca": CodigoMarca,
-        "NumeroCorrelativoModelo": NumeroCorrelativoModelo,
-        "Placa": Placa,
-        "FechaAdquisicion": FechaAdquisicion,
-        "TipoAceite": TipoAceite,
-        "CedulaCliente": CedulaCliente
+        "CodigoMarca": vehiculo.CodigoMarca,
+        "NumeroCorrelativoModelo": vehiculo.NumeroCorrelativoModelo,
+        "Placa": vehiculo.Placa,
+        "FechaAdquisicion": vehiculo.FechaAdquisicion,
+        "TipoAceite": vehiculo.TipoAceite,
+        "CedulaCliente": vehiculo.CedulaCliente
     })
 
 @router.delete("/vehicle/delete", tags=["Vehiculo"], response_model=dict)
@@ -176,11 +160,11 @@ async def delete_vehicle(CodigoVehiculo: int):
     return DeleteController().delete_data(table_name="Vehiculos", CodigoVehiculo=CodigoVehiculo)
 
 @router.put("/vehicle/update", tags=["Vehiculo"], response_model=dict)
-async def update_vehicle(CodigoVehiculo: int, Placa: str, TipoAceite: str, CedulaCliente: str):
-    return UpdateController().put_data(table_name="Vehiculos", CodigoVehiculo=CodigoVehiculo, data={
-        "Placa": Placa,
-        "TipoAceite": TipoAceite,
-        "CedulaCliente": CedulaCliente
+async def update_vehicle(vehiculo: Vehicle):
+    return UpdateController().put_data(table_name="Vehiculos", CodigoVehiculo=vehiculo.CodigoVehiculo, data={
+        "Placa": vehiculo.Placa,
+        "TipoAceite": vehiculo.TipoAceite,
+        "CedulaCliente": vehiculo.CedulaCliente
     })
 
 " Cliente Endpoints "
@@ -197,11 +181,11 @@ async def read_customer_by_ci(CI: str):
     return customer
 
 @router.post("/customer/create", tags=["Cliente"], response_model=dict)
-async def create_customer(CI: str, NombreCompleto: str, Email: str):
+async def create_customer(cliente: Customer):
     return PostController().post_data(table_name="Clientes", data={
-        "CI": CI,
-        "NombreCompleto": NombreCompleto,
-        "Email": Email
+        "CI": cliente.CI,
+        "NombreCompleto": cliente.NombreCompleto,
+        "Email": cliente.Email
     })
 
 @router.delete("/customer/delete", tags=["Cliente"], response_model=dict)
@@ -209,10 +193,10 @@ async def delete_customer(CI: str):
     return DeleteController().delete_data(table_name="Clientes", CI=CI)
 
 @router.put("/customer/update", tags=["Cliente"], response_model=dict)
-async def update_customer(CI: str, NombreCompleto: str, Email: str):
-    return UpdateController().put_data(table_name="Clientes", CI=CI, data={
-        "NombreCompleto": NombreCompleto,
-        "Email": Email
+async def update_customer(cliente: Customer):
+    return UpdateController().put_data(table_name="Clientes", CI=cliente.CI, data={
+        "NombreCompleto": cliente.NombreCompleto,
+        "Email": cliente.Email
     })
 
 # --- MaintenancePlan endpoints ---
@@ -228,13 +212,13 @@ async def read_maintenanceplan_by_code(CodigoMantenimiento: int):
     return maintenance_plan
 
 @router.post("/maintenanceplan/create", tags=["Plan de Mantenimiento"], response_model=dict)
-async def create_maintenanceplan(TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
+async def create_maintenanceplan(planmantenimiento: MaintenancePlan):
     return PostController().post_data(table_name="PlanesMantenimiento", data={
-        "TiempoUso": TiempoUso,
-        "Kilometraje": Kilometraje,
-        "DescripcionMantenimiento": DescripcionMantenimiento,
-        "CodigoMarca": CodigoMarca,
-        "NumeroCorrelativoModelo": NumeroCorrelativoModelo
+        "TiempoUso": planmantenimiento.TiempoUso,
+        "Kilometraje": planmantenimiento.Kilometraje,
+        "DescripcionMantenimiento": planmantenimiento.DescripcionMantenimiento,
+        "CodigoMarca": planmantenimiento.CodigoMarca,
+        "NumeroCorrelativoModelo": planmantenimiento.NumeroCorrelativoModelo
     })
 
 @router.delete("/maintenanceplan/delete", tags=["Plan de Mantenimiento"], response_model=dict)
@@ -242,13 +226,13 @@ async def delete_maintenanceplan(CodigoMantenimiento: int):
     return DeleteController().delete_data(table_name="PlanesMantenimiento", CodigoMantenimiento=CodigoMantenimiento)
 
 @router.put("/maintenanceplan/update", tags=["Plan de Mantenimiento"], response_model=dict)
-async def update_maintenanceplan(CodigoMantenimiento: int, TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
-    return UpdateController().put_data(table_name="PlanesMantenimiento", CodigoMantenimiento=CodigoMantenimiento, data={
-        "TiempoUso": TiempoUso,
-        "Kilometraje": Kilometraje,
-        "DescripcionMantenimiento": DescripcionMantenimiento,
-        "CodigoMarca": CodigoMarca,
-        "NumeroCorrelativoModelo": NumeroCorrelativoModelo
+async def update_maintenanceplan(planmantenimiento: MaintenancePlan):
+    return UpdateController().put_data(table_name="PlanesMantenimiento", CodigoMantenimiento=planmantenimiento.CodigoMantenimiento, data={
+        "TiempoUso": planmantenimiento.TiempoUso,
+        "Kilometraje": planmantenimiento.Kilometraje,
+        "DescripcionMantenimiento": planmantenimiento.DescripcionMantenimiento,
+        "CodigoMarca": planmantenimiento.CodigoMarca,
+        "NumeroCorrelativoModelo": planmantenimiento.NumeroCorrelativoModelo
     })
 
 
@@ -266,16 +250,16 @@ async def read_specialty_by_code(CodigoEspecialidad: int):
     return specialty
 
 @router.post("/specialty/create", tags=["Especialidad"], response_model=dict)
-async def create_specialty(DescripcionEspecialidad: str):
-    return PostController().post_data(table_name="Especialidades", data={"DescripcionEspecialidad": DescripcionEspecialidad})
+async def create_specialty(especialidad: Specialty):
+    return PostController().post_data(table_name="Especialidades", data={"DescripcionEspecialidad": especialidad.DescripcionEspecialidad})
 
 @router.delete("/specialty/delete", tags=["Especialidad"], response_model=dict)
 async def delete_specialty(CodigoEspecialidad: int):
     return DeleteController().delete_data(table_name="Especialidades", CodigoEspecialidad=CodigoEspecialidad)
 
 @router.put("/specialty/update", tags=["Especialidad"], response_model=dict)
-async def update_specialty(CodigoEspecialidad: int, DescripcionEspecialidad: str):
-    return UpdateController().put_data(table_name="Especialidades", CodigoEspecialidad=CodigoEspecialidad, data={"DescripcionEspecialidad": DescripcionEspecialidad})
+async def update_specialty(especialidad: Specialty):
+    return UpdateController().put_data(table_name="Especialidades", CodigoEspecialidad=especialidad.CodigoEspecialidad, data={"DescripcionEspecialidad": especialidad.DescripcionEspecialidad})
 
 
 " Servicio Endpoints "
@@ -292,16 +276,16 @@ async def read_service_by_code(CodigoServicio: int):
     return service
 
 @router.post("/service/create", tags=["Servicio"], response_model=dict)
-async def create_service(NombreServicio: str):
-    return PostController().post_data(table_name="Servicios", data={"NombreServicio": NombreServicio})
+async def create_service(servicio: Service):
+    return PostController().post_data(table_name="Servicios", data={"NombreServicio": servicio.NombreServicio})
 
 @router.delete("/service/delete", tags=["Servicio"], response_model=dict)
 async def delete_service(CodigoServicio: int):
     return DeleteController().delete_data(table_name="Servicios", CodigoServicio=CodigoServicio)
 
 @router.put("/service/update", tags=["Servicio"], response_model=dict)
-async def update_service(CodigoServicio: int, NombreServicio: str):
-    return UpdateController().put_data(table_name="Servicios", CodigoServicio=CodigoServicio, data={"NombreServicio": NombreServicio})
+async def update_service(servicio:  Service):
+    return UpdateController().put_data(table_name="Servicios", CodigoServicio=servicio.CodigoServicio, data={"NombreServicio": servicio.NombreServicio})
 
 " Linea de Suministros Endpoints "
 
@@ -317,16 +301,16 @@ async def read_supplier_line_by_code(CodigoLinea: int):
     return supplier_line
 
 @router.post("/supplier_line/create", tags=["Linea de Suministro"], response_model=dict)
-async def create_supplier_line(DescripcionLinea: str):
-    return PostController().post_data(table_name="LineasSuministro", data={"DescripcionLinea": DescripcionLinea})
+async def create_supplier_line(lineasuministro: SupplierLine):
+    return PostController().post_data(table_name="LineasSuministro", data={"DescripcionLinea": lineasuministro.DescripcionLinea})
 
 @router.delete("/supplier_line/delete", tags=["Linea de Suministro"], response_model=dict)
 async def delete_supplier_line(CodigoLinea: int):
     return DeleteController().delete_data(table_name="LineasSuministro", CodigoLinea=CodigoLinea)
 
 @router.put("/supplier_line/update", tags=["Linea de Suministro"], response_model=dict)
-async def update_supplier_line(CodigoLinea: int, DescripcionLinea: str):
-    return UpdateController().put_data(table_name="LineasSuministro", CodigoLinea=CodigoLinea, data={"DescripcionLinea": DescripcionLinea})
+async def update_supplier_line(lineasuministro: SupplierLine):
+    return UpdateController().put_data(table_name="LineasSuministro", CodigoLinea=lineasuministro.CodigoLinea, data={"DescripcionLinea": lineasuministro.DescripcionLinea})
 
 
 " Producto Endpoints "
@@ -343,14 +327,14 @@ async def read_product_by_code(CodigoProducto: int):
     return product
 
 @router.post("/product/create", tags=["Producto"], response_model=dict)
-async def create_product(NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int] = None, Tratamiento: Optional[str] = None):
+async def create_product(producto: Product):
     return PostController().post_data(table_name="Productos", data={
-        "NombreProducto": NombreProducto,
-        "DescripcionProducto": DescripcionProducto,
-        "LineaSuministro": LineaSuministro,
-        "Tipo": Tipo,
-        "NivelContaminante": NivelContaminante,
-        "Tratamiento": Tratamiento
+        "NombreProducto": producto.NombreProducto,
+        "DescripcionProducto": producto.DescripcionProducto,
+        "LineaSuministro": producto.LineaSuministro,
+        "Tipo": producto.Tipo,
+        "NivelContaminante": producto.NivelContaminante,
+        "Tratamiento": producto.Tratamiento
     })
 
 @router.delete("/product/delete", tags=["Producto"], response_model=dict)
@@ -358,14 +342,14 @@ async def delete_product(CodigoProducto: int):
     return DeleteController().delete_data(table_name="Productos", CodigoProducto=CodigoProducto)
 
 @router.put("/product/update", tags=["Producto"], response_model=dict)
-async def update_product(CodigoProducto: int, NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: Optional[int] = None, Tratamiento: Optional[str] = None):
-    return UpdateController().put_data(table_name="Productos", CodigoProducto=CodigoProducto, data={
-        "NombreProducto": NombreProducto,
-        "DescripcionProducto": DescripcionProducto,
-        "LineaSuministro": LineaSuministro,
-        "Tipo": Tipo,
-        "NivelContaminante": NivelContaminante,
-        "Tratamiento": Tratamiento
+async def update_product(producto: Product):
+    return UpdateController().put_data(table_name="Productos", CodigoProducto=producto.CodigoProducto, data={
+        "NombreProducto": producto.NombreProducto,
+        "DescripcionProducto": producto.DescripcionProducto,
+        "LineaSuministro": producto.LineaSuministro,
+        "Tipo": producto.Tipo,
+        "NivelContaminante": producto.NivelContaminante,
+        "Tratamiento": producto.Tratamiento
     })
 
 " Proveedor Endpoints "
@@ -382,14 +366,14 @@ async def read_vendor_by_rif(RIF: str):
     return vendor
 
 @router.post("/vendor/create", tags=["Proveedor"], response_model=dict)
-async def create_vendor(RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
+async def create_vendor(proveedor: Vendor):
     return PostController().post_data(table_name="Proveedores", data={
-        "RIF": RIF,
-        "RazonSocial": RazonSocial,
-        "Direccion": Direccion,
-        "TelefonoLocal": TelefonoLocal,
-        "TelefonoCelular": TelefonoCelular,
-        "PersonaContacto": PersonaContacto
+        "RIF": proveedor.RIF,
+        "RazonSocial": proveedor.RazonSocial,
+        "Direccion": proveedor.Direccion,
+        "TelefonoLocal": proveedor.TelefonoLocal,
+        "TelefonoCelular": proveedor.TelefonoCelular,
+        "PersonaContacto": proveedor.PersonaContacto
     })
 
 @router.delete("/vendor/delete", tags=["Proveedor"], response_model=dict)
@@ -397,13 +381,13 @@ async def delete_vendor(RIF: str):
     return DeleteController().delete_data(table_name="Proveedores", RIF=RIF)
 
 @router.put("/vendor/update", tags=["Proveedor"], response_model=dict)
-async def update_vendor(RIF: str, RazonSocial: str, Direccion: str, TelefonoLocal: str, TelefonoCelular: str, PersonaContacto: str):
-    return UpdateController().put_data(table_name="Proveedores", RIF=RIF, data={
-        "RazonSocial": RazonSocial,
-        "Direccion": Direccion,
-        "TelefonoLocal": TelefonoLocal,
-        "TelefonoCelular": TelefonoCelular,
-        "PersonaContacto": PersonaContacto
+async def update_vendor(proveedor: Vendor):
+    return UpdateController().put_data(table_name="Proveedores", RIF=proveedor.RIF, data={
+        "RazonSocial": proveedor.RazonSocial,
+        "Direccion": proveedor.Direccion,
+        "TelefonoLocal": proveedor.TelefonoLocal,
+        "TelefonoCelular": proveedor.TelefonoCelular,
+        "PersonaContacto": proveedor.PersonaContacto
     })
 
 " Orden de Servicio Endpoints "
@@ -420,25 +404,25 @@ async def read_service_order_by_id(ID: int):
     return service_order
 
 @router.post("/service_order/create", tags=["Orden de Servicio"], response_model=dict)
-async def create_service_order(FechaEntrada: str, HoraEntrada: str, FechaSalidaEstimada: str, HoraSalidaEstimada: str, CodigoVehiculo: int):
+async def create_service_order(ordenservicio: ServiceOrder):
     return PostController().post_data(table_name="OrdenesServicio", data={
-        "FechaEntrada": FechaEntrada,
-        "HoraEntrada": HoraEntrada,
-        "FechaSalidaEstimada": FechaSalidaEstimada,
-        "HoraSalidaEstimada": HoraSalidaEstimada,
-        "CodigoVehiculo": CodigoVehiculo
+        "FechaEntrada": ordenservicio.FechaEntrada,
+        "HoraEntrada": ordenservicio.HoraEntrada,
+        "FechaSalidaEstimada": ordenservicio.FechaSalidaEstimada,
+        "HoraSalidaEstimada": ordenservicio.HoraSalidaEstimada,
+        "CodigoVehiculo": ordenservicio.CodigoVehiculo
     })
 
 @router.put("/service_order/update", tags=["Orden de Servicio"], response_model=dict)
-async def update_service_order(ID: int, FechaSalidaReal: Optional[str] = None, HoraSalidaReal: Optional[str] = None, Comentario: Optional[str] = None):
+async def update_service_order(ordenservicio: ServiceOrder):
     data = {}
-    if FechaSalidaReal is not None:
-        data["FechaSalidaReal"] = FechaSalidaReal
-    if HoraSalidaReal is not None:
-        data["HoraSalidaReal"] = HoraSalidaReal
-    if Comentario is not None:
-        data["Comentario"] = Comentario
-    return UpdateController().put_data(table_name="OrdenesServicio", ID=ID, data=data)
+    if ordenservicio.FechaSalidaReal is not None:
+        data["FechaSalidaReal"] = ordenservicio.FechaSalidaReal
+    if ordenservicio.HoraSalidaReal is not None:
+        data["HoraSalidaReal"] = ordenservicio.HoraSalidaReal
+    if ordenservicio.Comentario is not None:
+        data["Comentario"] = ordenservicio.Comentario
+    return UpdateController().put_data(table_name="OrdenesServicio", ID=ordenservicio.ID, data=data)
 
 
 " Factura Endpoints "
@@ -455,14 +439,14 @@ async def read_invoice_by_number(NumeroFactura: int):
     return invoice
 
 @router.post("/invoice/create", tags=["Factura"], response_model=dict)
-async def create_invoice(FechaEmision: str, MontoTotal: float, IVA: float, Descuento: float, OrdenServicioID: int, FranquiciaRIF: str):
+async def create_invoice(factura: Invoice):
     return PostController().post_data(table_name="Facturas", data={
-        "FechaEmision": FechaEmision,
-        "MontoTotal": MontoTotal,
-        "IVA": IVA,
-        "Descuento": Descuento,
-        "OrdenServicioID": OrdenServicioID,
-        "FranquiciaRIF": FranquiciaRIF
+        "FechaEmision": factura.FechaEmision,
+        "MontoTotal": factura.MontoTotal,
+        "IVA": factura.IVA,
+        "Descuento": factura.Descuento,
+        "OrdenServicioID": factura.OrdenServicioID,
+        "FranquiciaRIF": factura.FranquiciaRIF
     })
 
 
@@ -480,10 +464,10 @@ async def read_purchase_by_number(NumeroCompra: int):
     return purchase
 
 @router.post("/purchase/create", tags=["Compra"], response_model=dict)
-async def create_purchase(Fecha: str, ProveedorRIF: str):
+async def create_purchase(compra: Purchase):
     return PostController().post_data(table_name="Compras", data={
-        "Fecha": Fecha,
-        "ProveedorRIF": ProveedorRIF
+        "Fecha": compra.Fecha,
+        "ProveedorRIF": compra.ProveedorRIF
     })
 
 
@@ -501,14 +485,14 @@ async def read_product_franchise_by_code(FranquiciaRIF: str, CodigoProducto: int
     return product_franchise
 
 @router.post("/product_franchise/create", tags=["Producto Franquicia"], response_model=dict)
-async def create_product_franchise(FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
+async def create_product_franchise(productofraq: ProductFranchise):
     return PostController().post_data(table_name="ProductosFranquicia", data={
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoProducto": CodigoProducto,
-        "Precio": Precio,
-        "Cantidad": Cantidad,
-        "CantidadMinima": CantidadMinima,
-        "CantidadMaxima": CantidadMaxima
+        "FranquiciaRIF": productofraq.FranquiciaRIF,
+        "CodigoProducto": productofraq.CodigoProducto,
+        "Precio": productofraq.Precio,
+        "Cantidad": productofraq.Cantidad,
+        "CantidadMinima": productofraq.CantidadMinima,
+        "CantidadMaxima": productofraq.CantidadMaxima
     })
 
 @router.delete("/product_franchise/delete", tags=["Producto Franquicia"], response_model=dict)
@@ -516,12 +500,12 @@ async def delete_product_franchise(FranquiciaRIF: str, CodigoProducto: int):
     return DeleteController().delete_data(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, CodigoProducto=CodigoProducto)
 
 @router.put("/product_franchise/update", tags=["Producto Franquicia"], response_model=dict)
-async def update_product_franchise(FranquiciaRIF: str, CodigoProducto: int, Precio: float, Cantidad: int, CantidadMinima: int, CantidadMaxima: int):
-    return UpdateController().put_data(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, CodigoProducto=CodigoProducto, data={
-        "Precio": Precio,
-        "Cantidad": Cantidad,
-        "CantidadMinima": CantidadMinima,
-        "CantidadMaxima": CantidadMaxima
+async def update_product_franchise(productofraq: ProductFranchise):
+    return UpdateController().put_data(table_name="ProductosFranquicia", FranquiciaRIF=productofraq.FranquiciaRIF, CodigoProducto=productofraq.CodigoProducto, data={
+        "Precio": productofraq.Precio,
+        "Cantidad": productofraq.Cantidad,
+        "CantidadMinima": productofraq.CantidadMinima,
+        "CantidadMaxima": productofraq.CantidadMaxima
     })
 
 " Actividad Endpoints "
@@ -538,12 +522,12 @@ async def read_activity_by_code(CodigoServicio: int, NumeroCorrelativoActividad:
     return activity
 
 @router.post ("/activity/create", tags=["Actividad"], response_model=dict)
-async def create_activity(CodigoServicio: int, NumeroCorrelativoActividad: int, DescripcionActividad: str, CostoManoDeObra: float):
+async def create_activity(actividad: Activity):
     return PostController().post_data(table_name="Actividades", data={
-        "CodigoServicio": CodigoServicio,
-        "NumeroCorrelativoActividad": NumeroCorrelativoActividad,
-        "DescripcionActividad": DescripcionActividad,
-        "CostoManoDeObra": CostoManoDeObra
+        "CodigoServicio": actividad.CodigoServicio,
+        "NumeroCorrelativoActividad": actividad.NumeroCorrelativoActividad,
+        "DescripcionActividad": actividad.DescripcionActividad,
+        "CostoManoDeObra": actividad.CostoManoDeObra
         })
 
 @router.delete("/activity/delete", tags=["Actividad"], response_model=dict)
@@ -565,12 +549,12 @@ async def read_orderxactivity_by_code(IDorden: int, CodigoServicio: int, NumeroC
     return orderxactivity
 
 @router.post("/orderxactivity/create", tags=["OrdenxActividad"], response_model=dict)
-async def create_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, Costo_Act: float):
+async def create_orderxactivity(ordenxactividad: OrderxActivity):
     return PostController().post_data(table_name="OrdenesActividades", data={
-        "IDorden": IDorden,
-        "CodigoServicio": CodigoServicio,
-        "NumeroCorrelativoActividad": NumeroCorrelativoActividad,
-        "Costo_Act": Costo_Act
+        "IDorden": ordenxactividad.IDorden,
+        "CodigoServicio": ordenxactividad.CodigoServicio,
+        "NumeroCorrelativoActividad": ordenxactividad.NumeroCorrelativoActividad,
+        "Costo_Act": ordenxactividad.Costo_Act
         })
 
 "Pagos Endpoints"
@@ -587,21 +571,21 @@ async def read_pay_by_code(numero_factura: int, numero_correlativo_pago: int):
     return pay
 
 @router.post("/pays/create", tags=["Pagos"], response_model=dict)
-async def create_pay(NumeroFactura: int, NumeroCorrelativoPago: int, Tipo: str, FechaTarjeta: Optional[date], MontoTarjeta: Optional[float], BancoTarjeta: Optional[str], ModalidadTarjeta: Optional[str], NumeroTarjeta: Optional[str], MontoEfectivo: Optional[float], FechaPagoMovil: Optional[date], TelefonoPagoMovil: Optional[str], ReferenciaPagoMovil: Optional[str], MontoPagoMovil: Optional[float]):
+async def create_pay(pago: Pay):
     return PostController().post_data(table_name="Pagos", data={
-        "NumeroFactura": NumeroFactura,
-        "NumeroCorrelativoPago": NumeroCorrelativoPago,
-        "Tipo": Tipo,
-        "FechaTarjeta": FechaTarjeta,
-        "MontoTarjeta": MontoTarjeta,
-        "BancoTarjeta": BancoTarjeta,
-        "ModalidadTarjeta": ModalidadTarjeta,
-        "NumeroTarjeta": NumeroTarjeta,
-        "MontoEfectivo": MontoEfectivo,
-        "FechaPagoMovil": FechaPagoMovil,
-        "TelefonoPagoMovil": TelefonoPagoMovil,
-        "ReferenciaPagoMovil": ReferenciaPagoMovil,
-        "MontoPagoMovil": MontoPagoMovil
+        "NumeroFactura": pago.NumeroFactura,
+        "NumeroCorrelativoPago": pago.NumeroCorrelativoPago,
+        "Tipo": pago.Tipo,
+        "FechaTarjeta": pago.FechaTarjeta,
+        "MontoTarjeta": pago.MontoTarjeta,
+        "BancoTarjeta": pago.BancoTarjeta,
+        "ModalidadTarjeta": pago.ModalidadTarjeta,
+        "NumeroTarjeta": pago.NumeroTarjeta,
+        "MontoEfectivo": pago.MontoEfectivo,
+        "FechaPagoMovil": pago.FechaPagoMovil,
+        "TelefonoPagoMovil": pago.TelefonoPagoMovil,
+        "ReferenciaPagoMovil": pago.ReferenciaPagoMovil,
+        "MontoPagoMovil": pago.MontoPagoMovil
         })
 
 
@@ -619,10 +603,10 @@ async def read_customer_phone_by_code(cliente: int):
     return customer_phone
 
 @router.post("/customer_phone/create", tags=["TelefonosCliente"], response_model=dict)
-async def create_customer_phone(Cliente: str, Telefono: str):
+async def create_customer_phone(telefonoclient: CustomerPhone):
     return PostController().post_data(table_name="TelefonosClientes", data={
-        "Cliente": Cliente,
-        "Telefono": Telefono
+        "Cliente": telefonoclient.Cliente,
+        "Telefono": telefonoclient.Telefono
         })
 
 @router.delete("/customer_phone/delete")
@@ -635,7 +619,7 @@ async def delete_customer_phone(Cliente: str, Telefono: str):
 @router.put("/customer_phone/update", tags=["TelefonosCliente"], response_model=dict)
 async def update_customer_phone(Cliente: str, Telefono: str, NuevoTelefono: str):
     return UpdateController().put_data(table_name="TelefonosClientes", Cliente=Cliente, Telefono=Telefono, data={
-        "Telefono": Telefono,
+        "Telefono": NuevoTelefono,
     })
 
 
@@ -653,10 +637,10 @@ async def read_employee_order_by_code(empleado_ci: str, codigo_orden: int):
     return empleado_orden
 
 @router.post("/employee_order/create", tags=["EmpleadosOrden"], response_model=dict)
-async def create_employee_order(EmpleadoCI: str, CodigoOrden: int):
+async def create_employee_order(empleadoorden: EmployeeOrder):
     return PostController().post_data(table_name="EmpleadosOrdenes", data={
-        "EmpleadoCI": EmpleadoCI,
-        "CodigoOrden": CodigoOrden
+        "EmpleadoCI": empleadoorden.EmpleadoCI,
+        "CodigoOrden": empleadoorden.CodigoOrden
     })
 
 
@@ -674,10 +658,10 @@ async def read_specialty_employee_by_code(empleado_ci: str, codigo_especialidad:
     return specialty_employee
 
 @router.post("/speciality_employee", tags=["EspecialidadEmpleado"], response_model=dict)
-async def create_specialty_employee(EmpleadoCI: str, CodigoEspecialidad: int):
+async def create_specialty_employee(especialidademp: SpecialtyEmployee):
     return PostController().post_data(table_name="EspecialidadesEmpleados", data={
-        "EmpleadoCI": EmpleadoCI,
-        "CodigoEspecialidad": CodigoEspecialidad
+        "EmpleadoCI": especialidademp.EmpleadoCI,
+        "CodigoEspecialidad": especialidademp.CodigoEspecialidad
         })
 
 @router.delete("speciality_employee/delete")
@@ -698,11 +682,11 @@ async def get_vehicle_maintenance_by_code(vehiculo: int, fecha_mantenimiento: da
     return vehicle_maintenance
 
 @router.post("/vehicle_maintenances/create", tags=["Mantenimiento de Vehículos"], response_model=dict)
-async def create_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: date, Descripcion: str):
+async def create_vehicle_maintenance(vehiculomant: VehicleMaintenance):
     return PostController().post_data(table_name="MantenimientosVehiculos", data={
-        "Vehiculo": Vehiculo,
-        "FechaMantenimiento": FechaMantenimiento,
-        "Descripcion": Descripcion
+        "Vehiculo": vehiculomant.Vehiculo,
+        "FechaMantenimiento": vehiculomant.FechaMantenimiento,
+        "Descripcion": vehiculomant.Descripcion
         })
 
 @router.delete("/vehicle_maintenances/delete", tags=["Mantenimiento de Vehículos"], response_model=dict)
@@ -724,10 +708,10 @@ async def get_employee_responsibility_by_code(empleado_ci: str, codigo_servicio:
     return employee_responsibility
 
 @router.post("/employee_responsibilities/create", tags=["Responsabilidad de Empleados"], response_model=dict)
-async def create_employee_responsibility(EmpleadoCI: str, CodigoServicio: int):
+async def create_employee_responsibility(empleadores: EmployeeResponsibility):
     return PostController().post_data(table_name="ResponsabilidadesEmpleados", data={
-        "EmpleadoCI": EmpleadoCI,
-        "CodigoServicio": CodigoServicio
+        "EmpleadoCI": empleadores.EmpleadoCI,
+        "CodigoServicio": empleadores.CodigoServicio
         })
 
 @router.delete("/employee_responsibilities/delete", tags=["Responsabilidad de Empleados"], response_model=dict)
@@ -748,10 +732,10 @@ async def get_franchise_service_by_code(franquicia_rif: str, codigo_servicio: in
     return franchise_service
 
 @router.post("/franchise_services/create", tags=["Servicios de Franquicia"], response_model=dict)
-async def create_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
+async def create_franchise_service(franqservice: FranchiseServiceLink):
     return PostController().post_data(table_name="ServiciosFranquicias", data={
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoServicio": CodigoServicio
+        "FranquiciaRIF": franqservice.FranquiciaRIF,
+        "CodigoServicio": franqservice.CodigoServicio
         })
 
 @router.delete("/franchise_services/delete", tags=["Servicios de Franquicia"], response_model=dict)
@@ -772,14 +756,14 @@ async def read_correction_by_code(FranquiciaRIF: str, CodigoProducto: int, Fecha
     return correction
 
 @router.post("/correction/create", tags=["Correccion de Inventario"], response_model=dict)
-async def create_correction(FranquiciaRIF: str, CodigoProducto: int, FechaCorreccion: str, Cantidad: int, TipoAjuste: str, Comentario: Optional[str] = None):
+async def create_correction(correccion: Correction  ):
     return PostController().post_data(table_name="Correcciones", data={
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoProducto": CodigoProducto,
-        "FechaCorreccion": FechaCorreccion,
-        "Cantidad": Cantidad,
-        "TipoAjuste": TipoAjuste,
-        "Comentario": Comentario
+        "FranquiciaRIF": correccion.FranquiciaRIF,
+        "CodigoProducto": correccion.CodigoProducto,
+        "FechaCorreccion": correccion.FechaCorreccion,
+        "Cantidad": correccion.Cantidad,
+        "TipoAjuste": correccion.TipoAjuste,
+        "Comentario": correccion.Comentario
         })
 
 
@@ -797,10 +781,10 @@ async def read_supply_by_code(ProveedorRIF: str, CodigoProducto: int):
     return supply
 
 @router.post("/supply/create", tags=["Suministro"], response_model=dict)
-async def create_supply(ProveedorRIF: str, CodigoProducto: int):
+async def create_supply(suministro: Supply):
     return PostController().post_data(table_name="Suministran", data={
-        "ProveedorRIF": ProveedorRIF,
-        "CodigoProducto": CodigoProducto
+        "ProveedorRIF": suministro.ProveedorRIF,
+        "CodigoProducto": suministro.CodigoProducto
         })
 
 @router.delete("/supply/delete", tags=["Suministro"], response_model=dict)
@@ -827,14 +811,14 @@ async def read_inventory_increase_by_code(NumeroCompra: int, FranquiciaRIF: str,
     return inventory_increase
 
 @router.post("/inventory_increase/create", tags=["Aumento de Inventario"], response_model=dict)
-async def create_inventory_increase(NumeroCompra: int, FranquiciaRIF: str, CodigoProducto: int, CantidadPedida: int, CantidadDisponible: int, Monto: float):
+async def create_inventory_increase(aumentainv: InventoryIncrease):
     return PostController().post_data(table_name="AumentosInventario", data={
-        "NumeroCompra": NumeroCompra,
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoProducto": CodigoProducto,
-        "CantidadPedida": CantidadPedida,
-        "CantidadDisponible": CantidadDisponible,
-        "Monto": Monto
+        "NumeroCompra": aumentainv.NumeroCompra,
+        "FranquiciaRIF": aumentainv.FranquiciaRIF,
+        "CodigoProducto": aumentainv.CodigoProducto,
+        "CantidadPedida": aumentainv.CantidadPedida,
+        "CantidadDisponible": aumentainv.CantidadDisponible,
+        "Monto": aumentainv.Monto
         })
 
 
@@ -852,10 +836,10 @@ async def read_franchise_service_by_code(FranquiciaRIF: str, CodigoServicio: int
     return franchise_service
 
 @router.post("/franchise_servive/create", tags=["Servicios Franquicia"], response_model=dict)
-async def create_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
+async def create_franchise_service(franqservice: FranchiseServices):
     return PostController().post_data(table_name="ServiciosFranquicias", data={
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoServicio": CodigoServicio
+        "FranquiciaRIF": franqservice.FranquiciaRIF,
+        "CodigoServicio": franqservice.CodigoServicio
         })
 
 @router.delete("/franchise_service/delete", tags=["Servicios Franquicia"], response_model=dict)
@@ -880,13 +864,13 @@ async def read_product_service_order_by_code(CodigoOrdenServicio: int, CodigoSer
     return product_service_order
 
 @router.post("/product_service_order/create", tags=["Productos Orden Servicio"], response_model=dict)
-async def create_product_service_order(CodigoOrdenServicio: int, CodigoServicio: int, NumeroCorrelativoActividad: int, FranquiciaRIF: str, CodigoProducto: int, CantidadUtilizada: int, PrecioProducto: float):
+async def create_product_service_order(productords:  ProductServiceOrder):
     return PostController().post_data(table_name="ProductosOrdenesServicio", data={
-        "CodigoOrdenServicio": CodigoOrdenServicio,
-        "CodigoServicio": CodigoServicio,
-        "NumeroCorrelativoActividad": NumeroCorrelativoActividad,
-        "FranquiciaRIF": FranquiciaRIF,
-        "CodigoProducto": CodigoProducto,
-        "CantidadUtilizada": CantidadUtilizada,
-        "PrecioProducto": PrecioProducto
+        "CodigoOrdenServicio": productords.CodigoOrdenServicio,
+        "CodigoServicio": productords.CodigoServicio,
+        "NumeroCorrelativoActividad": productords.NumeroCorrelativoActividad,
+        "FranquiciaRIF": productords.FranquiciaRIF,
+        "CodigoProducto": productords.CodigoProducto,
+        "CantidadUtilizada": productords.CantidadUtilizada,
+        "PrecioProducto": productords.PrecioProducto
         })

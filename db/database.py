@@ -17,7 +17,7 @@ def get_connection():
         # Conectar a SQL Server local
         conn_master = pyodbc.connect(
             "Driver={SQL Server};"
-            "Server=DESKTOP-DJIAR9K;"
+            "Server=KUNORI\SQLEXPRESS;"
             "Database=master;"
             "Trusted_Connection=yes;"
         )
@@ -31,7 +31,8 @@ def get_connection():
             cursor_master.execute("CREATE DATABASE MultiserviciosUniversal")
             print("Base de datos 'MultiserviciosUniversal' creada")
         except pyodbc.Error as e:
-            if "already exists" in str(e):
+            # Error code 1801 = database already exists
+            if hasattr(e, 'args') and len(e.args) > 1 and '1801' in str(e.args[1]):
                 print("Base de datos 'MultiserviciosUniversal' ya existe")
             else:
                 raise e
@@ -41,7 +42,7 @@ def get_connection():
         # Conectar a la base de datos 
         conn = pyodbc.connect(
             "Driver={SQL Server};"
-            "Server=DESKTOP-DJIAR9K;"
+            "Server=KUNORI\SQLEXPRESS;"
             "Database=MultiserviciosUniversal;"
             "Trusted_Connection=yes;"
         )
