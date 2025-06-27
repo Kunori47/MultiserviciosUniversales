@@ -1,26 +1,23 @@
 import {
-  mdiGithub,
-  mdiMonitorCellphone,
   mdiPlus,
   mdiTableBorder,
-  mdiTableOff,
 } from "@mdi/js";
 import Button from "../../_components/Button";
 import CardBox from "../../_components/CardBox";
-import CardBoxComponentEmpty from "../../_components/CardBox/Component/Empty";
-import NotificationBar from "../../_components/NotificationBar";
 import SectionMain from "../../_components/Section/Main";
 import SectionTitleLineWithButton from "../../_components/Section/TitleLineWithButton";
-import TableSampleClients from "../_components/Table/SampleClients";
 import { getPageTitle } from "../../_lib/config";
-import { clients } from "../_lib/sampleData";
+import { fetchFranchises } from "../_lib/db";
 import { Metadata } from "next";
+import TableFranchise from "./table/Franchise";
 
 export const metadata: Metadata = {
   title: getPageTitle("Franquicia"),
 };
 
-export default function TablesPage() {
+export default async function TablesPage() {
+  const franchises = await fetchFranchises();
+
   return (
     <SectionMain>
       <SectionTitleLineWithButton icon={mdiTableBorder} title="Franquicia" main>
@@ -37,7 +34,7 @@ export default function TablesPage() {
 
 
       <CardBox className="mb-6" hasTable>
-        <TableSampleClients clients={clients} />
+        <TableFranchise franchise={franchises} />
       </CardBox>
       
     </SectionMain>

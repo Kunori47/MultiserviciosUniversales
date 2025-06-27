@@ -29,7 +29,7 @@ async def create_franchise(Franchise: Franchise):
 
 @router.put("/franchise/update", tags=["Franquicias"], response_model=dict)
 async def create_franchise(Franchise: Franchise):
-    return UpdateController().put_data(table_name="Franquicias", data=Franchise.model_dump())
+    return UpdateController().put_data(table_name="Franquicias", data=Franchise.model_dump(), RIF=Franchise.RIF)
 
 " Empleados Endpoints "
 
@@ -40,6 +40,10 @@ async def read_employee():
 @router.get("/employee/search", tags=["Empleado"])
 async def search_employees(q: str):
     return GetController().search(table_name="Empleados", query=q)
+
+@router.get("/employee/franchise/{RIF}", tags=["Empleado"], response_model=Employee)
+async def read_employee_by_rif(RIF: str):
+    return GetController().get_by_id(table_name="Empleados", FranquiciaRIF=RIF)
 
 @router.get("/employee/{CI}", tags=["Empleado"], response_model=Employee)
 async def read_employee_by_ci(CI: str):

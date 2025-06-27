@@ -5,23 +5,49 @@ import {
   mdiBallotOutline,
   mdiCalendar,
   mdiCity,
+  mdiListStatus,
   mdiMail,
 } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import Head from "next/head";
-import Button from "../../../_components/Button";
-import Buttons from "../../../_components/Buttons";
-import Divider from "../../../_components/Divider";
-import CardBox from "../../../_components/CardBox";
-import FormField from "../../../_components/FormField";
-import SectionMain from "../../../_components/Section/Main";
-import SectionTitleLineWithButton from "../../../_components/Section/TitleLineWithButton";
-import { getPageTitle } from "../../../_lib/config";
-import { useState } from 'react';
+import Button from "../../../../_components/Button";
+import Buttons from "../../../../_components/Buttons";
+import Divider from "../../../../_components/Divider";
+import CardBox from "../../../../_components/CardBox";
+import FormField from "../../../../_components/FormField";
+import SectionMain from "../../../../_components/Section/Main";
+import SectionTitleLineWithButton from "../../../../_components/Section/TitleLineWithButton";
+import { getPageTitle } from "../../../../_lib/config";
+import { useEffect, useState } from "react";
+import { useParams} from "next/navigation";
 
-export default function FormsPage() {
+
+export default function UpdateFPage() {
+    const params = useParams();
+    const rif = params?.rif as string;
+    const [franchise, setFranchise] = useState<any>(null);
     const [encargadoInput, setEncargadoInput] = useState("");
     const [suggestions, setSuggestions] = useState<any[]>([]);
+
+
+    useEffect(() => {
+        if (rif) {
+        fetch(`http://127.0.0.1:8000/franchise/${rif}`)
+            .then(res => res.json())
+            .then(data => setFranchise(data));
+        }
+    }, [rif]);
+
+    useEffect(() => {
+      if (franchise && franchise.CI_Encargado) {
+        setEncargadoInput(franchise.CI_Encargado);
+      }
+    }, [franchise]);
+
+    if (!franchise) {
+      return <div>Cargando datos de la franquicia...</div>;
+    }
+  
 
   // Función para buscar sugerencias
   const fetchSuggestions = async (query: string) => {
@@ -50,7 +76,7 @@ export default function FormsPage() {
       <SectionMain>
         <SectionTitleLineWithButton
           icon={mdiBallotOutline}
-          title="Crear Franquicia"
+          title="Actualizar Franquicia"
           main
         >
         </SectionTitleLineWithButton>
@@ -58,16 +84,17 @@ export default function FormsPage() {
         <CardBox>
           <Formik
             initialValues={{
-              RIF: "",
-              nombre: "",
-              ciudad: "",
-              encargado: "",
-              fechaInicioEncargado: "",
+              RIF: franchise.RIF,
+              nombre: franchise.Nombre,
+              ciudad: franchise.Ciudad,
+              encargado: franchise.CI_Encargado,
+              fechaInicioEncargado: franchise.FechaInicioEncargado,
+              Estatus: franchise.Estatus,
             }}
             onSubmit={async (values, { resetForm }) => {
                 try {
-                const res = await fetch("http://127.0.0.1:8000/franchise/create", {
-                    method: "POST",
+                const res = await fetch("http://127.0.0.1:8000/franchise/update", {
+                    method: "PUT",
                     headers: {
                     "Content-Type": "application/json",
                     },
@@ -77,14 +104,14 @@ export default function FormsPage() {
                     Ciudad: values.ciudad,
                     CI_Encargado: values.encargado,
                     FechaInicioEncargado: values.fechaInicioEncargado, // agrega el campo si lo tienes en el form
-                    Estatus: "Activo", // agrega el campo si lo tienes en el form
+                    Estatus: values.Estatus, // agrega el campo si lo tienes en el form
                     }),
                 });
                 if (!res.ok) {
-                    throw new Error("Error al crear la franquicia");
+                    throw new Error("Error al actualizar la franquicia");
                 }
                 const data = await res.json();
-                alert("Franquicia creada correctamente");
+                alert("Franquicia actualizada correctamente");
                 resetForm();
                 } catch (err) {
                 alert("Error: " + err.message);
@@ -142,7 +169,7 @@ export default function FormsPage() {
                 </FormField>
                 </div>
                 <div>
-                <FormField label="Encargado" labelFor="Encargado" icon={mdiAccount}>
+                <FormField label="Encargado" labelFor="encargado" icon={mdiAccount}>
                 {({ className }) => (
                   <div>
                   <Field
@@ -181,18 +208,37 @@ export default function FormsPage() {
               </div>
               </div>
 
-                <div>
-                <FormField label="Fecha de Inicio Encargado" labelFor="fechaInicioEncargado" icon={mdiCalendar}>
-                    {({ className }) => (
-                    <Field
-                        name="fechaInicioEncargado"
-                        id="fechaInicioEncargado"
-                        type="date"
+                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
+                  <div>
+                  <FormField label="Fecha de Inicio Encargado" labelFor="fechaInicioEncargado" icon={mdiCalendar}>
+                      {({ className }) => (
+                      <Field
+                          name="fechaInicioEncargado"
+                          id="fechaInicioEncargado"
+                          type="date"
+                          className={className}
+                          required
+                      />
+                      )}
+                  </FormField>
+                  </div>
+                  <div>
+                    <FormField label="Estatus" labelFor="Estatus" icon={mdiListStatus}>
+                      {({ className }) => (
+                      <Field 
+                        name="Estatus"
+                        id="Estatus"
+                        component="select"
                         className={className}
                         required
-                    />
-                    )}
-                </FormField>
+                      >
+                        <option value="Activo">Activo</option>
+                        <option value="No activo">No activo</option>
+                      
+                      </Field>
+                      )}
+                    </FormField>
+                  </div>
                 </div>
 
               <Divider />

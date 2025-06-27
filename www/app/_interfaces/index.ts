@@ -79,6 +79,15 @@ export type Client = {
   created_mm_dd_yyyy: string;
 };
 
+export type Franchise = {
+  RIF: string;
+  Nombre: string;
+  Ciudad: string;
+  CI_Encargado: string;
+  FechaInicioEncargado: string;
+  Estatus: string;
+}
+
 export type UserForm = {
   name: string | null;
   email: string | null;
