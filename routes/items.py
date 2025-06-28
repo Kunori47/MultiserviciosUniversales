@@ -16,6 +16,10 @@ async def read_root():
 async def read_franchise():
     return GetController().get_all(table_name="Franquicias")
 
+@router.get("/franchise/search", tags=["Franquicias"])
+async def search_employees(q: str):
+    return GetController().search(table_name="Franquicias", query=q)
+
 @router.get("/franchise/{RIF}", tags=["Franquicias"], response_model=Franchise)
 async def read_franchise_by_rif(RIF: str):
     franchise = GetController().get_by_id(table_name="Franquicias", RIF=RIF)
@@ -37,13 +41,25 @@ async def create_franchise(Franchise: Franchise):
 async def read_employee():
     return GetController().get_all(table_name="Empleados")
 
+@router.get("/employee/count", tags=["Empleado"])
+async def get_employee_count():
+    return GetController().count(table_name="Empleados")
+
 @router.get("/employee/search", tags=["Empleado"])
 async def search_employees(q: str):
     return GetController().search(table_name="Empleados", query=q)
 
-@router.get("/employee/franchise/{RIF}", tags=["Empleado"], response_model=Employee)
+@router.get("/employee/franchise/{RIF}/search", tags=["Empleado"])
+async def search_employees(RIF: str, q: str):
+    return GetController().searchFilters(table_name="Empleados", FranquiciaRIF=RIF, query=q)
+
+@router.get("/employee/franchise/{RIF}/count", tags=["Empleado"])
+async def get_employee_count_by_franchise(RIF: str):
+    return GetController().count_by_franchise(table_name="Empleados", FranquiciaRIF=RIF)
+
+@router.get("/employee/franchise/{RIF}", tags=["Empleado"], response_model=list[Employee])
 async def read_employee_by_rif(RIF: str):
-    return GetController().get_by_id(table_name="Empleados", FranquiciaRIF=RIF)
+    return GetController().get_by_filter(table_name="Empleados", FranquiciaRIF=RIF)
 
 @router.get("/employee/{CI}", tags=["Empleado"], response_model=Employee)
 async def read_employee_by_ci(CI: str):
@@ -51,6 +67,7 @@ async def read_employee_by_ci(CI: str):
     if not employee:
         raise HTTPException(status_code=404, detail="Empleado not found")
     return employee
+
 
 @router.post("/employee/create", tags=["Empleado"], response_model=dict)
 async def create_employee(Employee: Employee):
@@ -66,7 +83,8 @@ async def update_employee(employee: Employee):
         "Direccion": employee.Direccion,
         "Telefono": employee.Telefono,
         "Salario": employee.Salario,
-        "FranquiciaRIF": employee.FranquiciaRIF
+        "FranquiciaRIF": employee.FranquiciaRIF,
+        "Rol": employee.Rol
     })
 
 " Marcas Endpoints "
@@ -398,18 +416,18 @@ async def update_vendor(proveedor: Vendor):
 
 @router.get("/service_order", tags=["Orden de Servicio"], response_model=list[ServiceOrder])
 async def read_service_orders():
-    return GetController().get_all(table_name="OrdenesServicio")  
+    return GetController().get_all(table_name="OrdenesServicios")  
 
 @router.get("/service_order/{ID}", tags=["Orden de Servicio"], response_model=ServiceOrder)
 async def read_service_order_by_id(ID: int):
-    service_order = GetController().get_by_id(table_name="OrdenesServicio", ID=ID)
+    service_order = GetController().get_by_id(table_name="OrdenesServicios", ID=ID)
     if not service_order:
         raise HTTPException(status_code=404, detail="Orden de Servicio not found")
     return service_order
 
 @router.post("/service_order/create", tags=["Orden de Servicio"], response_model=dict)
 async def create_service_order(ordenservicio: ServiceOrder):
-    return PostController().post_data(table_name="OrdenesServicio", data={
+    return PostController().post_data(table_name="OrdenesServicios", data={
         "FechaEntrada": ordenservicio.FechaEntrada,
         "HoraEntrada": ordenservicio.HoraEntrada,
         "FechaSalidaEstimada": ordenservicio.FechaSalidaEstimada,
@@ -426,7 +444,7 @@ async def update_service_order(ordenservicio: ServiceOrder):
         data["HoraSalidaReal"] = ordenservicio.HoraSalidaReal
     if ordenservicio.Comentario is not None:
         data["Comentario"] = ordenservicio.Comentario
-    return UpdateController().put_data(table_name="OrdenesServicio", ID=ordenservicio.ID, data=data)
+    return UpdateController().put_data(table_name="OrdenesServicios", ID=ordenservicio.ID, data=data)
 
 
 " Factura Endpoints "
@@ -488,6 +506,15 @@ async def read_product_franchise_by_code(FranquiciaRIF: str, CodigoProducto: int
         raise HTTPException(status_code=404, detail="Producto Franquicia not found")
     return product_franchise
 
+@router.get("/product_franchise/count_products", tags=["Producto Franquicia"])
+async def count_products():
+    return GetController().count_distinct(table_name="ProductosFranquicia", column_name="CodigoProducto")
+
+@router.get("/product_franchise/count_products_by_franchise", tags=["Producto Franquicia"])
+async def count_products_by_franchise(FranquiciaRIF: str):
+    return GetController().count_distinct_by_franchise(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, column_name="CodigoProducto")
+
+
 @router.post("/product_franchise/create", tags=["Producto Franquicia"], response_model=dict)
 async def create_product_franchise(productofraq: ProductFranchise):
     return PostController().post_data(table_name="ProductosFranquicia", data={
@@ -498,6 +525,7 @@ async def create_product_franchise(productofraq: ProductFranchise):
         "CantidadMinima": productofraq.CantidadMinima,
         "CantidadMaxima": productofraq.CantidadMaxima
     })
+
 
 @router.delete("/product_franchise/delete", tags=["Producto Franquicia"], response_model=dict)
 async def delete_product_franchise(FranquiciaRIF: str, CodigoProducto: int):
@@ -632,6 +660,10 @@ async def update_customer_phone(Cliente: str, Telefono: str, NuevoTelefono: str)
 @router.get("/employee_order", tags=["EmpleadosOrden"], response_model=list[EmployeeOrder])
 async def read_employee_order():
     return GetController().get_all(table_name="EmpleadosOrdenes")
+
+@router.get("/employee_order/count_emp", tags=["EmpleadosOrden"])
+async def read_employee_order_count_emp(EmpleadoCI: str):
+    return GetController().count_by_franchise(table_name="EmpleadosOrdenes", EmpleadoCI=EmpleadoCI)
 
 @router.get("/employee_order/{empleado_ci}/{codigo_orden}", tags=["EmpleadosOrden"], response_model=EmployeeOrder)
 async def read_employee_order_by_code(empleado_ci: str, codigo_orden: int):
@@ -775,29 +807,29 @@ async def create_correction(correccion: Correction  ):
 
 @router.get("/supply", tags=["Suministro"], response_model=list[Supply])
 async def read_supplies():
-    return GetController().get_all(table_name="Suministran")
+    return GetController().get_all(table_name="Suministros")
 
 @router.get("/supply/{ProveedorRIF}/{CodigoProducto}", tags=["Suministro"], response_model=Supply)
 async def read_supply_by_code(ProveedorRIF: str, CodigoProducto: int):
-    supply = GetController().get_by_id(table_name="Suministran", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto)
+    supply = GetController().get_by_id(table_name="Suministros", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto)
     if not supply:
         raise HTTPException(status_code=404, detail="Suministro not found")
     return supply
 
 @router.post("/supply/create", tags=["Suministro"], response_model=dict)
 async def create_supply(suministro: Supply):
-    return PostController().post_data(table_name="Suministran", data={
+    return PostController().post_data(table_name="Suministros", data={
         "ProveedorRIF": suministro.ProveedorRIF,
         "CodigoProducto": suministro.CodigoProducto
         })
 
 @router.delete("/supply/delete", tags=["Suministro"], response_model=dict)
 async def delete_supply(ProveedorRIF: str, CodigoProducto: int):
-    return DeleteController().delete_data(table_name="Suministran", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto)
+    return DeleteController().delete_data(table_name="Suministros", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto)
 
 @router.put("/supply/update", tags=["Suministro"], response_model=dict)
 async def update_supply(ProveedorRIF: str, CodigoProducto: int, NuevoProveedorRIF: str):
-    return UpdateController().put_data(table_name="Suministran", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto, data={
+    return UpdateController().put_data(table_name="Suministros", ProveedorRIF=ProveedorRIF, CodigoProducto=CodigoProducto, data={
         "ProveedorRIF": NuevoProveedorRIF,
     })
 
@@ -878,3 +910,14 @@ async def create_product_service_order(productords:  ProductServiceOrder):
         "CantidadUtilizada": productords.CantidadUtilizada,
         "PrecioProducto": productords.PrecioProducto
         })
+
+" Vistas Endpoint "
+
+@router.get("/views/remenfranq", tags=["Vistas"])
+async def read_remenfranq(FranquiciaRIF: str, Anio: str, Mes: str):
+    rows = GetController().get_by_view(table_name="Vista_ResumenMensualFranquiciaSimple", FranquiciaRIF=FranquiciaRIF, Anio=Anio, Mes=Mes)
+    # Si rows es una lista de tuplas, conviértelo a lista de dicts
+    columns = ["FranquiciaRIF", "Anio", "Mes", "CantidadOrdenes", "MontoGenerado", "GastoTotal"]
+    result = [dict(zip(columns, row)) for row in rows]
+    return result
+

@@ -14,10 +14,38 @@ class GetController:
             raise HTTPException(status_code=400, detail="No filters provided")
         return self.get_service.getDataById(table_name, **filters)
     
+    def get_by_filter(self, table_name: str, **filters):
+        return self.get_service.getDataByFilter(table_name, **filters)
+    
+    def get_by_view(self, table_name: str, **filters):
+        if not filters:
+            raise HTTPException(status_code=400, detail="No filters provided")
+        return self.get_service.getDataByView(table_name, **filters)
+    
     def search(self, table_name: str, query: str):
         if not query:
             raise HTTPException(status_code=400, detail="No query provided")
-        return self.get_service.searchDataEmployee(table_name, query)
+        if(table_name == 'Empleados'):
+            return self.get_service.searchDataEmployee(table_name, query)
+        elif(table_name == 'Franquicias'):
+            return self.get_service.searchDataFranchise(table_name, query)
+        
+    def searchFilters(self, table_name: str, query: str, **filters):
+        if not query:
+            raise HTTPException(status_code=400, detail="No query provided")
+        return self.get_service.searchDataFilters(table_name, query, **filters)
+    
+    def count(self, table_name: str):
+        return self.get_service.countData(table_name)
+    
+    def count_distinct(self, table_name: str, column_name: str):
+        return self.get_service.countDistinctData(table_name, column_name)
+    
+    def count_distinct_by_franchise(self, table_name: str, column_name: str, **filters):
+        return self.get_service.countDistinctDataByFranchise(table_name, column_name, **filters)
+    
+    def count_by_franchise(self, table_name: str, **filters):
+        return self.get_service.countDataByFranchise(table_name, **filters)
     
 class PostController:
     def __init__(self):

@@ -6,6 +6,14 @@ export async function fetchFranchises() {
   return  await res.json();
 }
 
+export async function fetchFranchiseRIF(rif) {
+  const res = await fetch(`http://127.0.0.1:8000/franchise/search?${rif}`)
+  if (!res.ok) {
+    throw new Error("Error al obtener las franquicias");
+  }
+  return  await res.json();
+}
+
 export async function fetchEmployeeName(CI) {
   const res = await fetch(`http://127.0.0.1:8000/employee/${CI}`);
     if (!res.ok) {

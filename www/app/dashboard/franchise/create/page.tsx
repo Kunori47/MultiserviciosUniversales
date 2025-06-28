@@ -53,6 +53,12 @@ export default function FormsPage() {
           title="Crear Franquicia"
           main
         >
+          <Button
+              href={`/dashboard/franchise/`}
+              color="info"
+              label="Atras"
+              roundedFull
+          />
         </SectionTitleLineWithButton>
 
         <CardBox>

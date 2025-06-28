@@ -88,6 +88,16 @@ export type Franchise = {
   Estatus: string;
 }
 
+export type Employee = {
+  CI: string;
+  NombreCompleto: string;
+  Direccion: string;
+  Telefono: string;
+  Salario: number;
+  FranquiciaRIF: string;
+  Rol: string;
+}
+
 export type UserForm = {
   name: string | null;
   email: string | null;

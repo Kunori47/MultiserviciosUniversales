@@ -7,42 +7,78 @@ def seed_tables():
     try:
         print("Iniciando inserción de datos de prueba...")
         print("=" * 50)
-        
-        # 1. Franquicias (tabla padre)
-        cursor.execute("""
-        INSERT INTO Franquicias (RIF, Nombre, Ciudad, CI_Encargado, FechaInicioEncargado, Estatus) 
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, ("J-2502943211", "Franquicia Central", "Caracas", None, "2024-01-01", "Activo"))
-        print("✓ Franquicia insertada")
-        
-        # 2. Especialidades
-        cursor.execute("INSERT INTO Especialidades (DescripcionEspecialidad) VALUES (?)", ("Mecánica General",))
-        cursor.execute("INSERT INTO Especialidades (DescripcionEspecialidad) VALUES (?)", ("Electricidad Automotriz",))
-        print("✓ Especialidades insertadas")
-        
-        # 3. Servicios
-        cursor.execute("INSERT INTO Servicios (NombreServicio) VALUES (?)", ("Cambio de Aceite",))
-        cursor.execute("INSERT INTO Servicios (NombreServicio) VALUES (?)", ("Revisión General",))
-        print("✓ Servicios insertados")
-        
-        # 4. Empleados
-        cursor.execute("""
-        INSERT INTO Empleados (CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF) 
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, ("V12345678", "Ana López García", "Av. Principal #123", "041412345678", 800.00, "J-2502943211"))
+
+        # 1. Empleados
+        empleados = [
+            ('V-12345678', 'Juan Pérez', 'Calle 1', '0412-0000000', 1500.00, None, 'Encargado'),
+            ('V-87654321', 'María Gómez', 'Calle 2', '0412-0000001', 1200.00, None, 'Empleado'),
+            ('V-23456789', 'Carlos López', 'Calle 3', '0412-0000002', 1000.00, None, 'Encargado'),
+            ('V-23456780', 'Carlos mbappe', 'Calle 4', '0412-0000003', 1000.00, None, 'Encargado'),
+            ('V-87654325', 'María mbappe', 'Calle 5', '0412-0000004', 1200.00, None, 'Empleado'),
+            ('V-87654322', 'Petra Gómez', 'Calle 6', '0412-0000005', 1200.00, None, 'Empleado')
+        ]
+        cursor.executemany("""
+            INSERT INTO Empleados (CI, NombreCompleto, Direccion, Telefono, Salario, FranquiciaRIF, Rol) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, empleados)
         print("✓ Empleado insertado")
         
-        # 5. Actualizar Franquicia con CI_Encargado
+        # 2. Franquicias (tabla padre)
+        franquicias = [
+            ('J-1234567890', 'Franquicia A', 'Ciudad A', 'V-12345678', '2023-01-01', 'Activo'),
+            ('J-0987654321', 'Franquicia B', 'Ciudad B', 'V-23456780', '2023-02-01', 'Activo'),
+            ('J-1122334455', 'Franquicia C', 'Ciudad C', 'V-23456789', '2023-03-01', 'No activo')
+        ]
+        cursor.executemany("""
+            INSERT INTO Franquicias (RIF, Nombre, Ciudad, CI_Encargado, FechaInicioEncargado, Estatus) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, franquicias)
+
+        print("✓ Franquicia insertada")
+        
+        # 3. Especialidades
+        cursor.execute("INSERT INTO Especialidades (DescripcionEspecialidad) VALUES (?)", ("Mecánica General",))
+        cursor.execute("INSERT INTO Especialidades (DescripcionEspecialidad) VALUES (?)", ("Electricidad Automotriz",))
+        cursor.execute("INSERT INTO Especialidades (DescripcionEspecialidad) VALUES (?)", ("Carrocería",))
+        print("✓ Especialidades insertadas")
+        
+        # 4. Servicios
+        cursor.execute("INSERT INTO Servicios (NombreServicio) VALUES (?)", ("Cambio de Aceite",))
+        cursor.execute("INSERT INTO Servicios (NombreServicio) VALUES (?)", ("Revisión General",))
+        cursor.execute("INSERT INTO Servicios (NombreServicio) VALUES (?)", ("Alineación de dirección",))
+        print("✓ Servicios insertados")
+
+        # 5. Asignar empleados y encargados a sus franquicias
         cursor.execute("""
-        UPDATE Franquicias SET CI_Encargado = ? WHERE RIF = ?
-        """, ("V12345678", "J-2502943211"))
-        print("✓ Encargado de franquicia asignado")
+            UPDATE Empleados SET FranquiciaRIF = ? WHERE CI = ?
+        """, ('J-1234567890', 'V-12345678'))  # Encargado de Franquicia A
+        cursor.execute("""
+            UPDATE Empleados SET FranquiciaRIF = ? WHERE CI = ?
+        """, ('J-1234567890', 'V-87654321'))  # Empleado de Franquicia A
+
+        cursor.execute("""
+            UPDATE Empleados SET FranquiciaRIF = ? WHERE CI = ?
+        """, ('J-0987654321', 'V-23456780'))  # Encargado de Franquicia B
+
+        cursor.execute("""
+            UPDATE Empleados SET FranquiciaRIF = ? WHERE CI = ?
+        """, ('J-1122334455', 'V-23456789'))  # Encargado de Franquicia C
+
+        # Puedes agregar más updates si tienes más empleados/franquicias
+        print("✓ Empleados y encargados asignados a franquicias")
+
         
         # 6. Clientes
-        cursor.execute("""
-        INSERT INTO Clientes (CI, NombreCompleto, Email) 
-        VALUES (?, ?, ?)
-        """, ("V98765432", "Juan Pérez Rodríguez", "juan.perez@email.com"))
+        clientes = [
+            ("V98765432", "Juan Pérez Rodríguez", "juan.perez@email.com"),
+            ('V34567891', 'Anto Torres', 'aa.torres@example.com'),
+            ('V34567892', 'Manuel Torres', 'a.torres@example.com'),
+            ('V45678903', 'Luis Martínez', 'luis.martinez@example.com')
+        ]
+        cursor.executemany("""
+            INSERT INTO Clientes (CI, NombreCompleto, Email) 
+            VALUES (?, ?, ?)
+        """, clientes)
         print("✓ Cliente insertado")
         
         # 7. Teléfonos de Clientes
@@ -53,7 +89,7 @@ def seed_tables():
         cursor.execute("""
         INSERT INTO TelefonosClientes (Cliente, Telefono) 
         VALUES (?, ?)
-        """, ("V98765432", "021212345678"))
+        """, ("V45678903", "021212345678"))
         print("✓ Teléfonos de cliente insertados")
         
         # 8. Marcas
@@ -76,17 +112,28 @@ def seed_tables():
         print("✓ Modelos insertados")
         
         # 10. Vehículos
-        cursor.execute("""
+
+        vehiculos = [
+            ("AA123BB", "2023-05-15", "Sintético", "V98765432", 1, 1),
+            ('ABC1235', '2023-01-11', 'Sintético', 'V34567891', 2, 1),
+            ('ABC1234', '2023-01-11', 'Sintético', 'V34567892', 1, 1)
+        ]
+        cursor.executemany("""
         INSERT INTO Vehiculos (Placa, FechaAdquisicion, TipoAceite, CedulaCliente, CodigoMarca, NumeroCorrelativoModelo) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, ("AA123BB", "2023-05-15", "Sintético", "V98765432", 1, 1))
+        """, vehiculos)
         print("✓ Vehículo insertado")
         
         # 11. Planes de Mantenimiento
-        cursor.execute("""
+        mant = [
+            (6, 5000, "Cambio de aceite y filtros", 1, 1),
+            (12, 20000, 'Revisión de frenos y alineación', 2, 1)
+        ]
+
+        cursor.executemany("""
         INSERT INTO PlanesMantenimiento (TiempoUso, Kilometraje, DescripcionMantenimiento, CodigoMarca, NumeroCorrelativoModelo) 
         VALUES (?, ?, ?, ?, ?)
-        """, (6, 5000, "Cambio de aceite y filtros", 1, 1))
+        """, mant)
         print("✓ Plan de mantenimiento insertado")
         
         # 12. Líneas de Suministro
@@ -107,34 +154,40 @@ def seed_tables():
         print("✓ Productos insertados")
         
         # 14. Proveedores
-        cursor.execute("""
+        prov = [
+            
+            ("J-8765432109", "Suministros Automotrices C.A.", "Zona Industrial", "021298765432", "041487654321", "Carlos Martínez"),
+            ('J-0987654321', 'Proveedor B', 'Calle Proveedor 2', '0412-0000005', '0412-0000006', 'Contacto B')
+
+        ]
+        cursor.executemany("""
         INSERT INTO Proveedores (RIF, RazonSocial, Direccion, TelefonoLocal, TelefonoCelular, PersonaContacto) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, ("J-8765432109", "Suministros Automotrices C.A.", "Zona Industrial", "021298765432", "041487654321", "Carlos Martínez"))
+        """, prov)
         print("✓ Proveedor insertado")
         
         # 15. Productos en Franquicia
         cursor.execute("""
         INSERT INTO ProductosFranquicia (FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, ("J-2502943211", 1, 25.50, 50, 10, 100))
+        """, ("J-1234567890", 1, 25.50, 50, 10, 100))
         
         cursor.execute("""
         INSERT INTO ProductosFranquicia (FranquiciaRIF, CodigoProducto, Precio, Cantidad, CantidadMinima, CantidadMaxima) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, ("J-2502943211", 2, 15.75, 30, 5, 60))
+        """, ("J-1234567890", 2, 15.75, 30, 5, 60))
         print("✓ Productos en franquicia insertados")
         
         # 16. Servicios de Franquicia
         cursor.execute("""
         INSERT INTO ServiciosFranquicias (FranquiciaRIF, CodigoServicio) 
         VALUES (?, ?)
-        """, ("J-2502943211", 1))
+        """, ("J-1234567890", 1))
         
         cursor.execute("""
         INSERT INTO ServiciosFranquicias (FranquiciaRIF, CodigoServicio) 
         VALUES (?, ?)
-        """, ("J-2502943211", 2))
+        """, ("J-1234567890", 2))
         print("✓ Servicios de franquicia insertados")
         
         # 17. Actividades
@@ -153,24 +206,24 @@ def seed_tables():
         cursor.execute("""
         INSERT INTO EspecialidadesEmpleados (EmpleadoCI, CodigoEspecialidad) 
         VALUES (?, ?)
-        """, ("V12345678", 1))
+        """, ("V-12345678", 1))
         print("✓ Especialidad de empleado insertada")
         
         # 19. Responsabilidades de Empleados
         cursor.execute("""
         INSERT INTO ResponsabilidadesEmpleados (EmpleadoCI, CodigoServicio) 
         VALUES (?, ?)
-        """, ("V12345678", 1))
+        """, ("V-12345678", 1))
         print("✓ Responsabilidad de empleado insertada")
         
         # 20. Suministran (Proveedor-Producto)
         cursor.execute("""
-        INSERT INTO Suministran (ProveedorRIF, CodigoProducto) 
+        INSERT INTO Suministros (ProveedorRIF, CodigoProducto) 
         VALUES (?, ?)
         """, ("J-8765432109", 1))
         
         cursor.execute("""
-        INSERT INTO Suministran (ProveedorRIF, CodigoProducto) 
+        INSERT INTO Suministros (ProveedorRIF, CodigoProducto) 
         VALUES (?, ?)
         """, ("J-8765432109", 2))
         print("✓ Relaciones proveedor-producto insertadas")
@@ -186,7 +239,7 @@ def seed_tables():
         cursor.execute("""
         INSERT INTO AumentosInventario (NumeroCompra, FranquiciaRIF, CodigoProducto, CantidadPedida, CantidadDisponible, Monto) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, (1, "J-2502943211", 1, 20, 20, 510.00))
+        """, (1, "J-1234567890", 1, 20, 20, 510.00))
         print("✓ Aumento de inventario insertado")
         
         # 23. Órdenes de Servicio
@@ -198,10 +251,18 @@ def seed_tables():
         print("✓ Orden de servicio insertada")
         
         # 24. Empleados en Órdenes
-        cursor.execute("""
+        empleadosordenes =  [
+            ("V-12345678", 1)
+            ('V-12345670', 1),
+            ('V-12345670', 2),
+            ('V-12345670', 3),
+            ('V-12345670', 5)
+        ]
+
+        cursor.executemany("""
         INSERT INTO EmpleadosOrdenes (EmpleadoCI, OrdenServicioID) 
         VALUES (?, ?)
-        """, ("V12345678", 1))
+        """, empleadosordenes)
         print("✓ Empleado asignado a orden")
         
         # 25. Ordenes-Actividades
@@ -221,14 +282,14 @@ def seed_tables():
         INSERT INTO ProductosOrdenesServicio (CodigoOrdenServicio, CodigoServicio, NumeroCorrelativoActividad, 
                                             FranquiciaRIF, CodigoProducto, CantidadUtilizada, PrecioProducto) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (1, 1, 1, "J-2502943211", 1, 1, 25.50))
+        """, (1, 1, 1, "J-1234567890", 1, 1, 25.50))
         print("✓ Producto usado en orden insertado")
         
         # 27. Facturas
         cursor.execute("""
         INSERT INTO Facturas (FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF) 
         VALUES (?, ?, ?, ?, ?, ?)
-        """, ("2024-06-15", 65.78, 10.28, 0, 1, "J-2502943211"))
+        """, ("2024-06-15", 65.78, 10.28, 0, 1, "J-1234567890"))
         print("✓ Factura insertada")
         
         # 28. Pagos
