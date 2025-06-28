@@ -29,20 +29,10 @@ export default function MaintenancePlansPage() {
       fetchMaintenancePlans().then(data => setMaintenancePlans(data));
   }, []);
 
-  // Efecto para manejar cuando el input está vacío
-  useEffect(() => {
-    if (!descripcionInput) {
-      fetchMaintenancePlans().then(data => setMaintenancePlans(data));
-    }
-  }, [descripcionInput]);
-
     // Función para buscar sugerencias de Descripción
   const fetchDescripcionSuggestions = async (query: string) => {
       if (!query) {
         setDescripcionSuggestions([]);
-        // Cuando el buscador está vacío, cargar todos los datos
-        const allMaintenancePlans = await fetchMaintenancePlans();
-        setMaintenancePlans(allMaintenancePlans);
         return;
       }
       try {
@@ -53,7 +43,6 @@ export default function MaintenancePlansPage() {
         const data = await res.json();
         setDescripcionSuggestions(data);
         setMaintenancePlans(data);
-        
       } catch (err) {
         console.error("Error buscando sugerencias de descripción:", err);
         setDescripcionSuggestions([]);
@@ -68,7 +57,7 @@ export default function MaintenancePlansPage() {
           initialValues={{
               DescripcionMantenimiento: "",
             }}
-            onSubmit={() => {}}>
+          onSubmit={() => {}}>
           <FormField label="Buscar" labelFor="DescripcionMantenimiento" icon={mdiSearchWeb}>
                     {({ className }) => (
                       <div className="relative">
@@ -81,12 +70,11 @@ export default function MaintenancePlansPage() {
                           autoComplete="off"
                           value={descripcionInput}
                           onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = e.target.value;
-                            setDescripcionInput(value);
-                            await fetchDescripcionSuggestions(value);
+                            setDescripcionInput(e.target.value);
+                            await fetchDescripcionSuggestions(e.target.value);
                           }}
                         />
-                        {descripcionSuggestions?.length > 0 && (
+                        {descripcionSuggestions.length > 0 && (
                           <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-auto">
                             {descripcionSuggestions.map((item) => (
                               <li
@@ -97,10 +85,7 @@ export default function MaintenancePlansPage() {
                                   setDescripcionSuggestions([]);
                                 }}
                               >
-                                <div className="flex justify-between">
-                                  <span className="font-medium">{item.DescripcionMantenimiento}</span>
-                                  <span className="text-gray-500 text-sm">#{item.CodigoMantenimiento}</span>
-                                </div>
+                                {item.DescripcionMantenimiento}
                               </li>
                             ))}
                           </ul>

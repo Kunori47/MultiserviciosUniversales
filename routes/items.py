@@ -276,6 +276,10 @@ async def update_maintenanceplan(planmantenimiento: MaintenancePlan):
 async def read_specialties():
     return GetController().get_all(table_name="Especialidades")
 
+@router.get("/specialty/search", tags=["Especialidad"])
+async def search_specialties(q: str):
+    return GetController().search(table_name="Especialidades", query=q)
+
 @router.get("/specialty/{CodigoEspecialidad}", tags=["Especialidad"], response_model=Specialty)
 async def read_specialty_by_code(CodigoEspecialidad: int):
     specialty = GetController().get_by_id(table_name="Especialidades", CodigoEspecialidad=CodigoEspecialidad)
@@ -301,6 +305,10 @@ async def update_specialty(especialidad: Specialty):
 @router.get("/service", tags=["Servicio"], response_model=list[Service])
 async def read_services():
     return GetController().get_all(table_name="Servicios")
+
+@router.get("/service/search", tags=["Servicio"])
+async def search_services(q: str):
+    return GetController().search(table_name="Servicios", query=q)
 
 @router.get("/service/{CodigoServicio}", tags=["Servicio"], response_model=Service)
 async def read_service_by_code(CodigoServicio: int):

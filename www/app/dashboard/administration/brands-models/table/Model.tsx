@@ -1,20 +1,36 @@
+"use client";
+
 import { mdiEye, mdiTrashCan, mdiPencil } from "@mdi/js";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Model } from "../../../../_interfaces";
 import Button from "../../../../_components/Button";
 import Buttons from "../../../../_components/Buttons";
 import CardBoxModal from "../../../../_components/CardBox/Modal";
-import UserAvatar from "../../../_components/UserAvatar";
-import { Model } from "../../../../_interfaces";
-import ResponsiveTable from "../../../_components/Table/ResponsiveTable";
 
 type Props = {
   models: Model[];
 };
 
 const TableModel = ({ models }: Props) => {
+  const perPage = 5;
+
+  const numPages = models.length / perPage;
+
+  const pagesList: number[] = [];
+
+  for (let i = 0; i < numPages; i++) {
+    pagesList.push(i);
+  }
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const modelsPaginated = models.slice(
+    perPage * currentPage,
+    perPage * (currentPage + 1),
+  );
+
+  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
 
   const handleModalAction = () => {
     setIsModalInfoActive(false);
@@ -34,92 +50,15 @@ const TableModel = ({ models }: Props) => {
 
   const confirmDelete = () => {
     if (selectedModel) {
-      // Aquí implementarías la lógica de eliminación
       console.log(`Eliminando modelo: ${selectedModel.CodigoMarca}-${selectedModel.NumeroCorrelativoModelo}`);
-      // Después de eliminar, actualizar la lista
       handleModalAction();
     }
   };
 
-  // Configuración de columnas para la tabla responsiva
-  const columns = [
-    {
-      key: 'CodigoMarca',
-      label: 'Código Marca',
-      render: (value: number) => `#${value}`,
-      className: 'font-medium'
-    },
-    {
-      key: 'NumeroCorrelativoModelo',
-      label: 'Número Modelo',
-      render: (value: number) => `#${value}`,
-      className: 'font-medium'
-    },
-    {
-      key: 'DescripcionModelo',
-      label: 'Descripción',
-      className: 'font-medium'
-    },
-    {
-      key: 'CantidadPuestos',
-      label: 'Puestos',
-      render: (value: number) => `${value} puestos`,
-      className: 'font-medium'
-    },
-    {
-      key: 'TipoRefrigerante',
-      label: 'Refrigerante',
-      className: 'font-medium'
-    },
-    {
-      key: 'TipoGasolina',
-      label: 'Gasolina',
-      className: 'font-medium'
-    },
-    {
-      key: 'TipoAceite',
-      label: 'Aceite',
-      className: 'font-medium'
-    },
-    {
-      key: 'Peso',
-      label: 'Peso',
-      render: (value: number) => `${value} kg`,
-      className: 'font-medium'
-    }
-  ];
-
-  // Función para renderizar las acciones
-  const renderActions = (model: Model) => (
-    <Buttons type="justify-start lg:justify-end" noWrap>
-      <Button
-        color="info"
-        icon={mdiEye}
-        onClick={() => handleView(model)}
-        small
-        isGrouped
-      />
-      <Button
-        color="success"
-        icon={mdiPencil}
-        href={`/dashboard/brands-models/edit/model/${model.CodigoMarca}/${model.NumeroCorrelativoModelo}`}
-        small
-        isGrouped
-      />
-      <Button
-        color="danger"
-        icon={mdiTrashCan}
-        onClick={() => handleDelete(model)}
-        small
-        isGrouped
-      />
-    </Buttons>
-  );
-
   return (
     <>
       <CardBoxModal
-        title="Información del Modelo"
+        title="Informacion del Modelo"
         buttonColor="info"
         buttonLabel="Cerrar"
         isActive={isModalInfoActive}
@@ -128,13 +67,13 @@ const TableModel = ({ models }: Props) => {
         {selectedModel && (
           <div className="space-y-3">
             <div>
-              <strong>Código Marca:</strong> {selectedModel.CodigoMarca}
+              <strong>Codigo Marca:</strong> {selectedModel.CodigoMarca}
             </div>
             <div>
-              <strong>Número Modelo:</strong> {selectedModel.NumeroCorrelativoModelo}
+              <strong>Numero Modelo:</strong> {selectedModel.NumeroCorrelativoModelo}
             </div>
             <div>
-              <strong>Descripción:</strong> {selectedModel.DescripcionModelo}
+              <strong>Descripcion:</strong> {selectedModel.DescripcionModelo}
             </div>
             <div>
               <strong>Cantidad de Puestos:</strong> {selectedModel.CantidadPuestos} puestos
@@ -156,7 +95,7 @@ const TableModel = ({ models }: Props) => {
       </CardBoxModal>
 
       <CardBoxModal
-        title="Confirmar Eliminación"
+        title="Por favor confirma"
         buttonColor="danger"
         buttonLabel="Confirmar"
         isActive={isModalTrashActive}
@@ -164,17 +103,83 @@ const TableModel = ({ models }: Props) => {
         onCancel={handleModalAction}
       >
         <p>
-          ¿Estás seguro de que deseas eliminar el modelo{" "}
-          <strong>{selectedModel?.DescripcionModelo}</strong>?
+          Estas seguro de que quieres eliminar el modelo <b>{selectedModel?.DescripcionModelo}</b>?
         </p>
       </CardBoxModal>
 
-      <ResponsiveTable
-        data={models}
-        columns={columns}
-        actions={renderActions}
-        keyField="CodigoMarca"
-      />
+      <table>
+        <thead>
+          <tr>
+            <th>Codigo Marca</th>
+            <th>Numero Modelo</th>
+            <th>Descripcion</th>
+            <th>Puestos</th>
+            <th>Refrigerante</th>
+            <th>Gasolina</th>
+            <th>Aceite</th>
+            <th>Peso</th>
+          </tr>
+        </thead>
+        <tbody>
+          {modelsPaginated.map((model: Model) => (
+            <tr key={`${model.CodigoMarca}-${model.NumeroCorrelativoModelo}`}>
+              <td data-label="Codigo Marca">#{model.CodigoMarca}</td>
+              <td data-label="Numero Modelo">#{model.NumeroCorrelativoModelo}</td>
+              <td data-label="Descripcion">{model.DescripcionModelo}</td>
+              <td data-label="Puestos">{model.CantidadPuestos} puestos</td>
+              <td data-label="Refrigerante">{model.TipoRefrigerante}</td>
+              <td data-label="Gasolina">{model.TipoGasolina}</td>
+              <td data-label="Aceite">{model.TipoAceite}</td>
+              <td data-label="Peso">{model.Peso} kg</td>
+              <td className="before:hidden lg:w-1 whitespace-nowrap">
+                <Buttons type="justify-start lg:justify-end" noWrap>
+                  <Button
+                    color="info"
+                    icon={mdiEye}
+                    onClick={() => handleView(model)}
+                    small
+                    isGrouped
+                  />
+                  <Button
+                    color="contrast"
+                    icon={mdiPencil}
+                    href={`/dashboard/brands-models/edit/model/${model.CodigoMarca}/${model.NumeroCorrelativoModelo}`}
+                    small
+                    isGrouped
+                  />
+                  <Button
+                    color="danger"
+                    icon={mdiTrashCan}
+                    onClick={() => handleDelete(model)}
+                    small
+                    isGrouped
+                  />
+                </Buttons>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800">
+        <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0">
+          <Buttons>
+            {pagesList.map((page) => (
+              <Button
+                key={page}
+                active={page === currentPage}
+                label={(page + 1).toString()}
+                color={page === currentPage ? "lightDark" : "whiteDark"}
+                small
+                onClick={() => setCurrentPage(page)}
+                isGrouped
+              />
+            ))}
+          </Buttons>
+          <small className="mt-6 md:mt-0">
+            Pagina {currentPage + 1} de {(numPages < 0) ? numPages : 1}
+          </small>
+        </div>
+      </div>
     </>
   );
 };

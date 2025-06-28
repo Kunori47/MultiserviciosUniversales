@@ -55,8 +55,8 @@ const menuAside: MenuAsideItem[] = [
         href: "/dashboard/administration/maintenance-plans",
       },
       {
-        label: "Servicios y Especialidades",
-        href: "/dashboard/administration/specialty-services",
+        label: "Especialidades",
+        href: "/dashboard/administration/specialty",
       },
       {
         label: "Lineas de Suministro",

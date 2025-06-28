@@ -141,3 +141,13 @@ export interface Model {
   TipoAceite: string;
   Peso: number;
 }
+
+export interface Specialty {
+  CodigoEspecialidad: number;
+  DescripcionEspecialidad: string;
+}
+
+export interface Service {
+  CodigoServicio: number;
+  NombreServicio: string;
+}

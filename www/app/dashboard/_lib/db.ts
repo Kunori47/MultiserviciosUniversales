@@ -97,3 +97,29 @@ export const fetchModels = async () => {
     return [];
   }
 };
+
+export const fetchSpecialties = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/specialty');
+    if (!response.ok) {
+      throw new Error('Error al obtener las especialidades');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener las especialidades:', error);
+    return [];
+  }
+};
+
+export const fetchServices = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/service');
+    if (!response.ok) {
+      throw new Error('Error al obtener los servicios');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener los servicios:', error);
+    return [];
+  }
+};

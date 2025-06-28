@@ -2,22 +2,22 @@
 
 import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
 import React, { useState } from "react";
-import { Employee } from "../../../../../_interfaces";
-import Button from "../../../../../_components/Button";
-import Buttons from "../../../../../_components/Buttons";
-import CardBoxModal from "../../../../../_components/CardBox/Modal";
+import { Specialty } from "../../../../_interfaces";
+import Button from "../../../../_components/Button";
+import Buttons from "../../../../_components/Buttons";
+import CardBoxModal from "../../../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  employee: Employee[];
+  specialties: Specialty[];
 };
 
-const TableEmployee = ({ employee }: Props) => {
+const TableSpecialty = ({ specialties }: Props) => {
   const perPage = 5;
 
   const router = useRouter();
 
-  const numPages = employee.length / perPage;
+  const numPages = specialties.length / perPage;
 
   const pagesList: number[] = [];
 
@@ -25,33 +25,33 @@ const TableEmployee = ({ employee }: Props) => {
     pagesList.push(i);
   }
 
-
   const [currentPage, setCurrentPage] = useState(0);
-  const clientsPaginated = employee.slice(
+  const specialtiesPaginated = specialties.slice(
     perPage * currentPage,
     perPage * (currentPage + 1),
   );
 
-  const [selectedCI, setSelectedCI] = useState<any | null>(null);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
-const handleDelete = async () => {
-  if (!selectedCI) return;
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/employee/delete?CI=${selectedCI.CI}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) throw new Error("Error al eliminar empleado");
-    setIsModalTrashActive(false);
-    setSelectedCI(null);
-  } catch (err) {
-    alert("No se pudo eliminar el empleado");
-  }
-};
+  const handleDelete = async () => {
+    if (!selectedSpecialty) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/specialty/delete?CodigoEspecialidad=${selectedSpecialty.CodigoEspecialidad}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Error al eliminar especialidad");
+      // Actualiza el estado local:
+      const updated = specialties.filter(s => s.CodigoEspecialidad !== selectedSpecialty.CodigoEspecialidad);
+      setIsModalTrashActive(false);
+      setSelectedSpecialty(null);
+    } catch (err) {
+      alert("No se pudo eliminar la especialidad");
+    }
+  };
 
   return (
     <>
-
       <CardBoxModal
         title="Por favor confirma"
         buttonColor="danger"
@@ -60,44 +60,32 @@ const handleDelete = async () => {
         onConfirm={handleDelete}
         onCancel={() => {
           setIsModalTrashActive(false);
-          setSelectedCI(null);
+          setSelectedSpecialty(null);
         }}
       >
         <p>
-            ¿Estás seguro de que quieres colocar<b>eliminar</b> al empleado?
+            ¿Estás seguro de que quieres eliminar la especialidad <b>{selectedSpecialty?.DescripcionEspecialidad}</b>?
         </p>
       </CardBoxModal>
 
       <table>
         <thead>
           <tr>
-            <th>CI</th>
-            <th>Nombre Completo</th>
-            <th>Direccion</th>
-            <th>Telefono</th>
-            <th>Salario</th>
-            <th>Rol</th>
+            <th>Código</th>
+            <th>Descripción</th>
           </tr>
         </thead>
         <tbody>
-          {clientsPaginated.map((employee: Employee) => (
-            <tr key={employee.CI} >
-              <td data-label="CI">{employee.CI}</td>
-              <td data-label="NombreCompleto">{employee.NombreCompleto}</td>
-              <td data-label="Direccion">{employee.Direccion}</td>
-              <td data-label="Telefono">{employee.Telefono}</td>
-              <td data-label="Salario">{employee.Salario}</td>
-              <td data-label="Rol" className="lg:w-1 whitespace-nowrap">
-                <small className="text-gray-500 dark:text-slate-400">
-                  {employee.Rol}
-                </small>
-              </td>
+          {specialtiesPaginated.map((specialty: Specialty) => (
+            <tr key={specialty.CodigoEspecialidad} >
+              <td data-label="Código">#{specialty.CodigoEspecialidad}</td>
+              <td data-label="Descripción">{specialty.DescripcionEspecialidad}</td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
                     color="info"
                     icon={mdiInformation}
-                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/${employee.CI}`}
+                    href={`/dashboard/administration/specialty/${specialty.CodigoEspecialidad}`}
                     small
                     isGrouped>
                     
@@ -105,7 +93,7 @@ const handleDelete = async () => {
                   <Button
                     color="contrast"
                     icon={mdiTagEdit}
-                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/update/${employee.CI}`}
+                    href={`/dashboard/administration/specialty/update/${specialty.CodigoEspecialidad}`}
                     small
                     isGrouped
                   />
@@ -114,7 +102,7 @@ const handleDelete = async () => {
                     icon={mdiTrashCan}
                     onClick={() => {
                       setIsModalTrashActive(true);
-                      setSelectedCI(employee);
+                      setSelectedSpecialty(specialty);
                     }}
                     small
                     isGrouped
@@ -149,4 +137,4 @@ const handleDelete = async () => {
   );
 };
 
-export default TableEmployee;
+export default TableSpecialty; 
