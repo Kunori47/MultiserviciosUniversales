@@ -25,15 +25,100 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
         
+    def getDataByFilter(self, table_name: str, **filters):
+        where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
+        values = tuple(filters.values())
+        try:
+            database.execute(f"SELECT * FROM {table_name} WHERE {where_clause}", values)
+            data = database.fetchall()
+            if not data:
+                raise HTTPException(status_code=404, detail=f"No data found in {table_name} with provided {filters}")
+            return data
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
+        
+    def getDataByView(self, table_name: str, **filters):
+        where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
+        values = tuple(filters.values())
+        try:
+            database.execute(f"SELECT * FROM {table_name} WHERE {where_clause}", values)
+            data = database.fetchall()
+            if not data:
+                raise HTTPException(status_code=404, detail=f"No data found in {table_name} with provided {filters}")
+            return data
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
+        
+
     def searchDataEmployee(self, table_name: str, query: str):
     
         try:
-            database.execute(f"SELECT TOP 10 CI, NombreCompleto FROM Empleados WHERE CI LIKE ?", f'%{query}%')
+            database.execute(f"SELECT TOP 10 CI, NombreCompleto FROM {table_name} WHERE CI LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
             results = [dict(zip(columns, row)) for row in database.fetchall()]
             return results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+        
+    def searchDataFranchise(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE RIF LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+        
+    def searchDataFilters(self, table_name: str, q: str, **filters):
+        try:
+            where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
+            values = tuple(filters.values())
+            database.execute(f"SELECT * FROM {table_name} WHERE {where_clause} AND CI LIKE ?", values + (f'%{q}%',))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+
+        
+    def countData(self, table_name: str):
+        try:
+            database.execute(f"SELECT COUNT(*) FROM {table_name}")
+            data = database.fetchone()
+            return data[0]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error counting data in {table_name}: {str(e)}")
+        
+    def countDistinctData(self, table_name: str, column_name: str):
+        try:
+            database.execute(f"SELECT COUNT(DISTINCT {table_name}.{column_name}) FROM {table_name}")
+            data = database.fetchone()
+            return data[0]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error counting distinct data in {table_name}: {str(e)}")
+        
+    def countDistinctDataByFranchise(self, table_name: str, column_name: str, **filters):
+        where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
+        values = tuple(filters.values())
+        try:
+            database.execute(f"SELECT COUNT(DISTINCT {table_name}.{column_name}) FROM {table_name} WHERE {where_clause}", values)
+            data = database.fetchone()
+            return data[0]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error counting distinct data in {table_name}: {str(e)}")
+        
+
+    def countDataByFranchise(self, table_name: str, **filters):
+        where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
+        values = tuple(filters.values())
+        try:
+            database.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {where_clause}", values)
+            data = database.fetchone()
+            return data[0]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error counting data in {table_name}: {str(e)}")
+        
 
         
 

@@ -79,6 +79,12 @@ export default function UpdateFPage() {
           title="Actualizar Franquicia"
           main
         >
+                    <Button
+                        href={`/dashboard/franchise/`}
+                        color="info"
+                        label="Atras"
+                        roundedFull
+                    />
         </SectionTitleLineWithButton>
 
         <CardBox>
@@ -128,8 +134,9 @@ export default function UpdateFPage() {
                         name="RIF"
                         id="RIF"
                         placeholder="RIF"
-                        className={className}
+                        className={`${className} bg-gray-100 text-gray-400 font-semibold`}
                         required
+                        readOnly
                       />
                     )}
                   </FormField>

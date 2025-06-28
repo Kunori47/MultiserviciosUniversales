@@ -18,6 +18,7 @@ class Employee(BaseModel):
     Telefono: str = Field(..., description="The phone number of the customer")
     Salario: float = Field(..., description="The salary of the customer, if applicable")
     FranquiciaRIF: Optional[str] = Field(..., description="The franchise associated with the customer")
+    Rol: str = Field(..., description="The role of the employee")
 
 class Brand(BaseModel):
     CodigoMarca: int = Field(..., description="The unique identifier for the brand")
@@ -203,3 +204,8 @@ class ProductServiceOrder(BaseModel):
     CodigoProducto: int = Field(..., description="The product code associated with the product order")
     CantidadUtilizada: int = Field(..., description="The quantity used in the product order")
     PrecioProducto: float = Field(..., description="The price of the product in the product order")
+
+class Remenfranq(BaseModel):
+    FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the remittance")
+    Anio: str = Field(..., description="The year of the remittance")
+    Mes: str = Field(..., description="The month of the remittance")

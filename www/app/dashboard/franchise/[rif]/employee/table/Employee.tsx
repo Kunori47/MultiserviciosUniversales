@@ -2,22 +2,22 @@
 
 import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
 import React, { useState } from "react";
-import { Franchise } from "../../../_interfaces";
-import Button from "../../../_components/Button";
-import Buttons from "../../../_components/Buttons";
-import CardBoxModal from "../../../_components/CardBox/Modal";
+import { Employee } from "../../../../../_interfaces";
+import Button from "../../../../../_components/Button";
+import Buttons from "../../../../../_components/Buttons";
+import CardBoxModal from "../../../../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  franchise: Franchise[];
+  employee: Employee[];
 };
 
-const TableFranchise = ({ franchise }: Props) => {
+const TableEmployee = ({ employee }: Props) => {
   const perPage = 5;
 
   const router = useRouter();
 
-  const numPages = franchise.length / perPage;
+  const numPages = employee.length / perPage;
 
   const pagesList: number[] = [];
 
@@ -27,35 +27,25 @@ const TableFranchise = ({ franchise }: Props) => {
 
 
   const [currentPage, setCurrentPage] = useState(0);
-  const clientsPaginated = franchise.slice(
+  const clientsPaginated = employee.slice(
     perPage * currentPage,
     perPage * (currentPage + 1),
   );
 
-  const [selectedRIF, setSelectedRIF] = useState<any | null>(null);
+  const [selectedCI, setSelectedCI] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
-const handleSetInactive = async () => {
-  if (!selectedRIF) return;
+const handleDelete = async () => {
+  if (!selectedCI) return;
   try {
-    const res = await fetch(`http://127.0.0.1:8000/franchise/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...selectedRIF,
-        Estatus: "No activo",
-      }),
+    const res = await fetch(`http://127.0.0.1:8000/employee/delete?CI=${selectedCI.CI}`, {
+      method: "DELETE",
     });
-    if (!res.ok) throw new Error("Error al actualizar franquicia");
-    // Actualiza el estado local:
-    const updated = franchise.map(f =>
-      f.RIF === selectedRIF.RIF ? { ...f, Estatus: "No activo" } : f
-    );
-    // Si franchise viene de props, deberías levantar el estado al padre o recargar desde el backend.
+    if (!res.ok) throw new Error("Error al eliminar empleado");
     setIsModalTrashActive(false);
-    setSelectedRIF(null);
+    setSelectedCI(null);
   } catch (err) {
-    alert("No se pudo actualizar la franquicia");
+    alert("No se pudo eliminar el empleado");
   }
 };
 
@@ -67,37 +57,39 @@ const handleSetInactive = async () => {
         buttonColor="danger"
         buttonLabel="Confirmar"
         isActive={isModalTrashActive}
-        onConfirm={handleSetInactive}
+        onConfirm={handleDelete}
         onCancel={() => {
           setIsModalTrashActive(false);
-          setSelectedRIF(null);
+          setSelectedCI(null);
         }}
       >
         <p>
-            ¿Estás seguro de que quieres colocar<b>inactivo</b> esta franquicia?
+            ¿Estás seguro de que quieres colocar<b>eliminar</b> al empleado?
         </p>
       </CardBoxModal>
 
       <table>
         <thead>
           <tr>
-            <th>RIF</th>
-            <th>Franquicia</th>
-            <th>Ciudad</th>
-            <th>Cedula del Encargado</th>
-            <th>Estatus</th>
+            <th>CI</th>
+            <th>Nombre Completo</th>
+            <th>Direccion</th>
+            <th>Telefono</th>
+            <th>Salario</th>
+            <th>Rol</th>
           </tr>
         </thead>
         <tbody>
-          {clientsPaginated.map((franchise: Franchise) => (
-            <tr key={franchise.RIF} >
-              <td data-label="RIF">{franchise.RIF}</td>
-              <td data-label="Franquicia">{franchise.Nombre}</td>
-              <td data-label="Ciudad">{franchise.Ciudad}</td>
-              <td data-label="Encargado">{franchise.CI_Encargado}</td>
-              <td data-label="Estatus" className="lg:w-1 whitespace-nowrap">
+          {clientsPaginated.map((employee: Employee) => (
+            <tr key={employee.CI} >
+              <td data-label="CI">{employee.CI}</td>
+              <td data-label="NombreCompleto">{employee.NombreCompleto}</td>
+              <td data-label="Direccion">{employee.Direccion}</td>
+              <td data-label="Telefono">{employee.Telefono}</td>
+              <td data-label="Salario">{employee.Salario}</td>
+              <td data-label="Rol" className="lg:w-1 whitespace-nowrap">
                 <small className="text-gray-500 dark:text-slate-400">
-                  {franchise.Estatus}
+                  {employee.Rol}
                 </small>
               </td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
@@ -105,7 +97,7 @@ const handleSetInactive = async () => {
                   <Button
                     color="info"
                     icon={mdiInformation}
-                    href={`/dashboard/franchise/${franchise.RIF}`}
+                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/${employee.CI}`}
                     small
                     isGrouped>
                     
@@ -113,7 +105,7 @@ const handleSetInactive = async () => {
                   <Button
                     color="contrast"
                     icon={mdiTagEdit}
-                    href={`/dashboard/franchise/update/${franchise.RIF}`}
+                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/update/${employee.CI}`}
                     small
                     isGrouped
                   />
@@ -122,7 +114,7 @@ const handleSetInactive = async () => {
                     icon={mdiTrashCan}
                     onClick={() => {
                       setIsModalTrashActive(true);
-                      setSelectedRIF(franchise);
+                      setSelectedCI(employee);
                     }}
                     small
                     isGrouped
@@ -157,4 +149,4 @@ const handleSetInactive = async () => {
   );
 };
 
-export default TableFranchise;
+export default TableEmployee;

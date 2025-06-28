@@ -23,6 +23,7 @@ export default function TablesPage() {
   return (
     <SectionMain>
       <SectionTitleLineWithButton icon={mdiTableBorder} title="Tables" main>
+        
         <Button
           href="https://github.com/justboil/admin-one-react-tailwind"
           target="_blank"

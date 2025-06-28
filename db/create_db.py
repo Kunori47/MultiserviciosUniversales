@@ -32,6 +32,7 @@ def crear_base_datos():
             Telefono CHAR(12) NOT NULL CHECK(LEN(Telefono) = 12),
             Salario DECIMAL(10,2) CHECK(Salario >= 0),
             FranquiciaRIF CHAR(12),
+            Rol VARCHAR(20) NOT NULL CHECK(Rol IN ('Administrador', 'Encargado', 'Empleado', 'Mecánico')),
             PRIMARY KEY(CI),
             FOREIGN KEY (FranquiciaRIF) REFERENCES Franquicias(RIF)
                 ON DELETE CASCADE
@@ -394,8 +395,8 @@ def crear_base_datos():
         
         # Crear tablas adicionales 
         tablas_adicionales = [
-            ("Suministran", """
-                CREATE TABLE Suministran(
+            ("Suministros", """
+                CREATE TABLE Suministros(
                     ProveedorRIF CHAR(12),
                     CodigoProducto INT,
                     PRIMARY KEY(ProveedorRIF, CodigoProducto),
@@ -493,12 +494,89 @@ def crear_base_datos():
             """)
         ]
         
+        table_views = [
+            ("Vista_GastoMensualPorFranquicia",
+             """
+            CREATE VIEW Vista_GastoMensualPorFranquicia
+            AS
+            SELECT 
+                ai.FranquiciaRIF,
+                YEAR(c.Fecha) AS Anio,
+                MONTH(c.Fecha) AS Mes,
+                SUM(ai.Monto) AS GastoTotal
+            FROM AumentosInventario ai
+            INNER JOIN Compras c ON ai.NumeroCompra = c.Numero
+            GROUP BY ai.FranquiciaRIF, YEAR(c.Fecha), MONTH(c.Fecha);
+             """),
+
+             ("Vista_MontoGeneradoPorFranquiciaMesAnio",
+              """
+              CREATE VIEW Vista_MontoGeneradoPorFranquiciaMesAnio
+                AS
+                SELECT 
+                    FranquiciaRIF,
+                    YEAR(FechaEmision) AS Anio,
+                    MONTH(FechaEmision) AS Mes,
+                    SUM(MontoTotal) AS MontoGenerado
+                FROM Facturas
+                GROUP BY FranquiciaRIF, YEAR(FechaEmision), MONTH(FechaEmision);
+            """),
+            ("Vista_CantidadOrdenesPorFranquiciaMesAnio",
+             """
+             CREATE VIEW Vista_CantidadOrdenesPorFranquiciaMesAnio
+                AS
+                SELECT 
+                    FranquiciaRIF,
+                    YEAR(FechaEmision) AS Anio,
+                    MONTH(FechaEmision) AS Mes,
+                    COUNT(*) AS CantidadOrdenes
+                FROM Facturas
+                GROUP BY FranquiciaRIF, YEAR(FechaEmision), MONTH(FechaEmision);
+             """),
+
+             ("Vista_ResumenMensualFranquiciaSimple",
+              """
+                CREATE VIEW Vista_ResumenMensualFranquiciaSimple
+                AS
+                WITH TodasLasFechas AS (
+                    SELECT FranquiciaRIF, YEAR(FechaEmision) AS Anio, MONTH(FechaEmision) AS Mes FROM Facturas
+                    UNION
+                    SELECT ai.FranquiciaRIF, YEAR(c.Fecha), MONTH(c.Fecha)
+                    FROM AumentosInventario ai
+                    JOIN Compras c ON ai.NumeroCompra = c.Numero
+                )
+                SELECT 
+                    t.FranquiciaRIF,
+                    t.Anio,
+                    t.Mes,
+                    ISNULL(v1.CantidadOrdenes, 0) AS CantidadOrdenes,
+                    ISNULL(v2.MontoGenerado, 0) AS MontoGenerado,
+                    ISNULL(v3.GastoTotal, 0) AS GastoTotal
+                FROM (
+                    SELECT DISTINCT FranquiciaRIF, Anio, Mes
+                    FROM TodasLasFechas
+                ) t
+                LEFT JOIN Vista_CantidadOrdenesPorFranquiciaMesAnio v1
+                ON t.FranquiciaRIF = v1.FranquiciaRIF AND t.Anio = v1.Anio AND t.Mes = v1.Mes
+                LEFT JOIN Vista_MontoGeneradoPorFranquiciaMesAnio v2
+                ON t.FranquiciaRIF = v2.FranquiciaRIF AND t.Anio = v2.Anio AND t.Mes = v2.Mes
+                LEFT JOIN Vista_GastoMensualPorFranquicia v3
+                ON t.FranquiciaRIF = v3.FranquiciaRIF AND t.Anio = v3.Anio AND t.Mes = v3.Mes;
+              """)
+        ]
+
+        
         for nombre_tabla, sql_create in tablas_adicionales:
             cursor.execute(f"""
             IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{nombre_tabla}' AND xtype='U')
             {sql_create}
             """)
             print(f"✓ Tabla '{nombre_tabla}' creada")
+
+        for nombre_vista, sql_create in table_views:
+            cursor.execute(f"IF OBJECT_ID('{nombre_vista}', 'V') IS NOT NULL DROP VIEW {nombre_vista}")
+            cursor.execute(sql_create)
+            print(f"✓ Vista '{nombre_vista}' creada")
         
         # Confirmar transacción
         conn.commit()
@@ -537,7 +615,7 @@ def verificar_base_datos():
     try:
         conn = pyodbc.connect(
             "Driver={SQL Server};"
-            "Server=DESKTOP-DJIAR9K\SQLEXPRESS;"
+            "Server=KUNORI\SQLEXPRESS;"
             "Database=MultiserviciosUniversal;"
             "Trusted_Connection=yes;"
         )
