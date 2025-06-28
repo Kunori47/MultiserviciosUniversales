@@ -116,3 +116,12 @@ export interface Vendor {
   TelefonoCelular: string;
   PersonaContacto: string;
 }
+
+export interface MaintenancePlan {
+  CodigoMantenimiento: number;
+  TiempoUso: number;
+  Kilometraje: number;
+  DescripcionMantenimiento: string;
+  CodigoMarca: number;
+  NumeroCorrelativoModelo: number;
+}

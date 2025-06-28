@@ -226,6 +226,10 @@ async def update_customer(cliente: Customer):
 async def read_maintenanceplan():
     return GetController().get_all(table_name="PlanesMantenimiento")
 
+@router.get("/maintenanceplan/search", tags=["Plan de Mantenimiento"])
+async def search_maintenance_plans(q: str):
+    return GetController().search(table_name="PlanesMantenimiento", query=q)
+
 @router.get("/maintenanceplan/{CodigoMantenimiento}", tags=["Plan de Mantenimiento"], response_model=MaintenancePlan)
 async def read_maintenanceplan_by_code(CodigoMantenimiento: int):
     maintenance_plan = GetController().get_by_id(table_name="PlanesMantenimiento", CodigoMantenimiento=CodigoMantenimiento)

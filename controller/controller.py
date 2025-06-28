@@ -33,6 +33,8 @@ class GetController:
             return self.get_service.searchDataSupplierLines(table_name, query)
         elif(table_name == 'Proveedores'):
             return self.get_service.searchDataVendors(table_name, query)
+        elif(table_name == 'PlanesMantenimiento'):
+            return self.get_service.searchDataMaintenancePlans(table_name, query)
         
     def searchFilters(self, table_name: str, query: str, **filters):
         if not query:

@@ -58,3 +58,16 @@ export const fetchVendors = async () => {
     return [];
   }
 };
+
+export const fetchMaintenancePlans = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/maintenanceplan');
+    if (!response.ok) {
+      throw new Error('Error al obtener los planes de mantenimiento');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener los planes de mantenimiento:', error);
+    return [];
+  }
+};
