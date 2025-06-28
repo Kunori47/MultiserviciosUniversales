@@ -29,10 +29,20 @@ export default function SupplyLinesPage() {
       fetchSupplyLines().then(data => setSupplyLines(data));
   }, []);
 
+  // Efecto para manejar cuando el input está vacío
+  useEffect(() => {
+    if (!descriptionInput) {
+      fetchSupplyLines().then(data => setSupplyLines(data));
+    }
+  }, [descriptionInput]);
+
     // Función para buscar sugerencias de Descripción
   const fetchDescriptionSuggestions = async (query: string) => {
       if (!query) {
         setDescriptionSuggestions([]);
+        // Cuando el buscador está vacío, cargar todos los datos
+        const allSupplyLines = await fetchSupplyLines();
+        setSupplyLines(allSupplyLines);
         return;
       }
       try {
@@ -73,8 +83,9 @@ export default function SupplyLinesPage() {
                           autoComplete="off"
                           value={descriptionInput}
                           onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                            setDescriptionInput(e.target.value);
-                            await fetchDescriptionSuggestions(e.target.value);
+                            const value = e.target.value;
+                            setDescriptionInput(value);
+                            await fetchDescriptionSuggestions(value);
                             // setFieldValue is not available here, so you may need to handle form state differently
                           }}
                         />

@@ -384,6 +384,10 @@ async def update_product(producto: Product):
 async def read_vendors():
     return GetController().get_all(table_name="Proveedores")
 
+@router.get("/vendor/search", tags=["Proveedor"])
+async def search_vendors(q: str):
+    return GetController().search(table_name="Proveedores", query=q)
+
 @router.get("/vendor/{RIF}", tags=["Proveedor"], response_model=Vendor)
 async def read_vendor_by_rif(RIF: str):
     vendor = GetController().get_by_id(table_name="Proveedores", RIF=RIF)

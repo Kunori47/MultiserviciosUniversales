@@ -107,3 +107,12 @@ export interface SupplyLine {
   CodigoLinea: number;
   DescripcionLinea: string;
 }
+
+export interface Vendor {
+  RIF: string;
+  RazonSocial: string;
+  Direccion: string;
+  TelefonoLocal: string;
+  TelefonoCelular: string;
+  PersonaContacto: string;
+}

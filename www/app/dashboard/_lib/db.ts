@@ -45,3 +45,16 @@ export const fetchSupplyLines = async () => {
     return [];
   }
 };
+
+export const fetchVendors = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/vendor');
+    if (!response.ok) {
+      throw new Error('Error al obtener los proveedores');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener los proveedores:', error);
+    return [];
+  }
+};
