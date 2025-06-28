@@ -27,8 +27,8 @@ const menuAside: MenuAsideItem[] = [
     icon: mdiTable,
   },
   {
-    href: "/dashboard/forms",
-    label: "Forms",
+    href: "/dashboard/create",
+    label: "Crear",
     icon: mdiSquareEditOutline,
   },
   {
