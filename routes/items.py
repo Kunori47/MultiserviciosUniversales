@@ -315,6 +315,10 @@ async def update_service(servicio:  Service):
 async def read_supplier_lines():
     return GetController().get_all(table_name="LineasSuministro")
 
+@router.get("/supplier_line/search", tags=["Linea de Suministro"])
+async def search_supplier_lines(q: str):
+    return GetController().search(table_name="LineasSuministro", query=q)
+
 @router.get("/supplier_line/{CodigoLinea}", tags=["Linea de Suministro"], response_model=SupplierLine)
 async def read_supplier_line_by_code(CodigoLinea: int):
     supplier_line = GetController().get_by_id(table_name="LineasSuministro", CodigoLinea=CodigoLinea)

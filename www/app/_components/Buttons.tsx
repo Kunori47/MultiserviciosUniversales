@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 type Props = {
   type?: string;
   mb?: string;
+  gap?: string;
   noWrap?: boolean;
   classAddon?: string;
   children: ReactNode;
@@ -11,7 +12,8 @@ type Props = {
 
 const Buttons = ({
   type = "justify-start",
-  mb = "-mb-3",
+  mb = "-mb-3 gap-2",
+  gap = "gap-2",
   noWrap = false,
   children,
   className,

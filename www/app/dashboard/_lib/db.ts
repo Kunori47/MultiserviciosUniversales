@@ -1,3 +1,5 @@
+import { SupplyLine } from "../../_interfaces";
+
 export async function fetchFranchises() {
   const res = await fetch("http://127.0.0.1:8000/franchise");
   if (!res.ok) {
@@ -30,3 +32,16 @@ export async function fetchEmployeeNameByFranchise(RIF) {
   }
   return  await res.json();
 }
+
+export const fetchSupplyLines = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/supplier_line');
+    if (!response.ok) {
+      throw new Error('Error al obtener las lineas de suministro');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener las lineas de suministro:', error);
+    return [];
+  }
+};

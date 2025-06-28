@@ -102,3 +102,8 @@ export type UserForm = {
   name: string | null;
   email: string | null;
 };
+
+export interface SupplyLine {
+  CodigoLinea: number;
+  DescripcionLinea: string;
+}

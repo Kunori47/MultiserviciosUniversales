@@ -29,6 +29,8 @@ class GetController:
             return self.get_service.searchDataEmployee(table_name, query)
         elif(table_name == 'Franquicias'):
             return self.get_service.searchDataFranchise(table_name, query)
+        elif(table_name == 'LineasSuministro'):
+            return self.get_service.searchDataSupplierLines(table_name, query)
         
     def searchFilters(self, table_name: str, query: str, **filters):
         if not query:
