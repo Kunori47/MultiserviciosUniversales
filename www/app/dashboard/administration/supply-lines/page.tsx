@@ -29,10 +29,20 @@ export default function SupplyLinesPage() {
       fetchSupplyLines().then(data => setSupplyLines(data));
   }, []);
 
+  // Efecto para manejar cuando el input está vacío
+  useEffect(() => {
+    if (!descriptionInput) {
+      fetchSupplyLines().then(data => setSupplyLines(data));
+    }
+  }, [descriptionInput]);
+
     // Función para buscar sugerencias de Descripción
   const fetchDescriptionSuggestions = async (query: string) => {
       if (!query) {
         setDescriptionSuggestions([]);
+        // Cuando el buscador está vacío, cargar todos los datos
+        const allSupplyLines = await fetchSupplyLines();
+        setSupplyLines(allSupplyLines);
         return;
       }
       try {
@@ -99,7 +109,7 @@ export default function SupplyLinesPage() {
             label={"Agregar"}
             icon={mdiPlus}
             color="info"
-            href="/dashboard/supply-lines/create">
+            href="/dashboard/administration/supply-lines/create">
 
         </Button>
       </SectionTitleLineWithButton>

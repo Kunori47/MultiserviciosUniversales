@@ -246,7 +246,7 @@ async def read_maintenanceplan_by_code(CodigoMantenimiento: int):
     return maintenance_plan
 
 @router.post("/maintenanceplan/create", tags=["Plan de Mantenimiento"], response_model=dict)
-async def create_maintenanceplan(planmantenimiento: MaintenancePlan):
+async def create_maintenanceplan(planmantenimiento: MaintenancePlanCreate):
     return PostController().post_data(table_name="PlanesMantenimiento", data={
         "TiempoUso": planmantenimiento.TiempoUso,
         "Kilometraje": planmantenimiento.Kilometraje,
@@ -288,7 +288,7 @@ async def read_specialty_by_code(CodigoEspecialidad: int):
     return specialty
 
 @router.post("/specialty/create", tags=["Especialidad"], response_model=dict)
-async def create_specialty(especialidad: Specialty):
+async def create_specialty(especialidad: SpecialtyCreate):
     return PostController().post_data(table_name="Especialidades", data={"DescripcionEspecialidad": especialidad.DescripcionEspecialidad})
 
 @router.delete("/specialty/delete", tags=["Especialidad"], response_model=dict)
@@ -347,7 +347,7 @@ async def read_supplier_line_by_code(CodigoLinea: int):
     return supplier_line
 
 @router.post("/supplier_line/create", tags=["Linea de Suministro"], response_model=dict)
-async def create_supplier_line(lineasuministro: SupplierLine):
+async def create_supplier_line(lineasuministro: SupplierLineCreate):
     return PostController().post_data(table_name="LineasSuministro", data={"DescripcionLinea": lineasuministro.DescripcionLinea})
 
 @router.delete("/supplier_line/delete", tags=["Linea de Suministro"], response_model=dict)

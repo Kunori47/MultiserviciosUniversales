@@ -99,7 +99,7 @@ export default function SuppliersPage() {
             label={"Agregar"}
             icon={mdiPlus}
             color="info"
-            href="/dashboard/suppliers/create">
+            href="/dashboard/administration/suppliers/create">
 
         </Button>
       </SectionTitleLineWithButton>

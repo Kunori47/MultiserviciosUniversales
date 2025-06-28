@@ -99,7 +99,7 @@ export default function MaintenancePlansPage() {
             label={"Agregar"}
             icon={mdiPlus}
             color="info"
-            href="/dashboard/maintenance-plans/create">
+            href="/dashboard/administration/maintenance-plans/create">
 
         </Button>
       </SectionTitleLineWithButton>
