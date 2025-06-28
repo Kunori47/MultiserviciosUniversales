@@ -29,20 +29,10 @@ export default function SuppliersPage() {
       fetchVendors().then(data => setVendors(data));
   }, []);
 
-  // Efecto para manejar cuando el input está vacío
-  useEffect(() => {
-    if (!razonSocialInput) {
-      fetchVendors().then(data => setVendors(data));
-    }
-  }, [razonSocialInput]);
-
     // Función para buscar sugerencias de Razón Social
   const fetchRazonSocialSuggestions = async (query: string) => {
       if (!query) {
         setRazonSocialSuggestions([]);
-        // Cuando el buscador está vacío, cargar todos los datos
-        const allVendors = await fetchVendors();
-        setVendors(allVendors);
         return;
       }
       try {
@@ -53,7 +43,6 @@ export default function SuppliersPage() {
         const data = await res.json();
         setRazonSocialSuggestions(data);
         setVendors(data);
-        
       } catch (err) {
         console.error("Error buscando sugerencias de razón social:", err);
         setRazonSocialSuggestions([]);
@@ -81,12 +70,11 @@ export default function SuppliersPage() {
                           autoComplete="off"
                           value={razonSocialInput}
                           onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = e.target.value;
-                            setRazonSocialInput(value);
-                            await fetchRazonSocialSuggestions(value);
+                            setRazonSocialInput(e.target.value);
+                            await fetchRazonSocialSuggestions(e.target.value);
                           }}
                         />
-                        {razonSocialSuggestions?.length > 0 && (
+                        {razonSocialSuggestions.length > 0 && (
                           <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-auto">
                             {razonSocialSuggestions.map((item) => (
                               <li
@@ -97,10 +85,7 @@ export default function SuppliersPage() {
                                   setRazonSocialSuggestions([]);
                                 }}
                               >
-                                <div className="flex justify-between">
-                                  <span className="font-medium">{item.RazonSocial}</span>
-                                  <span className="text-gray-500 text-sm">#{item.RIF}</span>
-                                </div>
+                                {item.RazonSocial}
                               </li>
                             ))}
                           </ul>

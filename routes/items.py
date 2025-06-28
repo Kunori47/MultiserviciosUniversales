@@ -93,6 +93,10 @@ async def update_employee(employee: Employee):
 async def read_brands():
     return GetController().get_all(table_name="Marcas")
 
+@router.get("/brand/search", tags=["Marca"])
+async def search_brands(q: str):
+    return GetController().search(table_name="Marcas", query=q)
+
 @router.get("/brand/{CodigoMarca}", tags=["Marca"], response_model=Brand)
 async def read_brand_by_code(CodigoMarca: int):
     brand = GetController().get_by_id(table_name="Marcas", CodigoMarca=CodigoMarca)
@@ -117,6 +121,10 @@ async def update_brand(marca: Brand):
 @router.get("/model", tags=["Modelo"], response_model=list[Model])
 async def read_models():
     return GetController().get_all(table_name="Modelos")
+
+@router.get("/model/search", tags=["Modelo"])
+async def search_models(q: str):
+    return GetController().search(table_name="Modelos", query=q)
 
 @router.get("/model/{CodigoMarca}/{NumeroCorrelativoModelo}", tags=["Modelo"], response_model=Model)
 async def read_model_by_code(CodigoMarca: int, NumeroCorrelativoModelo: int):

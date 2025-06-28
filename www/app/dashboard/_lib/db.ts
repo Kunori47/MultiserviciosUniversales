@@ -71,3 +71,29 @@ export const fetchMaintenancePlans = async () => {
     return [];
   }
 };
+
+export const fetchBrands = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/brand');
+    if (!response.ok) {
+      throw new Error('Error al obtener las marcas');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener las marcas:', error);
+    return [];
+  }
+};
+
+export const fetchModels = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/model');
+    if (!response.ok) {
+      throw new Error('Error al obtener los modelos');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener los modelos:', error);
+    return [];
+  }
+};

@@ -125,3 +125,19 @@ export interface MaintenancePlan {
   CodigoMarca: number;
   NumeroCorrelativoModelo: number;
 }
+
+export interface Brand {
+  CodigoMarca: number;
+  Nombre: string;
+}
+
+export interface Model {
+  CodigoMarca: number;
+  NumeroCorrelativoModelo: number;
+  DescripcionModelo: string;
+  CantidadPuestos: number;
+  TipoRefrigerante: string;
+  TipoGasolina: string;
+  TipoAceite: string;
+  Peso: number;
+}
