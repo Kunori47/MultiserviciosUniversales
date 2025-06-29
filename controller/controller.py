@@ -144,6 +144,12 @@ class PostController:
         if not data:
             raise HTTPException(status_code=400, detail="No data provided")
         return self.post_service.postData(table_name, data)
+
+    def post_model_data(self, data: dict):
+        if not data:
+            raise HTTPException(status_code=400, detail="No data provided")
+        return self.post_service.postModelData(data)
+    
     
     def create_purchase_with_inventory(self, purchase_data: dict):
         if not purchase_data:
