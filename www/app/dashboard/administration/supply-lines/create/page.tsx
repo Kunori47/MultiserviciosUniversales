@@ -6,8 +6,11 @@ import {
   mdiCheckCircle,
   mdiAlertCircle,
   mdiLoading,
+  mdiInformation,
+  mdiClose,
 } from "@mdi/js";
 import { Field, Form, Formik, FormikProps } from "formik";
+import * as Yup from "yup";
 import Head from "next/head";
 import { useState, useRef } from "react";
 import Button from "../../../../_components/Button";
@@ -21,18 +24,30 @@ import SectionMain from "../../../../_components/Section/Main";
 import SectionTitleLineWithButton from "../../../../_components/Section/TitleLineWithButton";
 import { getPageTitle } from "../../../../_lib/config";
 
+// Esquema de validación
+const validationSchema = Yup.object().shape({
+  descripcionLinea: Yup.string()
+    .min(3, "La descripción debe tener al menos 3 caracteres")
+    .max(50, "La descripción no puede exceder 50 caracteres")
+    .required("La descripción es obligatoria")
+    .trim(),
+});
+
 export default function FormsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [showErrorNotification, setShowErrorNotification] = useState(false);
+  const [showInfoNotification, setShowInfoNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorDetails, setErrorDetails] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [formValues, setFormValues] = useState<any>(null);
   const formikRef = useRef<FormikProps<any>>(null);
 
-  const handleSubmit = async (values: any, { resetForm }: any) => {
+  const handleSubmit = async (values: any, { setSubmitting, setFieldError }: any) => {
     setFormValues(values);
     setShowConfirmModal(true);
+    setSubmitting(false);
   };
 
   const confirmSubmit = async () => {
@@ -46,40 +61,60 @@ export default function FormsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          DescripcionLinea: formValues?.descripcionLinea,
+          DescripcionLinea: formValues?.descripcionLinea?.trim(),
         }),
       });
       
+      const data = await res.json();
+      
       if (!res.ok) {
-        throw new Error("Error al crear la línea de suministro");
+        // Manejo específico de errores del servidor
+        if (res.status === 400) {
+          throw new Error("Datos inválidos. Verifica la información ingresada.");
+        } else if (res.status === 409) {
+          throw new Error("Ya existe una línea de suministro con esa descripción.");
+        } else if (res.status === 500) {
+          throw new Error("Error interno del servidor. Intenta nuevamente más tarde.");
+        } else {
+          throw new Error(data.detail || "Error al crear la línea de suministro");
+        }
       }
       
-      const data = await res.json();
       setShowSuccessNotification(true);
       formikRef.current?.resetForm();
       
-      // Ocultar notificación de éxito después de 3 segundos
+      // Mostrar información adicional
+      setShowInfoNotification(true);
+      
+      // Ocultar notificaciones después de un tiempo
       setTimeout(() => {
         setShowSuccessNotification(false);
-      }, 3000);
+        setShowInfoNotification(false);
+      }, 5000);
       
     } catch (err: any) {
       setErrorMessage(err.message);
+      setErrorDetails("Si el problema persiste, contacta al administrador del sistema.");
       setShowErrorNotification(true);
       
-      // Ocultar notificación de error después de 5 segundos
+      // Ocultar notificación de error después de 8 segundos
       setTimeout(() => {
         setShowErrorNotification(false);
-      }, 5000);
+      }, 8000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleRetry = () => {
+    setShowErrorNotification(false);
+    setShowConfirmModal(true);
+  };
+
   return (
     <>
       <Head>
-        <title>{getPageTitle("Forms")}</title>
+        <title>{getPageTitle("Crear Línea de Suministro")}</title>
       </Head>
 
       <SectionMain>
@@ -96,7 +131,7 @@ export default function FormsPage() {
           />
         </SectionTitleLineWithButton>
 
-        {/* Notificaciones */}
+        {/* Notificación de éxito */}
         {showSuccessNotification && (
           <NotificationBar
             color="success"
@@ -104,7 +139,7 @@ export default function FormsPage() {
             button={
               <Button
                 color="white"
-                label="Cerrar"
+                icon={mdiClose}
                 roundedFull
                 small
                 onClick={() => setShowSuccessNotification(false)}
@@ -115,36 +150,76 @@ export default function FormsPage() {
           </NotificationBar>
         )}
 
+        {/* Notificación informativa */}
+        {showInfoNotification && (
+          <NotificationBar
+            color="info"
+            icon={mdiInformation}
+            button={
+              <Button
+                color="white"
+                icon={mdiClose}
+                roundedFull
+                small
+                onClick={() => setShowInfoNotification(false)}
+              />
+            }
+          >
+            <b>Información:</b> La nueva línea de suministro ya está disponible para su uso
+          </NotificationBar>
+        )}
+
+        {/* Notificación de error mejorada */}
         {showErrorNotification && (
           <NotificationBar
             color="danger"
             icon={mdiAlertCircle}
             button={
-              <Button
-                color="white"
-                label="Cerrar"
-                roundedFull
-                small
-                onClick={() => setShowErrorNotification(false)}
-              />
+              <Buttons>
+                <Button
+                  color="white"
+                  label="Reintentar"
+                  roundedFull
+                  small
+                  onClick={handleRetry}
+                />
+                <Button
+                  color="white"
+                  icon={mdiClose}
+                  roundedFull
+                  small
+                  onClick={() => setShowErrorNotification(false)}
+                />
+              </Buttons>
             }
           >
-            <b>Error:</b> {errorMessage}
+            <div className="space-y-1">
+              <div><b>Error:</b> {errorMessage}</div>
+              {errorDetails && (
+                <div className="text-sm opacity-90">{errorDetails}</div>
+              )}
+            </div>
           </NotificationBar>
         )}
 
-        {/* Modal de confirmación */}
+        {/* Modal de confirmación mejorado */}
         <CardBoxModal
           title="Confirmar creación de línea de suministro"
           buttonColor="info"
-          buttonLabel="Confirmar"
+          buttonLabel={isSubmitting ? "Creando..." : "Confirmar"}
           isActive={showConfirmModal}
           onConfirm={confirmSubmit}
           onCancel={() => setShowConfirmModal(false)}
         >
-          <p>¿Estás seguro de que deseas crear la línea de suministro con los siguientes datos?</p>
-          <div className="mt-4 space-y-2 text-sm">
-            <p><strong>Descripción:</strong> {formValues?.descripcionLinea}</p>
+          <div className="space-y-4">
+            <p>¿Estás seguro de que deseas crear la línea de suministro con los siguientes datos?</p>
+            <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg space-y-2 text-sm">
+              <p><strong>Descripción:</strong> {formValues?.descripcionLinea}</p>
+            </div>
+            <div className="text-xs text-gray-500 dark:text-slate-400">
+              <p>• La descripción debe ser única en el sistema</p>
+              <p>• Una vez creada, podrás usarla para categorizar productos</p>
+            </div>
           </div>
         </CardBoxModal>
 
@@ -153,48 +228,56 @@ export default function FormsPage() {
             initialValues={{
               descripcionLinea: "",
             }}
+            validationSchema={validationSchema}
             onSubmit={handleSubmit}
             ref={formikRef}
           >
-            <Form>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
-                <div>
-                  <FormField label="Descripción de la Línea" labelFor="descripcionLinea" icon={mdiText}>
-                    {({ className }) => (
-                      <Field
-                        name="descripcionLinea"
-                        id="descripcionLinea"
-                        placeholder="Descripción de la línea de suministro"
-                        className={className}
-                        required
-                        disabled={isSubmitting}
-                      />
-                    )}
-                  </FormField>
+            {({ errors, touched, isValid, dirty }) => (
+              <Form>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
+                  <div>
+                    <FormField 
+                      label="Descripción de la Línea" 
+                      labelFor="descripcionLinea" 
+                      icon={mdiText}
+                      help={errors.descripcionLinea && touched.descripcionLinea ? String(errors.descripcionLinea) : undefined}
+                    >
+                      {({ className }) => (
+                        <Field
+                          name="descripcionLinea"
+                          id="descripcionLinea"
+                          placeholder="Ej: Repuestos de motor, Lubricantes, etc."
+                          className={`${className} ${errors.descripcionLinea && touched.descripcionLinea ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}`}
+                          required
+                          disabled={isSubmitting}
+                        />
+                      )}
+                    </FormField>
+                  </div>
                 </div>
-              </div>
 
-              <Divider />
+                <Divider />
 
-              <Buttons>
-                <Button 
-                  type="submit" 
-                  color="info" 
-                  label={isSubmitting ? "Enviando..." : "Enviar"} 
-                  icon={isSubmitting ? mdiLoading : undefined}
-                  disabled={isSubmitting}
-                  isGrouped 
-                />
-                <Button
-                  type="reset"
-                  color="info"
-                  outline
-                  label="Vaciar"
-                  disabled={isSubmitting}
-                  isGrouped
-                />
-              </Buttons>
-            </Form>
+                <Buttons>
+                  <Button 
+                    type="submit" 
+                    color="info" 
+                    label={isSubmitting ? "Enviando..." : "Enviar"} 
+                    icon={isSubmitting ? mdiLoading : undefined}
+                    disabled={isSubmitting || !isValid || !dirty}
+                    isGrouped 
+                  />
+                  <Button
+                    type="reset"
+                    color="info"
+                    outline
+                    label="Vaciar"
+                    disabled={isSubmitting}
+                    isGrouped
+                  />
+                </Buttons>
+              </Form>
+            )}
           </Formik>
         </CardBox>
       </SectionMain>

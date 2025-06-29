@@ -133,7 +133,7 @@ const TableMaintenancePlan = ({ maintenancePlans }: Props) => {
                   <Button
                     color="contrast"
                     icon={mdiPencil}
-                    href={`/dashboard/maintenance-plans/edit/${maintenancePlan.CodigoMantenimiento}`}
+                    href={`/dashboard/administration/maintenance-plans/update/${maintenancePlan.CodigoMantenimiento}`}
                     small
                     isGrouped
                   />

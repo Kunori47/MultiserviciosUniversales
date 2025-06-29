@@ -143,7 +143,7 @@ const TableModel = ({ models }: Props) => {
                   <Button
                     color="contrast"
                     icon={mdiPencil}
-                    href={`/dashboard/brands-models/edit/model/${model.CodigoMarca}/${model.NumeroCorrelativoModelo}`}
+                    href={`/dashboard/administration/brands-models/update-model/${model.CodigoMarca}/${model.NumeroCorrelativoModelo}`}
                     small
                     isGrouped
                   />

@@ -113,7 +113,7 @@ const TableBrand = ({ brands }: Props) => {
                   <Button
                     color="contrast"
                     icon={mdiPencil}
-                    href={`/dashboard/brands-models/edit/brand/${brand.CodigoMarca}`}
+                    href={`/dashboard/administration/brands-models/update-brand/${brand.CodigoMarca}`}
                     small
                     isGrouped
                   />

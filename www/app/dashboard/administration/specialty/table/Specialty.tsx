@@ -1,6 +1,6 @@
 "use client";
 
-import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
+import { mdiEye, mdiInformation, mdiPencil, mdiTrashCan } from "@mdi/js";
 import React, { useState } from "react";
 import { Specialty } from "../../../../_interfaces";
 import Button from "../../../../_components/Button";
@@ -92,7 +92,7 @@ const TableSpecialty = ({ specialties }: Props) => {
                   </Button>
                   <Button
                     color="contrast"
-                    icon={mdiTagEdit}
+                    icon={mdiPencil}
                     href={`/dashboard/administration/specialty/update/${specialty.CodigoEspecialidad}`}
                     small
                     isGrouped

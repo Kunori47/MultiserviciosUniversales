@@ -135,7 +135,7 @@ const TableVendor = ({ vendors }: Props) => {
                   <Button
                     color="contrast"
                     icon={mdiPencil}
-                    href={`/dashboard/suppliers/edit/${vendor.RIF}`}
+                    href={`/dashboard/administration/suppliers/update/${vendor.RIF}`}
                     small
                     isGrouped
                   />

@@ -115,7 +115,7 @@ const TableSupplyLine = ({ supplyLines }: Props) => {
                   <Button
                     color="contrast"
                     icon={mdiPencil}
-                    href={`/dashboard/supply-lines/edit/${supplyLine.CodigoLinea}`}
+                    href={`/dashboard/administration/supply-lines/update/${supplyLine.CodigoLinea}`}
                     small
                     isGrouped
                   />
