@@ -3,6 +3,8 @@
 import {
   mdiBallotOutline,
   mdiInformation,
+  mdiPackage,
+  mdiWrench,
 } from "@mdi/js";
 import Button from "../../../_components/Button";
 import Divider from "../../../_components/Divider";
@@ -27,6 +29,7 @@ export default function InfoPage() {
       const [infofranq, setInfoFranq] = useState<any>(null);
       const [countproduct, setCountProduct] = useState<any>(null);
       const [countfranq, setCountFranq] = useState<any>(null);
+      const [services, setServices] = useState<any[]>([]);
       
   
   
@@ -89,6 +92,16 @@ export default function InfoPage() {
         }
       }, [franchise, rif])
 
+      useEffect(() =>{
+        if(franchise){
+
+          fetch(`http://127.0.0.1:8000/service/franchise/${rif}`)
+          .then(res => res.json())
+          .then(data => setServices(data))
+
+        }
+      }, [franchise, rif])
+
   
       if (!franchise) {
         return <div>Cargando datos de la franquicia...</div>;
@@ -98,98 +111,177 @@ export default function InfoPage() {
         };
   return (
     <>
-
       <SectionMain>
+        <div className="max-w-4xl mx-auto">
+          <SectionTitleLineWithButton
+            icon={mdiBallotOutline}
+            title={`${franchise.RIF} - ${franchise.Nombre} - ${franchise.Ciudad}`}
+            main
+          >
+            <div className="text-center">
+              <p className="text-lg font-semibold text-gray-700 mb-2">
+                Encargado: {encargado ? encargado.NombreCompleto : "Cargando encargado..."}
+              </p>
+              <Button
+                href="/dashboard/franchise"
+                color="info"
+                label="Atras"
+                roundedFull
+              />
+            </div>
+          </SectionTitleLineWithButton>
 
-        <SectionTitleLineWithButton
-          icon={mdiBallotOutline}
-          title={`${franchise.RIF} - ${franchise.Nombre} - ${franchise.Ciudad}`}
-          main
-        >
+          <Divider />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <CardBox className="text-center bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-blue-800 mb-3">Empleados</h3>
+                <div className="text-4xl font-extrabold text-blue-600 mb-4">
+                  {cantemployee || "0"}
+                </div>
+                <Button
+                  type="reset"
+                  color="info"
+                  href={`/dashboard/franchise/${rif}/employee`}
+                  outline
+                  icon={mdiInformation}
+                  isGrouped
+                  label="Ver Empleados"
+                />
+              </div>
+            </CardBox>
+
+            <CardBox className="text-center bg-gradient-to-br from-green-50 to-green-100 shadow-lg">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-green-800 mb-3">Inventario</h3>
+                <div className="text-4xl font-extrabold text-green-600 mb-2">
+                  {countfranq || "0"}
+                </div>
+                <div className="text-lg text-gray-600 mb-4">
+                  de {countproduct || "0"} productos
+                </div>
+                <Button
+                  type="reset"
+                  color="success"
+                  href={`/dashboard/franchise/${rif}/inventory`}
+                  outline
+                  icon={mdiInformation}
+                  isGrouped
+                  label="Ver Inventario"
+                />
+              </div>
+            </CardBox>
+
+            <CardBox className="text-center bg-gradient-to-br from-purple-50 to-purple-100 shadow-lg">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-purple-800 mb-3">Servicios</h3>
+                <div className="text-4xl font-extrabold text-purple-600 mb-2">
+                  {services.length || "0"}
+                </div>
+                <div className="text-lg text-gray-600 mb-4">
+                  servicios ofrecidos
+                </div>
+                <Button
+                  type="reset"
+                  color="contrast"
+                  href={`/dashboard/franchise/${rif}/services`}
+                  outline
+                  icon={mdiWrench}
+                  isGrouped
+                  label="Ver Servicios"
+                />
+              </div>
+            </CardBox>
+          </div>
+
+          <Divider />
           
-          <p>Encargado: {encargado ? encargado.NombreCompleto : "Cargando encargado..."}</p>
-
-          <Button
-            href="/dashboard/franchise"
-            color="info"
-            label="Atras"
-            roundedFull
-          />
-        </SectionTitleLineWithButton>
-
-        <Divider />
-
-        <div className="flex justify-center gap-40">
-          <CardBox>
-              <FieldLabel>Cantidad de empleados: {cantemployee} &nbsp;
-                  <Button
-                    type="reset"
-                    color="info"
-                    href={`/dashboard/franchise/${rif}/employee`}
-                    outline
-                    icon={mdiInformation}
-                    isGrouped
+          <CardBox className="bg-white shadow-xl rounded-xl">
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Estadísticas Mensuales</h3>
+                <div className="flex justify-center">
+                  <DatePicker
+                    selected={fecha}
+                    onChange={handleChange}
+                    dateFormat="MM/yyyy"
+                    showMonthYearPicker
+                    placeholderText="Selecciona mes y año"
+                    className="border-2 border-gray-300 rounded-lg px-4 py-2 text-center focus:border-blue-500 focus:outline-none"
                   />
-              </FieldLabel>
-          </CardBox>
-
-          <CardBox>
-              <FieldLabel>Inventario: {countfranq} / {countproduct} &nbsp;
+                </div>
+              </div>
+              
+              <Divider />
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center p-6 bg-blue-50 rounded-xl shadow-md">
+                  <h4 className="text-lg font-semibold text-blue-800 mb-3">Servicios Realizados</h4>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {infofranq && infofranq.length > 0 ? infofranq[0].CantidadOrdenes : "0"}
+                  </div>
                   <Button
                     type="reset"
                     color="info"
                     outline
                     icon={mdiInformation}
                     isGrouped
+                    small
+                    href={`/dashboard/franchise/${rif}/orders`}
+                    label="Ver Historial"
                   />
-              </FieldLabel>
+                </div>
+
+                <div className="text-center p-6 bg-green-50 rounded-xl shadow-md">
+                  <h4 className="text-lg font-semibold text-green-800 mb-3">Dinero Generado</h4>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    ${infofranq && infofranq.length > 0 ? infofranq[0].MontoGenerado : "0"}
+                  </div>
+                  <Button
+                    type="reset"
+                    color="success"
+                    outline
+                    icon={mdiInformation}
+                    isGrouped
+                    small
+                    href={`/dashboard/franchise/${rif}/profitability`}
+                    label="Ver Análisis"
+                  />
+                </div>
+
+                <div className="text-center p-6 bg-red-50 rounded-xl shadow-md">
+                  <h4 className="text-lg font-semibold text-red-800 mb-3">Gastos en compras</h4>
+                  <div className="text-3xl font-bold text-red-600 mb-2">
+                    ${infofranq && infofranq.length > 0 ? infofranq[0].GastoTotal : "0"}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="reset"
+                      color="danger"
+                      outline
+                      icon={mdiInformation}
+                      isGrouped
+                      small
+                      href={`/dashboard/franchise/${rif}/revenue`}
+                      label="Ver Detalles"
+                    />
+                    <Button
+                      type="reset"
+                      color="success"
+                      outline
+                      icon={mdiPackage}
+                      isGrouped
+                      small
+                      href={`/dashboard/franchise/${rif}/purchase/create`}
+                      label="Registrar Compra"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardBox>
         </div>
-
-        <Divider />
-        
-        <CardBox>
-              <DatePicker
-                selected={fecha}
-                onChange={handleChange}
-                dateFormat="MM/yyyy"
-                showMonthYearPicker
-                placeholderText="Selecciona mes y año"
-              />
-          <Divider />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mb-6 last:mb-0">
-            <FieldLabel>Servicios Realizados: {infofranq && infofranq.length > 0 ? infofranq[0].CantidadOrdenes : "Sin datos"} &nbsp;
-                <Button
-                  type="reset"
-                  color="info"
-                  outline
-                  icon={mdiInformation}
-                  isGrouped
-                />
-            </FieldLabel>
-
-            <FieldLabel>Dinero Generado: {infofranq && infofranq.length > 0 ? infofranq[0].MontoGenerado : "Sin datos"} &nbsp;
-                <Button
-                  type="reset"
-                  color="info"
-                  outline
-                  icon={mdiInformation}
-                  isGrouped
-                />
-            </FieldLabel>
-
-            <FieldLabel>Gasto Total: {infofranq && infofranq.length > 0 ? infofranq[0].GastoTotal : "Sin datos"} &nbsp;
-                <Button
-                  type="reset"
-                  color="info"
-                  outline
-                  icon={mdiInformation}
-                  isGrouped
-                />
-            </FieldLabel>
-          </div>
-        </CardBox>
-      
       </SectionMain>
     </>
   );

@@ -7,6 +7,7 @@ import {
   mdiViewList,
   mdiTelevisionGuide,
   mdiStore,
+  mdiRoomService,
 } from "@mdi/js";
 import { MenuAsideItem } from "../../_interfaces";
 
@@ -22,9 +23,9 @@ const menuAside: MenuAsideItem[] = [
     label: "Franquicia",
   },
   {
-    href: "/dashboard/tables",
-    label: "Tables",
-    icon: mdiTable,
+    href: "/dashboard/products",
+    label: "Productos",
+    icon: mdiRoomService,
   },
   {
     href: "/dashboard/forms",

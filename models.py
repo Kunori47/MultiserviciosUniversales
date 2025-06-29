@@ -122,7 +122,6 @@ class Activity(BaseModel):
     CodigoServicio: int = Field(..., description="The service code associated with the order")
     NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
     DescripcionActividad: str = Field(..., description="The description of the activity")
-    CostoManoDeObra: float = Field(..., description="The cost of the activity in the order")
 
 
 class OrderxActivity(BaseModel):
@@ -175,7 +174,7 @@ class FranchiseServiceLink(BaseModel):
 class Correction(BaseModel):
     FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the correction")
     CodigoProducto: int = Field(..., description="The product code associated with the correction")
-    FechaCorreccion: str = Field(..., description="The correction date")
+    FechaCorreccion: Optional[str] = Field(None, description="The correction date")
     Cantidad: int = Field(..., description="The quantity of the product in the correction")
     TipoAjuste: str = Field(..., description="The type of adjustment for the correction")
     Comentario: Optional[str] = Field(..., description="Comments on the correction")

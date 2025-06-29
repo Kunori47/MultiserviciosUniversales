@@ -214,8 +214,8 @@ def crear_base_datos():
             HoraEntrada TIME NOT NULL,
             FechaSalidaEstimada DATE NOT NULL,
             HoraSalidaEstimada TIME NOT NULL,
-            FechaSalidaReal DATE NOT NULL,
-            HoraSalidaReal TIME NOT NULL,
+            FechaSalidaReal DATE,
+            HoraSalidaReal TIME,
             Comentario VARCHAR(100),
             CodigoVehiculo INT,
             PRIMARY KEY(ID),
@@ -305,7 +305,6 @@ def crear_base_datos():
             CodigoServicio INT,
             NumeroCorrelativoActividad INT,
             DescripcionActividad VARCHAR(50) NOT NULL,
-            CostoManoDeObra DECIMAL(10, 2) NOT NULL CHECK (CostoManoDeObra >= 0),
             PRIMARY KEY(CodigoServicio, NumeroCorrelativoActividad),
             FOREIGN KEY(CodigoServicio) REFERENCES Servicios(CodigoServicio)
                 ON DELETE CASCADE

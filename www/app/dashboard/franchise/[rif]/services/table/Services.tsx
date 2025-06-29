@@ -1,54 +1,28 @@
 "use client";
 
 import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
-import React, { useState, useEffect } from "react";
-import { Employee } from "../../../../../_interfaces";
+import React, { useState } from "react";
 import Button from "../../../../../_components/Button";
 import Buttons from "../../../../../_components/Buttons";
 import CardBoxModal from "../../../../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
 
+interface Service {
+  CodigoServicio: number;
+  NombreServicio: string;
+}
+
 type Props = {
-  employee: Employee[];
+  services: Service[];
+  rif: string;
+  onDelete?: () => void;
 };
 
-const TableEmployee = ({ employee }: Props) => {
+const TableServices = ({ services, rif, onDelete }: Props) => {
   const perPage = 5;
   const router = useRouter();
-  const [employeeWithOrders, setEmployeeWithOrders] = useState<any[]>([]);
 
-  // Obtener cantidad de órdenes para cada empleado
-  useEffect(() => {
-    const fetchOrdersForEmployees = async () => {
-      const employeesWithOrders = await Promise.all(
-        employee.map(async (emp) => {
-          try {
-            const res = await fetch(`http://127.0.0.1:8000/employee_order/count_emp?EmpleadoCI=${emp.CI}`);
-            const orderCount = await res.json();
-            return {
-              ...emp,
-              orderCount: orderCount || 0
-            };
-          } catch (error) {
-            return {
-              ...emp,
-              orderCount: 0
-            };
-          }
-        })
-      );
-      
-      // Ordenar por cantidad de órdenes de manera descendiente
-      const sortedEmployees = employeesWithOrders.sort((a, b) => b.orderCount - a.orderCount);
-      setEmployeeWithOrders(sortedEmployees);
-    };
-
-    if (employee.length > 0) {
-      fetchOrdersForEmployees();
-    }
-  }, [employee]);
-
-  const numPages = employeeWithOrders.length / perPage;
+  const numPages = Math.ceil(services.length / perPage);
   const pagesList: number[] = [];
 
   for (let i = 0; i < numPages; i++) {
@@ -56,25 +30,29 @@ const TableEmployee = ({ employee }: Props) => {
   }
 
   const [currentPage, setCurrentPage] = useState(0);
-  const clientsPaginated = employeeWithOrders.slice(
+  const servicesPaginated = services.slice(
     perPage * currentPage,
     perPage * (currentPage + 1),
   );
 
-  const [selectedCI, setSelectedCI] = useState<any | null>(null);
+  const [selectedService, setSelectedService] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
   const handleDelete = async () => {
-    if (!selectedCI) return;
+    if (!selectedService) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/employee/delete?CI=${selectedCI.CI}`, {
+      const res = await fetch(`http://127.0.0.1:8000/franchise_services/delete?FranquiciaRIF=${rif}&CodigoServicio=${selectedService.CodigoServicio}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Error al eliminar empleado");
+      if (!res.ok) throw new Error("Error al eliminar servicio de la franquicia");
       setIsModalTrashActive(false);
-      setSelectedCI(null);
+      setSelectedService(null);
+      // Call the callback to refresh the services list
+      if (onDelete) {
+        onDelete();
+      }
     } catch (err) {
-      alert("No se pudo eliminar el empleado");
+      alert("No se pudo eliminar el servicio de la franquicia");
     }
   };
 
@@ -88,55 +66,43 @@ const TableEmployee = ({ employee }: Props) => {
         onConfirm={handleDelete}
         onCancel={() => {
           setIsModalTrashActive(false);
-          setSelectedCI(null);
+          setSelectedService(null);
         }}
       >
         <p>
-          ¿Estás seguro de que quieres <b>eliminar</b> al empleado?
+          ¿Estás seguro de que quieres <b>eliminar</b> este servicio de la franquicia?
         </p>
       </CardBoxModal>
 
       <table>
         <thead>
           <tr>
-            <th>CI</th>
-            <th>Nombre Completo</th>
-            <th>Teléfono</th>
-            <th>Salario</th>
-            <th>Rol</th>
-            <th>Órdenes Realizadas</th>
+            <th>Código</th>
+            <th>Nombre del Servicio</th>
           </tr>
         </thead>
         <tbody>
-          {clientsPaginated.map((employee: any) => (
-            <tr key={employee.CI}>
-              <td data-label="CI">{employee.CI}</td>
-              <td data-label="NombreCompleto">{employee.NombreCompleto}</td>
-              <td data-label="Telefono">{employee.Telefono}</td>
-              <td data-label="Salario">${employee.Salario}</td>
-              <td data-label="Rol" className="lg:w-1 whitespace-nowrap">
-                <small className="text-gray-500 dark:text-slate-400">
-                  {employee.Rol}
-                </small>
-              </td>
-              <td data-label="Órdenes Realizadas" className="text-center">
-                <span className="font-semibold text-blue-600">
-                  {employee.orderCount || 0}
+          {servicesPaginated.map((service: Service) => (
+            <tr key={service.CodigoServicio}>
+              <td data-label="Código">
+                <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                  #{service.CodigoServicio}
                 </span>
               </td>
+              <td data-label="Nombre del Servicio">{service.NombreServicio}</td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
                     color="info"
                     icon={mdiInformation}
-                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/${employee.CI}`}
+                    href={`/dashboard/franchise/${rif}/services/${service.CodigoServicio}`}
                     small
                     isGrouped
                   />
                   <Button
                     color="contrast"
                     icon={mdiTagEdit}
-                    href={`/dashboard/franchise/${employee.FranquiciaRIF}/employee/update/${employee.CI}`}
+                    href={`/dashboard/franchise/${rif}/services/edit/${service.CodigoServicio}`}
                     small
                     isGrouped
                   />
@@ -145,7 +111,7 @@ const TableEmployee = ({ employee }: Props) => {
                     icon={mdiTrashCan}
                     onClick={() => {
                       setIsModalTrashActive(true);
-                      setSelectedCI(employee);
+                      setSelectedService(service);
                     }}
                     small
                     isGrouped
@@ -180,4 +146,4 @@ const TableEmployee = ({ employee }: Props) => {
   );
 };
 
-export default TableEmployee;
+export default TableServices; 

@@ -192,14 +192,14 @@ def seed_tables():
         
         # 17. Actividades
         cursor.execute("""
-        INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra) 
+        INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad) 
         VALUES (?, ?, ?, ?)
-        """, (1, 1, "Drenar aceite usado", 15.00))
+        """, (1, 1, "Drenar aceite usado"))
         
         cursor.execute("""
-        INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad, CostoManoDeObra) 
+        INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad) 
         VALUES (?, ?, ?, ?)
-        """, (1, 2, "Cambiar filtro de aceite", 10.00))
+        """, (1, 2, "Cambiar filtro de aceite"))
         print("✓ Actividades insertadas")
         
         # 18. Especialidades de Empleados
@@ -252,7 +252,7 @@ def seed_tables():
         
         # 24. Empleados en Órdenes
         empleadosordenes =  [
-            ("V-12345678", 1)
+            ('V-12345678', 1),
             ('V-12345670', 1),
             ('V-12345670', 2),
             ('V-12345670', 3),
@@ -329,7 +329,8 @@ def seed_tables():
         total_records = 0
         for table_name, query in verification_queries:
             cursor.execute(query)
-            count = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            count = result[0] if result else 0
             print(f"✓ {table_name}: {count} registros")
             total_records += count
         

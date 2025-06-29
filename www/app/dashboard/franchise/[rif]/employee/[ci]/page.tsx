@@ -16,7 +16,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 
-export default function InfoPage() {
+export default function InfoEmployeePage() {
 
       const params = useParams();
       const ci = params?.ci as string;
@@ -48,62 +48,85 @@ export default function InfoPage() {
 
   return (
     <>
-
       <SectionMain>
-
-        <SectionTitleLineWithButton
-          icon={mdiBallotOutline}
-          title={`${employee.CI}`}
-          main
-        >
+        <div className="max-w-4xl mx-auto">
+          <SectionTitleLineWithButton
+            icon={mdiBallotOutline}
+            title={`${employee.CI} - ${employee.NombreCompleto}`}
+            main
+          >
             <Button
-                href={`/dashboard/franchise/${rif}/employee`}
-                color="info"
-                label="Atras"
-                roundedFull
-            />            
+              href={`/dashboard/franchise/${rif}/employee`}
+              color="info"
+              label="Atras"
+              roundedFull
+            />
+          </SectionTitleLineWithButton>
 
-        </SectionTitleLineWithButton>
+          <div className="flex justify-center mb-8">
+            <CardBox className="w-full max-w-md bg-gradient-to-r from-gray-50 to-gray-100 shadow-sm border border-gray-200">
+              <div className="text-center p-6">
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Información Personal</h3>
+                <p className="text-xl font-semibold text-gray-900">
+                  {employee.NombreCompleto}
+                </p>
+              </div>
+            </CardBox>
+          </div>
 
-        <Divider />
+          <Divider />
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mb-6 last:mb-0">
-            <CardBox>
-                <FieldLabel>Nombre: {employee.NombreCompleto} &nbsp;
-                </FieldLabel>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <CardBox className="bg-white shadow-sm border border-gray-200">
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-medium text-gray-700 mb-3">Teléfono</h3>
+                <div className="text-xl font-semibold text-gray-900">
+                  {employee.Telefono}
+                </div>
+              </div>
             </CardBox>
 
-            <CardBox>
-                <FieldLabel>Telefono: {employee.Telefono} &nbsp;
-                </FieldLabel>
+            <CardBox className="bg-white shadow-sm border border-gray-200">
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-medium text-gray-700 mb-3">Dirección</h3>
+                <div className="text-lg font-semibold text-gray-900">
+                  {employee.Direccion}
+                </div>
+              </div>
             </CardBox>
 
-            <CardBox>
-                <FieldLabel>Telefono: {employee.Direccion} &nbsp;
-                </FieldLabel>
+            <CardBox className="bg-white shadow-sm border border-gray-200">
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-medium text-gray-700 mb-3">CI</h3>
+                <div className="text-xl font-semibold text-gray-900">
+                  {employee.CI}
+                </div>
+              </div>
+            </CardBox>
+          </div>
+
+          <Divider />
+
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-8">
+            <CardBox className="w-full md:w-80 text-center bg-white shadow-sm border border-gray-200">
+              <div className="p-6">
+                <h3 className="text-lg font-medium text-gray-700 mb-3">Salario</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">
+                  ${employee.Salario}
+                </div>
+              </div>
             </CardBox>
 
-
-          
+            <CardBox className="w-full md:w-80 text-center bg-white shadow-sm border border-gray-200">
+              <div className="p-6">
+                <h3 className="text-lg font-medium text-gray-700 mb-3">Órdenes Realizadas</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">
+                  {cantservice}
+                </div>
+              </div>
+            </CardBox>
+          </div>
         </div>
-
-        <Divider />
-
-        <div className="flex justify-center gap-40">
-            <CardBox>
-                <FieldLabel>Salario: {employee.Salario} &nbsp;
-                </FieldLabel>
-            </CardBox>
-
-            <CardBox>
-                <FieldLabel>Ordenes Realizadas: {cantservice} &nbsp;
-                </FieldLabel>
-            </CardBox>
-          
-        </div>
-        
-     
-      
       </SectionMain>
     </>
   );

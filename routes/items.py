@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 from controller.controller import *
-from db.database import database
 from models import *
+from typing import Optional
+from datetime import date
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ async def read_franchise():
     return GetController().get_all(table_name="Franquicias")
 
 @router.get("/franchise/search", tags=["Franquicias"])
-async def search_employees(q: str):
+async def search_franchises(q: str):
     return GetController().search(table_name="Franquicias", query=q)
 
 @router.get("/franchise/{RIF}", tags=["Franquicias"], response_model=Franchise)
@@ -28,11 +29,11 @@ async def read_franchise_by_rif(RIF: str):
     return franchise
 
 @router.post("/franchise/create", tags=["Franquicias"], response_model=dict)
-async def create_franchise(Franchise: Franchise):
+async def create_new_franchise(Franchise: Franchise):
     return PostController().post_data(table_name="Franquicias", data=Franchise.model_dump())
 
 @router.put("/franchise/update", tags=["Franquicias"], response_model=dict)
-async def create_franchise(Franchise: Franchise):
+async def update_franchise(Franchise: Franchise):
     return UpdateController().put_data(table_name="Franquicias", data=Franchise.model_dump(), RIF=Franchise.RIF)
 
 " Empleados Endpoints "
@@ -46,7 +47,7 @@ async def get_employee_count():
     return GetController().count(table_name="Empleados")
 
 @router.get("/employee/search", tags=["Empleado"])
-async def search_employees(q: str):
+async def search_employees_by_name(q: str):
     return GetController().search(table_name="Empleados", query=q)
 
 @router.get("/employee/franchise/{RIF}/search", tags=["Empleado"])
@@ -143,7 +144,7 @@ async def delete_model(CodigoMarca: int, NumeroCorrelativoModelo: int):
     return DeleteController().delete_data(table_name="Modelos", CodigoMarca=CodigoMarca, NumeroCorrelativoModelo=NumeroCorrelativoModelo)
 
 @router.put("/model/update", tags=["Modelo"], response_model=dict)
-async def update_model(modelo: Brand):
+async def update_model(modelo: Model):
     return UpdateController().put_data(table_name="Modelos", CodigoMarca=modelo.CodigoMarca, NumeroCorrelativoModelo=modelo.NumeroCorrelativoModelo, data={
         "DescripcionModelo": modelo.DescripcionModelo,
         "CantidadPuestos": modelo.CantidadPuestos,
@@ -290,16 +291,29 @@ async def update_specialty(especialidad: Specialty):
 async def read_services():
     return GetController().get_all(table_name="Servicios")
 
+@router.get("/service/franchise/{FranquiciaRIF}", tags=["Servicio"])
+async def get_services_by_franchise(FranquiciaRIF: str):
+    """
+    Get all services that a specific franchise offers
+    """
+    return GetController().get_services_by_franchise(FranquiciaRIF)
+
+@router.post("/service/create", tags=["Servicio"], response_model=dict)
+async def create_service(Servicio: str):
+    if not Servicio or not Servicio.strip():
+        raise HTTPException(status_code=400, detail="Service name is required")
+    
+    try:
+        return PostController().post_data(table_name="Servicios", data={"NombreServicio": Servicio.strip()})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating service: {str(e)}")
+
 @router.get("/service/{CodigoServicio}", tags=["Servicio"], response_model=Service)
 async def read_service_by_code(CodigoServicio: int):
     service = GetController().get_by_id(table_name="Servicios", CodigoServicio=CodigoServicio)
     if not service:
         raise HTTPException(status_code=404, detail="Servicio not found")
     return service
-
-@router.post("/service/create", tags=["Servicio"], response_model=dict)
-async def create_service(servicio: Service):
-    return PostController().post_data(table_name="Servicios", data={"NombreServicio": servicio.NombreServicio})
 
 @router.delete("/service/delete", tags=["Servicio"], response_model=dict)
 async def delete_service(CodigoServicio: int):
@@ -341,6 +355,23 @@ async def update_supplier_line(lineasuministro: SupplierLine):
 async def read_products():
     return GetController().get_all(table_name="Productos")
 
+@router.get("/product/search", tags=["Producto"])
+async def search_products(q: str):
+    return GetController().search(table_name="Productos", query=q)
+
+
+@router.post("/product/create", tags=["Producto"], response_model=dict)
+async def create_product(NombreProducto: str, DescripcionProducto: str, LineaSuministro: int, Tipo: str, NivelContaminante: int, Tratamiento: str):
+    return PostController().post_data(table_name="Productos", data={
+        "NombreProducto": NombreProducto,
+        "DescripcionProducto": DescripcionProducto,
+        "LineaSuministro": LineaSuministro,
+        "Tipo": Tipo,
+        "NivelContaminante": NivelContaminante,
+        "Tratamiento": Tratamiento
+    })
+
+
 @router.get("/product/{CodigoProducto}", tags=["Producto"], response_model=Product)
 async def read_product_by_code(CodigoProducto: int):
     product = GetController().get_by_id(table_name="Productos", CodigoProducto=CodigoProducto)
@@ -348,16 +379,6 @@ async def read_product_by_code(CodigoProducto: int):
         raise HTTPException(status_code=404, detail="Producto not found")
     return product
 
-@router.post("/product/create", tags=["Producto"], response_model=dict)
-async def create_product(producto: Product):
-    return PostController().post_data(table_name="Productos", data={
-        "NombreProducto": producto.NombreProducto,
-        "DescripcionProducto": producto.DescripcionProducto,
-        "LineaSuministro": producto.LineaSuministro,
-        "Tipo": producto.Tipo,
-        "NivelContaminante": producto.NivelContaminante,
-        "Tratamiento": producto.Tratamiento
-    })
 
 @router.delete("/product/delete", tags=["Producto"], response_model=dict)
 async def delete_product(CodigoProducto: int):
@@ -418,6 +439,18 @@ async def update_vendor(proveedor: Vendor):
 async def read_service_orders():
     return GetController().get_all(table_name="OrdenesServicios")  
 
+@router.get("/service_order/franchise/{FranquiciaRIF}", tags=["Orden de Servicio"])
+async def get_orders_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None, estado: Optional[str] = None):
+    return GetController().get_orders_by_franchise(FranquiciaRIF, mes, anio, estado)
+
+@router.get("/service_order/franchise/{FranquiciaRIF}/stats", tags=["Orden de Servicio"])
+async def get_orders_stats_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None):
+    return GetController().get_orders_stats_by_franchise(FranquiciaRIF, mes, anio)
+
+@router.get("/service_order/franchise/{FranquiciaRIF}/{NumeroOrden}/details", tags=["Orden de Servicio"])
+async def get_order_details(FranquiciaRIF: str, NumeroOrden: int):
+    return GetController().get_order_details(FranquiciaRIF, NumeroOrden)
+
 @router.get("/service_order/{ID}", tags=["Orden de Servicio"], response_model=ServiceOrder)
 async def read_service_order_by_id(ID: int):
     service_order = GetController().get_by_id(table_name="OrdenesServicios", ID=ID)
@@ -471,6 +504,14 @@ async def create_invoice(factura: Invoice):
         "FranquiciaRIF": factura.FranquiciaRIF
     })
 
+@router.get("/invoice/franchise/{FranquiciaRIF}", tags=["Factura"])
+async def get_invoices_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None):
+    return GetController().get_invoices_by_franchise(FranquiciaRIF, mes, anio)
+
+@router.get("/invoice/franchise/{FranquiciaRIF}/{NumeroFactura}/details", tags=["Factura"])
+async def get_invoice_details(FranquiciaRIF: str, NumeroFactura: int):
+    return GetController().get_invoice_details(FranquiciaRIF, NumeroFactura)
+
 
 " Compra Endpoints "
 
@@ -478,9 +519,13 @@ async def create_invoice(factura: Invoice):
 async def read_purchases():
     return GetController().get_all(table_name="Compras")
 
+@router.get("/purchase/franchise/{FranquiciaRIF}", tags=["Compra"])
+async def get_purchases_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None):
+    return GetController().get_purchases_by_franchise(FranquiciaRIF, mes, anio)
+
 @router.get("/purchase/{NumeroCompra}", tags=["Compra"], response_model=Purchase)
 async def read_purchase_by_number(NumeroCompra: int):
-    purchase = GetController().get_by_id(table_name="Compras", NumeroCompra=NumeroCompra)
+    purchase = GetController().get_by_id(table_name="Compras", Numero=NumeroCompra)
     if not purchase:
         raise HTTPException(status_code=404, detail="Compra not found")
     return purchase
@@ -492,19 +537,27 @@ async def create_purchase(compra: Purchase):
         "ProveedorRIF": compra.ProveedorRIF
     })
 
+@router.post("/purchase/create_with_inventory", tags=["Compra"], response_model=dict)
+async def create_purchase_with_inventory(purchase_data: dict):
+    """
+    Create a purchase and update inventory in a single transaction
+    purchase_data should contain:
+    - Fecha: date
+    - ProveedorRIF: string
+    - items: list of dict with CodigoProducto, CantidadPedida, CantidadDisponible, Monto, FranquiciaRIF
+    """
+    return PostController().create_purchase_with_inventory(purchase_data)
+
+@router.get("/purchase/franchise/{FranquiciaRIF}/{NumeroCompra}/details", tags=["Compra"])
+async def get_purchase_details(FranquiciaRIF: str, NumeroCompra: int):
+    return GetController().get_purchase_details(FranquiciaRIF, NumeroCompra)
+
 
 " Producto Franquicia Endpoints "
 
 @router.get("/product_franchise", tags=["Producto Franquicia"], response_model=list[ProductFranchise])
 async def read_product_franchises():
     return GetController().get_all(table_name="ProductosFranquicia")
-
-@router.get("/product_franchise/{FranquiciaRIF}/{CodigoProducto}", tags=["Producto Franquicia"], response_model=ProductFranchise)
-async def read_product_franchise_by_code(FranquiciaRIF: str, CodigoProducto: int):
-    product_franchise = GetController().get_by_id(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, CodigoProducto=CodigoProducto)
-    if not product_franchise:
-        raise HTTPException(status_code=404, detail="Producto Franquicia not found")
-    return product_franchise
 
 @router.get("/product_franchise/count_products", tags=["Producto Franquicia"])
 async def count_products():
@@ -514,6 +567,24 @@ async def count_products():
 async def count_products_by_franchise(FranquiciaRIF: str):
     return GetController().count_distinct_by_franchise(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, column_name="CodigoProducto")
 
+@router.get("/product_franchise/franchise/{FranquiciaRIF}", tags=["Producto Franquicia"])
+async def get_inventory_by_franchise(FranquiciaRIF: str):
+    return GetController().get_inventory_by_franchise(FranquiciaRIF)
+
+@router.get("/product_franchise/franchise/{FranquiciaRIF}/search", tags=["Producto Franquicia"])
+async def search_inventory_by_franchise(FranquiciaRIF: str, q: str):
+    return GetController().search_inventory_by_franchise(FranquiciaRIF, q)
+
+@router.get("/product_franchise/product", tags=["Producto Franquicia"])
+async def get_product_by_franchise_and_code(FranquiciaRIF: str, CodigoProducto: int):
+    return GetController().get_product_by_franchise_and_code(FranquiciaRIF, CodigoProducto)
+
+@router.get("/product_franchise/{FranquiciaRIF}/{CodigoProducto}", tags=["Producto Franquicia"], response_model=ProductFranchise)
+async def read_product_franchise_by_code(FranquiciaRIF: str, CodigoProducto: int):
+    product_franchise = GetController().get_by_id(table_name="ProductosFranquicia", FranquiciaRIF=FranquiciaRIF, CodigoProducto=CodigoProducto)
+    if not product_franchise:
+        raise HTTPException(status_code=404, detail="Producto Franquicia not found")
+    return product_franchise
 
 @router.post("/product_franchise/create", tags=["Producto Franquicia"], response_model=dict)
 async def create_product_franchise(productofraq: ProductFranchise):
@@ -546,6 +617,13 @@ async def update_product_franchise(productofraq: ProductFranchise):
 async def read_activities():
     return GetController().get_all(table_name="Actividades")
 
+@router.get("/activity/service/{CodigoServicio}", tags=["Actividad"])
+async def get_activities_by_service(CodigoServicio: int):
+    """
+    Get all activities for a specific service
+    """
+    return GetController().get_activities_by_service(CodigoServicio)
+
 @router.get("/activity/{CodigoServicio}/{NumeroCorrelativoActividad}", tags=["Actividad"], response_model=Activity)
 async def read_activity_by_code(CodigoServicio: int, NumeroCorrelativoActividad: int):
     activity = GetController().get_by_id(table_name="Actividades", CodigoServicio=CodigoServicio, NumeroCorrelativoActividad=NumeroCorrelativoActividad)
@@ -558,13 +636,18 @@ async def create_activity(actividad: Activity):
     return PostController().post_data(table_name="Actividades", data={
         "CodigoServicio": actividad.CodigoServicio,
         "NumeroCorrelativoActividad": actividad.NumeroCorrelativoActividad,
-        "DescripcionActividad": actividad.DescripcionActividad,
-        "CostoManoDeObra": actividad.CostoManoDeObra
+        "DescripcionActividad": actividad.DescripcionActividad
         })
 
 @router.delete("/activity/delete", tags=["Actividad"], response_model=dict)
 async def delete_activity(CodigoServicio: int, NumeroCorrelativoActividad: int):
     return DeleteController().delete_data(table_name="Actividades", CodigoServicio=CodigoServicio, NumeroCorrelativoActividad=NumeroCorrelativoActividad)
+
+@router.put("/activity/update", tags=["Actividad"], response_model=dict)
+async def update_activity(actividad: Activity):
+    return UpdateController().put_data(table_name="Actividades", CodigoServicio=actividad.CodigoServicio, NumeroCorrelativoActividad=actividad.NumeroCorrelativoActividad, data={
+        "DescripcionActividad": actividad.DescripcionActividad
+    })
 
 
 " OrderxActivity Endpoints "
@@ -676,7 +759,7 @@ async def read_employee_order_by_code(empleado_ci: str, codigo_orden: int):
 async def create_employee_order(empleadoorden: EmployeeOrder):
     return PostController().post_data(table_name="EmpleadosOrdenes", data={
         "EmpleadoCI": empleadoorden.EmpleadoCI,
-        "CodigoOrden": empleadoorden.CodigoOrden
+        "CodigoOrden": empleadoorden.OrdenServicioID
     })
 
 
@@ -722,7 +805,7 @@ async def create_vehicle_maintenance(vehiculomant: VehicleMaintenance):
     return PostController().post_data(table_name="MantenimientosVehiculos", data={
         "Vehiculo": vehiculomant.Vehiculo,
         "FechaMantenimiento": vehiculomant.FechaMantenimiento,
-        "Descripcion": vehiculomant.Descripcion
+        "Descripcion": vehiculomant.DescripcionMantenimiento
         })
 
 @router.delete("/vehicle_maintenances/delete", tags=["Mantenimiento de Vehículos"], response_model=dict)
@@ -768,14 +851,14 @@ async def get_franchise_service_by_code(franquicia_rif: str, codigo_servicio: in
     return franchise_service
 
 @router.post("/franchise_services/create", tags=["Servicios de Franquicia"], response_model=dict)
-async def create_franchise_service(franqservice: FranchiseServiceLink):
+async def create_new_franchise_service(franqservice: FranchiseServiceLink):
     return PostController().post_data(table_name="ServiciosFranquicias", data={
         "FranquiciaRIF": franqservice.FranquiciaRIF,
         "CodigoServicio": franqservice.CodigoServicio
-        })
+    })
 
 @router.delete("/franchise_services/delete", tags=["Servicios de Franquicia"], response_model=dict)
-async def delete_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
+async def delete_franchise_service_by_id(FranquiciaRIF: str, CodigoServicio: int):
     return DeleteController().delete_data(table_name="ServiciosFranquicias", FranquiciaRIF=FranquiciaRIF, CodigoServicio=CodigoServicio)
 
 " Correction Endpoints "
@@ -783,6 +866,20 @@ async def delete_franchise_service(FranquiciaRIF: str, CodigoServicio: int):
 @router.get("/correction", tags=["Correccion de Inventario"], response_model=list[Correction])
 async def read_corrections():
     return GetController().get_all(table_name="Correcciones")
+
+@router.get("/correction/check/{FranquiciaRIF}/{CodigoProducto}", tags=["Correccion de Inventario"])
+async def check_correction_exists(FranquiciaRIF: str, CodigoProducto: int):
+    """
+    Check if a product has already been corrected in the current month and year
+    """
+    return GetController().check_correction_exists(FranquiciaRIF, CodigoProducto)
+
+@router.get("/correction/franchise/{FranquiciaRIF}/history", tags=["Correccion de Inventario"])
+async def get_correction_history(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None):
+    """
+    Get correction history for a franchise, optionally filtered by month and year
+    """
+    return GetController().get_correction_history(FranquiciaRIF, mes, anio)
 
 @router.get("/correction/{FranquiciaRIF}/{CodigoProducto}/{FechaCorreccion}", tags=["Correccion de Inventario"], response_model=Correction)
 async def read_correction_by_code(FranquiciaRIF: str, CodigoProducto: int, FechaCorreccion: str):
@@ -792,15 +889,29 @@ async def read_correction_by_code(FranquiciaRIF: str, CodigoProducto: int, Fecha
     return correction
 
 @router.post("/correction/create", tags=["Correccion de Inventario"], response_model=dict)
-async def create_correction(correccion: Correction  ):
+async def create_correction(correccion: Correction):
+    current_date = date.today().isoformat()
     return PostController().post_data(table_name="Correcciones", data={
         "FranquiciaRIF": correccion.FranquiciaRIF,
         "CodigoProducto": correccion.CodigoProducto,
-        "FechaCorreccion": correccion.FechaCorreccion,
+        "FechaCorreccion": current_date,
         "Cantidad": correccion.Cantidad,
         "TipoAjuste": correccion.TipoAjuste,
         "Comentario": correccion.Comentario
         })
+
+@router.post("/correction/create_with_inventory", tags=["Correccion de Inventario"], response_model=dict)
+async def create_correction_with_inventory(correction_data: dict):
+    """
+    Create a correction and update inventory in a single transaction
+    correction_data should contain:
+    - FranquiciaRIF: string
+    - CodigoProducto: int
+    - Cantidad: int
+    - TipoAjuste: string
+    - Comentario: string
+    """
+    return PostController().create_correction_with_inventory(correction_data)
 
 
 " Suministro Endpoints "
