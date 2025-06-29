@@ -70,6 +70,15 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
         
+    def searchDataBrand(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE Nombre LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+        
     def searchDataFilters(self, table_name: str, q: str, **filters):
         try:
             where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
@@ -588,54 +597,159 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error checking correction: {str(e)}")
 
     def getCorrectionHistory(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
+        try:
+            query = """
+                SELECT 
+                    c.FranquiciaRIF,
+                    c.CodigoProducto,
+                    p.NombreProducto,
+                    c.FechaCorreccion,
+                    c.Cantidad,
+                    c.TipoAjuste,
+                    c.Comentario
+                FROM Correcciones c
+                INNER JOIN Productos p ON c.CodigoProducto = p.CodigoProducto
+                WHERE c.FranquiciaRIF = ?
+            """
+            params = [franquicia_rif]
+            
+            if mes is not None and anio is not None:
+                query += " AND MONTH(c.FechaCorreccion) = ? AND YEAR(c.FechaCorreccion) = ?"
+                params.extend([str(mes), str(anio)])
+            
+            query += " ORDER BY c.FechaCorreccion DESC"
+            
+            database.execute(query, params)
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching correction history: {str(e)}")
+
+    def getModelsByBrand(self, codigo_marca: int):
+        try:
+            database.execute("""
+                SELECT 
+                    m.CodigoMarca,
+                    m.NumeroCorrelativoModelo,
+                    m.DescripcionModelo,
+                    m.CantidadPuestos,
+                    m.TipoRefrigerante,
+                    m.TipoGasolina,
+                    m.TipoAceite,
+                    m.Peso
+                FROM Modelos m
+                WHERE m.CodigoMarca = ?
+                ORDER BY m.NumeroCorrelativoModelo
+            """, (codigo_marca,))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching models by brand: {str(e)}")
+
+    def checkBrandHasModels(self, codigo_marca: int):
+        try:
+            database.execute("""
+                SELECT COUNT(*) as model_count
+                FROM Modelos
+                WHERE CodigoMarca = ?
+            """, (codigo_marca,))
+            
+            result = database.fetchone()
+            return result[0] > 0 if result else False
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error checking brand models: {str(e)}")
+
+    def getNextModelCorrelativeNumber(self, codigo_marca: int):
         """
-        Get correction history for a franchise, optionally filtered by month and year
+        Get the next correlative number for models of a specific brand
         """
         try:
-            if mes is not None and anio is not None:
-                # Filter by specific month and year
-                database.execute("""
-                    SELECT c.FranquiciaRIF, c.CodigoProducto, c.FechaCorreccion, c.Cantidad, c.TipoAjuste, c.Comentario,
-                           p.NombreProducto, ls.DescripcionLinea as Categoria
-                    FROM Correcciones c
-                    JOIN Productos p ON c.CodigoProducto = p.CodigoProducto
-                    JOIN LineasSuministro ls ON p.LineaSuministro = ls.CodigoLinea
-                    WHERE c.FranquiciaRIF = ? 
-                    AND MONTH(c.FechaCorreccion) = ? 
-                    AND YEAR(c.FechaCorreccion) = ?
-                    ORDER BY c.FechaCorreccion DESC, c.CodigoProducto
-                """, (franquicia_rif, mes, anio))
-            else:
-                # Get all corrections for the franchise
-                database.execute("""
-                    SELECT c.FranquiciaRIF, c.CodigoProducto, c.FechaCorreccion, c.Cantidad, c.TipoAjuste, c.Comentario,
-                           p.NombreProducto, ls.DescripcionLinea as Categoria
-                    FROM Correcciones c
-                    JOIN Productos p ON c.CodigoProducto = p.CodigoProducto
-                    JOIN LineasSuministro ls ON p.LineaSuministro = ls.CodigoLinea
-                    WHERE c.FranquiciaRIF = ?
-                    ORDER BY c.FechaCorreccion DESC, c.CodigoProducto
-                """, (franquicia_rif,))
+            database.execute("""
+                SELECT COALESCE(MAX(NumeroCorrelativoModelo), 0) + 1 as next_number
+                FROM Modelos
+                WHERE CodigoMarca = ?
+            """, (codigo_marca,))
             
-            rows = database.fetchall()
-            columns = ["FranquiciaRIF", "CodigoProducto", "FechaCorreccion", "Cantidad", "TipoAjuste", "Comentario", "NombreProducto", "Categoria"]
-            result = [dict(zip(columns, row)) for row in rows]
-            
-            return result
+            result = database.fetchone()
+            return result[0] if result else 1
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error getting correction history: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error getting next model correlative number: {str(e)}")
+
+    def getMaintenancePlansByModel(self, codigo_marca: int, numero_correlativo_modelo: int):
+        """
+        Get all maintenance plans for a specific model
+        """
+        try:
+            database.execute("""
+                SELECT 
+                    pm.CodigoMantenimiento,
+                    pm.TiempoUso,
+                    pm.Kilometraje,
+                    pm.DescripcionMantenimiento,
+                    pm.CodigoMarca,
+                    pm.NumeroCorrelativoModelo
+                FROM PlanesMantenimiento pm
+                WHERE pm.CodigoMarca = ? AND pm.NumeroCorrelativoModelo = ?
+            """, (codigo_marca, numero_correlativo_modelo))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching maintenance plans: {str(e)}")
+
+    def getEmployeeSpecialties(self, empleado_ci: str):
+        try:
+            database.execute("""
+                SELECT 
+                    e.CodigoEspecialidad,
+                    e.DescripcionEspecialidad
+                FROM EspecialidadesEmpleados ee
+                INNER JOIN Especialidades e ON ee.CodigoEspecialidad = e.CodigoEspecialidad
+                WHERE ee.EmpleadoCI = ?
+            """, (empleado_ci,))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching employee specialties: {str(e)}")
+
+    def getProductsByVendor(self, proveedor_rif: str):
+        try:
+            database.execute("""
+                SELECT 
+                    p.CodigoProducto,
+                    p.NombreProducto,
+                    p.DescripcionProducto,
+                    p.Tipo,
+                    p.NivelContaminante,
+                    p.Tratamiento
+                FROM Suministros s
+                INNER JOIN Productos p ON s.CodigoProducto = p.CodigoProducto
+                WHERE s.ProveedorRIF = ?
+                ORDER BY p.NombreProducto
+            """, (proveedor_rif,))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching products by vendor: {str(e)}")
 
     def getPurchaseNumber(self, fecha: str, proveedor_rif: str):
-        """
-        Get the purchase number for a given date and supplier
-        """
         try:
-            database.execute("SELECT TOP 1 Numero FROM Compras WHERE Fecha = ? AND ProveedorRIF = ? ORDER BY Numero DESC", 
-                           (fecha, proveedor_rif))
-            purchase_record = database.fetchone()
-            if not purchase_record:
-                raise HTTPException(status_code=500, detail="Failed to retrieve purchase number")
-            return purchase_record[0]
+            database.execute("""
+                SELECT COUNT(*) + 1
+                FROM Compras
+                WHERE CONVERT(DATE, Fecha) = ? AND ProveedorRIF = ?
+            """, (fecha, proveedor_rif))
+            result = database.fetchone()
+            return result[0] if result else 1
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error getting purchase number: {str(e)}")
 
@@ -683,7 +797,7 @@ class PostService:
             return {"message": f"Data inserted successfully into {table_name}"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
-
+        
     def createPurchaseWithInventory(self, purchase_data: dict):
         """
         Create a purchase and update inventory in a single transaction

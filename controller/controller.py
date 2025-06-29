@@ -30,6 +30,8 @@ class GetController:
             return self.get_service.searchDataEmployee(table_name, query)
         elif(table_name == 'Franquicias'):
             return self.get_service.searchDataFranchise(table_name, query)
+        elif(table_name == 'Marcas'):
+            return self.get_service.searchDataBrand(table_name, query)
         
     def searchFilters(self, table_name: str, query: str, **filters):
         if not query:
@@ -90,6 +92,24 @@ class GetController:
     def get_correction_history(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
         return self.get_service.getCorrectionHistory(franquicia_rif, mes, anio)
 
+    def get_models_by_brand(self, codigo_marca: int):
+        return self.get_service.getModelsByBrand(codigo_marca)
+
+    def check_brand_has_models(self, codigo_marca: int):
+        return self.get_service.checkBrandHasModels(codigo_marca)
+
+    def get_next_model_correlative_number(self, codigo_marca: int):
+        return self.get_service.getNextModelCorrelativeNumber(codigo_marca)
+
+    def get_maintenance_plans_by_model(self, codigo_marca: int, numero_correlativo_modelo: int):
+        return self.get_service.getMaintenancePlansByModel(codigo_marca, numero_correlativo_modelo)
+
+    def get_employee_specialties(self, empleado_ci: str):
+        return self.get_service.getEmployeeSpecialties(empleado_ci)
+
+    def get_products_by_vendor(self, proveedor_rif: str):
+        return self.get_service.getProductsByVendor(proveedor_rif)
+
     def get_purchase_number(self, fecha: str, proveedor_rif: str):
         return self.get_service.getPurchaseNumber(fecha, proveedor_rif)
 
@@ -101,7 +121,7 @@ class GetController:
 
     def insert_new_product_to_franchise(self, franquicia_rif: str, codigo_producto: int, cantidad: int):
         return self.get_service.insertNewProductToFranchise(franquicia_rif, codigo_producto, cantidad)
-
+    
 class PostController:
     def __init__(self):
         self.post_service = PostService()
@@ -120,7 +140,7 @@ class PostController:
         if not correction_data:
             raise HTTPException(status_code=400, detail="No correction data provided")
         return self.post_service.createCorrectionWithInventory(correction_data)
-
+    
 class UpdateController:
     def __init__(self):
         self.put_service = UpdateService()

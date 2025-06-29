@@ -69,6 +69,12 @@ async def read_employee_by_ci(CI: str):
         raise HTTPException(status_code=404, detail="Empleado not found")
     return employee
 
+@router.get("/employee_specialties", tags=["Empleado"])
+async def get_employee_specialties(EmpleadoCI: str):
+    """
+    Get all specialties for a specific employee
+    """
+    return GetController().get_employee_specialties(EmpleadoCI)
 
 @router.post("/employee/create", tags=["Empleado"], response_model=dict)
 async def create_employee(Employee: Employee):
@@ -94,6 +100,24 @@ async def update_employee(employee: Employee):
 async def read_brands():
     return GetController().get_all(table_name="Marcas")
 
+@router.get("/brand/search", tags=["Marca"])
+async def search_brands(q: str):
+    return GetController().search(table_name="Marcas", query=q)
+
+@router.get("/brand/{CodigoMarca}/models", tags=["Marca"])
+async def get_models_by_brand(CodigoMarca: int):
+    """
+    Get all models for a specific brand
+    """
+    return GetController().get_models_by_brand(CodigoMarca)
+
+@router.get("/brand/{CodigoMarca}/next-model-number", tags=["Marca"])
+async def get_next_model_number(CodigoMarca: int):
+    """
+    Get the next correlative number for models of a specific brand
+    """
+    return {"next_number": GetController().get_next_model_correlative_number(CodigoMarca)}
+
 @router.get("/brand/{CodigoMarca}", tags=["Marca"], response_model=Brand)
 async def read_brand_by_code(CodigoMarca: int):
     brand = GetController().get_by_id(table_name="Marcas", CodigoMarca=CodigoMarca)
@@ -102,11 +126,20 @@ async def read_brand_by_code(CodigoMarca: int):
     return brand
 
 @router.post("/brand/create", tags=["Marca"], response_model=dict)
-async def create_brand(marca: Brand):
-    return PostController().post_data(table_name="Marcas", data=marca.model_dump())
+async def create_brand(Marca: str):
+    return PostController().post_data(table_name="Marcas", data={
+        "Nombre": Marca
+    })
 
 @router.delete("/brand/delete", tags=["Marca"], response_model=dict)
 async def delete_brand(CodigoMarca: int):
+    # Verificar si la marca tiene modelos asociados
+    has_models = GetController().check_brand_has_models(CodigoMarca)
+    if has_models:
+        raise HTTPException(
+            status_code=400, 
+            detail="No se puede eliminar la marca porque tiene modelos asociados. Elimine primero todos los modelos de esta marca."
+        )
     return DeleteController().delete_data(table_name="Marcas", CodigoMarca=CodigoMarca)
 
 @router.put("/brand/update", tags=["Marca"], response_model=dict)
@@ -153,6 +186,13 @@ async def update_model(modelo: Model):
         "TipoAceite": modelo.TipoAceite,
         "Peso": modelo.Peso
     })
+
+@router.get("/model/{CodigoMarca}/{NumeroCorrelativoModelo}/maintenance-plans", tags=["Modelo"])
+async def get_maintenance_plans_by_model(CodigoMarca: int, NumeroCorrelativoModelo: int):
+    """
+    Get all maintenance plans for a specific model
+    """
+    return GetController().get_maintenance_plans_by_model(CodigoMarca, NumeroCorrelativoModelo)
 
 " Vehiculo Endpoints "
 
@@ -235,13 +275,13 @@ async def read_maintenanceplan_by_code(CodigoMantenimiento: int):
     return maintenance_plan
 
 @router.post("/maintenanceplan/create", tags=["Plan de Mantenimiento"], response_model=dict)
-async def create_maintenanceplan(planmantenimiento: MaintenancePlan):
+async def create_maintenanceplan(TiempoUso: int, Kilometraje: int, DescripcionMantenimiento: str, CodigoMarca: int, NumeroCorrelativoModelo: int):
     return PostController().post_data(table_name="PlanesMantenimiento", data={
-        "TiempoUso": planmantenimiento.TiempoUso,
-        "Kilometraje": planmantenimiento.Kilometraje,
-        "DescripcionMantenimiento": planmantenimiento.DescripcionMantenimiento,
-        "CodigoMarca": planmantenimiento.CodigoMarca,
-        "NumeroCorrelativoModelo": planmantenimiento.NumeroCorrelativoModelo
+        "TiempoUso": TiempoUso,
+        "Kilometraje": Kilometraje,
+        "DescripcionMantenimiento": DescripcionMantenimiento,
+        "CodigoMarca": CodigoMarca,
+        "NumeroCorrelativoModelo": NumeroCorrelativoModelo
     })
 
 @router.delete("/maintenanceplan/delete", tags=["Plan de Mantenimiento"], response_model=dict)
@@ -273,8 +313,8 @@ async def read_specialty_by_code(CodigoEspecialidad: int):
     return specialty
 
 @router.post("/specialty/create", tags=["Especialidad"], response_model=dict)
-async def create_specialty(especialidad: Specialty):
-    return PostController().post_data(table_name="Especialidades", data={"DescripcionEspecialidad": especialidad.DescripcionEspecialidad})
+async def create_specialty(Descripcion: str):
+    return PostController().post_data(table_name="Especialidades", data={"DescripcionEspecialidad": Descripcion})
 
 @router.delete("/specialty/delete", tags=["Especialidad"], response_model=dict)
 async def delete_specialty(CodigoEspecialidad: int):
@@ -337,8 +377,8 @@ async def read_supplier_line_by_code(CodigoLinea: int):
     return supplier_line
 
 @router.post("/supplier_line/create", tags=["Linea de Suministro"], response_model=dict)
-async def create_supplier_line(lineasuministro: SupplierLine):
-    return PostController().post_data(table_name="LineasSuministro", data={"DescripcionLinea": lineasuministro.DescripcionLinea})
+async def create_supplier_line(DescripcionLinea: str):
+    return PostController().post_data(table_name="LineasSuministro", data={"DescripcionLinea": DescripcionLinea})
 
 @router.delete("/supplier_line/delete", tags=["Linea de Suministro"], response_model=dict)
 async def delete_supplier_line(CodigoLinea: int):
@@ -421,6 +461,9 @@ async def create_vendor(proveedor: Vendor):
 
 @router.delete("/vendor/delete", tags=["Proveedor"], response_model=dict)
 async def delete_vendor(RIF: str):
+    # Eliminar suministros asociados primero
+    DeleteController().delete_data(table_name="Suministros", ProveedorRIF=RIF)
+    # Luego eliminar el proveedor
     return DeleteController().delete_data(table_name="Proveedores", RIF=RIF)
 
 @router.put("/vendor/update", tags=["Proveedor"], response_model=dict)
@@ -783,7 +826,7 @@ async def create_specialty_employee(especialidademp: SpecialtyEmployee):
         "CodigoEspecialidad": especialidademp.CodigoEspecialidad
         })
 
-@router.delete("speciality_employee/delete")
+@router.delete("/speciality_employee/delete", tags=["EspecialidadEmpleado"])
 async def delete_specialty_employee(EmpleadoCI: str, CodigoEspecialidad: int):
     return DeleteController().delete_data(table_name="EspecialidadesEmpleados", EmpleadoCI=EmpleadoCI, CodigoEspecialidad=CodigoEspecialidad)
 
@@ -919,6 +962,13 @@ async def create_correction_with_inventory(correction_data: dict):
 @router.get("/supply", tags=["Suministro"], response_model=list[Supply])
 async def read_supplies():
     return GetController().get_all(table_name="Suministros")
+
+@router.get("/supply/vendor/{ProveedorRIF}", tags=["Suministro"])
+async def get_products_by_vendor(ProveedorRIF: str):
+    """
+    Get all products that a specific vendor supplies
+    """
+    return GetController().get_products_by_vendor(ProveedorRIF)
 
 @router.get("/supply/{ProveedorRIF}/{CodigoProducto}", tags=["Suministro"], response_model=Supply)
 async def read_supply_by_code(ProveedorRIF: str, CodigoProducto: int):

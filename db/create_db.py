@@ -32,7 +32,7 @@ def crear_base_datos():
             Telefono CHAR(12) NOT NULL CHECK(LEN(Telefono) = 12),
             Salario DECIMAL(10,2) CHECK(Salario >= 0),
             FranquiciaRIF CHAR(12),
-            Rol VARCHAR(20) NOT NULL CHECK(Rol IN ('Administrador', 'Encargado', 'Empleado', 'Mecánico')),
+            Rol VARCHAR(20) NOT NULL CHECK(Rol IN ('Administrador', 'Encargado', 'Empleado')),
             PRIMARY KEY(CI),
             FOREIGN KEY (FranquiciaRIF) REFERENCES Franquicias(RIF)
                 ON DELETE CASCADE

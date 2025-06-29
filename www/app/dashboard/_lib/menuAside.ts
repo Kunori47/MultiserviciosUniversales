@@ -8,6 +8,11 @@ import {
   mdiTelevisionGuide,
   mdiStore,
   mdiRoomService,
+  mdiCar,
+  mdiTag,
+  mdiReproduction,
+  mdiPackage,
+  mdiTruck,
 } from "@mdi/js";
 import { MenuAsideItem } from "../../_interfaces";
 
@@ -28,24 +33,24 @@ const menuAside: MenuAsideItem[] = [
     icon: mdiRoomService,
   },
   {
-    href: "/dashboard/forms",
-    label: "Forms",
-    icon: mdiSquareEditOutline,
+    href: "/dashboard/brands",
+    label: "Marcas",
+    icon: mdiCar,
   },
   {
-    href: "/dashboard/ui",
-    label: "UI",
-    icon: mdiTelevisionGuide,
+    href: "/dashboard/specialty",
+    label: "Especialidades",
+    icon: mdiTag,
   },
   {
-    href: "/dashboard/profile",
-    label: "Profile",
-    icon: mdiAccountCircle,
+    href: "/dashboard/supplier-line",
+    label: "Linea de Suministros",
+    icon: mdiPackage,
   },
   {
-    href: "/error",
-    label: "Error",
-    icon: mdiAlertCircle,
+    href: "/dashboard/vendor",
+    label: "Proveedores",
+    icon: mdiTruck,
   },
   {
     label: "Dropdown",

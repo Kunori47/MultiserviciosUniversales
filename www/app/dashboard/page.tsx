@@ -1,9 +1,12 @@
+"use client"
+
 import {
   mdiAccountMultiple,
   mdiCartOutline,
   mdiChartTimelineVariant,
   mdiGithub,
   mdiMonitorCellphone,
+  mdiCar,
 } from "@mdi/js";
 import Button from "../_components/Button";
 import SectionMain from "../_components/Section/Main";
@@ -19,11 +22,6 @@ import TableSampleClients from "./_components/Table/SampleClients";
 import { getPageTitle } from "../_lib/config";
 import { clients, transactions } from "./_lib/sampleData";
 import ChartLineSampleComponentBlock from "./_components/ChartLineSample/ComponentBlock";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: getPageTitle("Dashboard"),
-};
 
 export default function DashboardPage() {
   const clientsListed = clients.slice(0, 4);
@@ -91,6 +89,16 @@ export default function DashboardPage() {
       </div>
 
       <ChartLineSampleComponentBlock />
+
+      {/* Enlace simple a Marcas */}
+      <SectionTitleLineWithButton icon={mdiCar} title="Marcas" main>
+        <Button
+          label="Gestionar Marcas"
+          icon={mdiCar}
+          color="info"
+          href="/dashboard/brands"
+        />
+      </SectionTitleLineWithButton>
 
       <SectionTitleLineWithButton icon={mdiAccountMultiple} title="Clients" />
 

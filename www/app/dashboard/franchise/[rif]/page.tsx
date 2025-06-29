@@ -113,25 +113,25 @@ export default function InfoPage() {
     <>
       <SectionMain>
         <div className="max-w-4xl mx-auto">
-          <SectionTitleLineWithButton
-            icon={mdiBallotOutline}
-            title={`${franchise.RIF} - ${franchise.Nombre} - ${franchise.Ciudad}`}
-            main
-          >
+        <SectionTitleLineWithButton
+          icon={mdiBallotOutline}
+          title={`${franchise.RIF} - ${franchise.Nombre} - ${franchise.Ciudad}`}
+          main
+        >
             <div className="text-center">
               <p className="text-lg font-semibold text-gray-700 mb-2">
                 Encargado: {encargado ? encargado.NombreCompleto : "Cargando encargado..."}
               </p>
-              <Button
-                href="/dashboard/franchise"
-                color="info"
-                label="Atras"
-                roundedFull
-              />
+          <Button
+            href="/dashboard/franchise"
+            color="info"
+            label="Atras"
+            roundedFull
+          />
             </div>
-          </SectionTitleLineWithButton>
+        </SectionTitleLineWithButton>
 
-          <Divider />
+        <Divider />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <CardBox className="text-center bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg">
@@ -140,17 +140,17 @@ export default function InfoPage() {
                 <div className="text-4xl font-extrabold text-blue-600 mb-4">
                   {cantemployee || "0"}
                 </div>
-                <Button
-                  type="reset"
-                  color="info"
-                  href={`/dashboard/franchise/${rif}/employee`}
-                  outline
-                  icon={mdiInformation}
-                  isGrouped
+                  <Button
+                    type="reset"
+                    color="info"
+                    href={`/dashboard/franchise/${rif}/employee`}
+                    outline
+                    icon={mdiInformation}
+                    isGrouped
                   label="Ver Empleados"
-                />
+                  />
               </div>
-            </CardBox>
+          </CardBox>
 
             <CardBox className="text-center bg-gradient-to-br from-green-50 to-green-100 shadow-lg">
               <div className="p-6">
@@ -161,15 +161,15 @@ export default function InfoPage() {
                 <div className="text-lg text-gray-600 mb-4">
                   de {countproduct || "0"} productos
                 </div>
-                <Button
-                  type="reset"
+                  <Button
+                    type="reset"
                   color="success"
                   href={`/dashboard/franchise/${rif}/inventory`}
-                  outline
-                  icon={mdiInformation}
-                  isGrouped
+                    outline
+                    icon={mdiInformation}
+                    isGrouped
                   label="Ver Inventario"
-                />
+                  />
               </div>
             </CardBox>
 
@@ -192,28 +192,28 @@ export default function InfoPage() {
                   label="Ver Servicios"
                 />
               </div>
-            </CardBox>
-          </div>
+          </CardBox>
+        </div>
 
-          <Divider />
-          
+        <Divider />
+        
           <CardBox className="bg-white shadow-xl rounded-xl">
             <div className="p-8">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">Estadísticas Mensuales</h3>
                 <div className="flex justify-center">
-                  <DatePicker
-                    selected={fecha}
-                    onChange={handleChange}
-                    dateFormat="MM/yyyy"
-                    showMonthYearPicker
-                    placeholderText="Selecciona mes y año"
+              <DatePicker
+                selected={fecha}
+                onChange={handleChange}
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                placeholderText="Selecciona mes y año"
                     className="border-2 border-gray-300 rounded-lg px-4 py-2 text-center focus:border-blue-500 focus:outline-none"
-                  />
+              />
                 </div>
               </div>
               
-              <Divider />
+          <Divider />
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 <div className="text-center p-6 bg-blue-50 rounded-xl shadow-md">
@@ -221,16 +221,16 @@ export default function InfoPage() {
                   <div className="text-3xl font-bold text-blue-600 mb-2">
                     {infofranq && infofranq.length > 0 ? infofranq[0].CantidadOrdenes : "0"}
                   </div>
-                  <Button
-                    type="reset"
-                    color="info"
-                    outline
-                    icon={mdiInformation}
-                    isGrouped
+                <Button
+                  type="reset"
+                  color="info"
+                  outline
+                  icon={mdiInformation}
+                  isGrouped
                     small
                     href={`/dashboard/franchise/${rif}/orders`}
                     label="Ver Historial"
-                  />
+                />
                 </div>
 
                 <div className="text-center p-6 bg-green-50 rounded-xl shadow-md">
@@ -238,12 +238,12 @@ export default function InfoPage() {
                   <div className="text-3xl font-bold text-green-600 mb-2">
                     ${infofranq && infofranq.length > 0 ? infofranq[0].MontoGenerado : "0"}
                   </div>
-                  <Button
-                    type="reset"
+                <Button
+                  type="reset"
                     color="success"
-                    outline
-                    icon={mdiInformation}
-                    isGrouped
+                  outline
+                  icon={mdiInformation}
+                  isGrouped
                     small
                     href={`/dashboard/franchise/${rif}/profitability`}
                     label="Ver Análisis"
@@ -256,16 +256,16 @@ export default function InfoPage() {
                     ${infofranq && infofranq.length > 0 ? infofranq[0].GastoTotal : "0"}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button
-                      type="reset"
+                <Button
+                  type="reset"
                       color="danger"
-                      outline
-                      icon={mdiInformation}
-                      isGrouped
+                  outline
+                  icon={mdiInformation}
+                  isGrouped
                       small
                       href={`/dashboard/franchise/${rif}/revenue`}
                       label="Ver Detalles"
-                    />
+                />
                     <Button
                       type="reset"
                       color="success"
@@ -279,8 +279,8 @@ export default function InfoPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          </CardBox>
+          </div>
+        </CardBox>
         </div>
       </SectionMain>
     </>

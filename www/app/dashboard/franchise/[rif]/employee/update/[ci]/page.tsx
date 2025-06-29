@@ -13,6 +13,9 @@ import {
   mdiMail,
   mdiNoteEdit,
   mdiPhone,
+  mdiPlus,
+  mdiTrashCan,
+  mdiTag,
 } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import Button from "../../../../../../_components/Button";
@@ -31,14 +34,44 @@ export default function EmployeeUpdatePage() {
     const rif = params?.rif as string;
     const ci = params?.ci as string;
     const [employee, setEmployee] = useState({} as any);
+    const [specialties, setSpecialties] = useState<any[]>([]);
+    const [specialtyRows, setSpecialtyRows] = useState<string[]>([]);
+    const [currentSpecialties, setCurrentSpecialties] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (ci) {
           fetch(`http://127.0.0.1:8000/employee/${ci}`)
               .then(res => res.json())
               .then(data => setEmployee(data));
-          }
+          fetch(`http://127.0.0.1:8000/employee_specialties?EmpleadoCI=${ci}`)
+              .then(res => res.json())
+              .then(data => {
+                const codes = data.map((s: any) => s.CodigoEspecialidad.toString());
+                setSpecialtyRows(codes);
+                setCurrentSpecialties(codes);
+              });
+        }
+        setIsLoading(true);
+        fetch('http://127.0.0.1:8000/specialty')
+            .then(res => res.json())
+            .then((data) => {
+                setSpecialties(data);
+                setIsLoading(false);
+            });
     }, [ci]);
+
+    const addSpecialtyRow = () => {
+        setSpecialtyRows([...specialtyRows, ""]);
+    };
+    const removeSpecialtyRow = (index: number) => {
+        setSpecialtyRows(specialtyRows.filter((_, i) => i !== index));
+    };
+    const updateSpecialtyRow = (index: number, value: string) => {
+        const updated = [...specialtyRows];
+        updated[index] = value;
+        setSpecialtyRows(updated);
+    };
 
     if (!employee) {
       return <div>Cargando datos de la franquicia...</div>;
@@ -71,6 +104,7 @@ export default function EmployeeUpdatePage() {
               Telefono: employee.Telefono,
               Salario: employee.Salario,
               Rol: employee.Rol,
+              CodigoEspecialidades: specialtyRows,
             }}
             enableReinitialize={true}
             onSubmit={async (values, { resetForm }) => {
@@ -93,7 +127,25 @@ export default function EmployeeUpdatePage() {
                 if (!res.ok) {
                     throw new Error("Error al actualizar el empleado");
                 }
-                const data = await res.json();
+                // Eliminar especialidades que ya no están seleccionadas
+                for (const codigo of currentSpecialties) {
+                    if (!values.CodigoEspecialidades.includes(codigo)) {
+                        await fetch(`http://127.0.0.1:8000/speciality_employee/delete?EmpleadoCI=${values.CI}&CodigoEspecialidad=${codigo}`, { method: "DELETE" });
+                    }
+                }
+                // Agregar nuevas especialidades
+                for (const codigo of values.CodigoEspecialidades) {
+                    if (codigo && !currentSpecialties.includes(codigo)) {
+                        await fetch("http://127.0.0.1:8000/speciality_employee", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                EmpleadoCI: values.CI,
+                                CodigoEspecialidad: parseInt(codigo),
+                            }),
+                        });
+                    }
+                }
                 alert("Empleado actualizado correctamente");
                 resetForm();
                 } catch (err) {
@@ -198,6 +250,85 @@ export default function EmployeeUpdatePage() {
                         )}
                     </FormField>
                 </div>
+
+              <Divider />
+
+              <div className="mb-12 last:mb-0">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block font-bold mb-2 px-1">Especialidades</label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={addSpecialtyRow}
+                      color="success"
+                      label="Agregar Especialidad"
+                      icon={mdiPlus}
+                      roundedFull
+                      small
+                    />
+                    <Button
+                      type="button"
+                      href={`/dashboard/franchise/${rif}/employee/specialty/create`}
+                      color="info"
+                      label="Crear Nueva Especialidad"
+                      icon={mdiTag}
+                      roundedFull
+                      small
+                    />
+                  </div>
+                </div>
+                {isLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span className="ml-2 text-gray-600">Cargando especialidades...</span>
+                  </div>
+                ) : (
+                  <div className="border border-gray-600 rounded-lg overflow-x-auto">
+                    <div className="grid grid-cols-12 gap-2 p-4 bg-gray-900 text-gray-100 font-semibold text-sm rounded-t-lg">
+                      <div className="col-span-10">Especialidad *</div>
+                      <div className="col-span-2 text-center">Acción</div>
+                    </div>
+                    {specialtyRows.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">No hay especialidades agregadas</div>
+                    ) : (
+                      specialtyRows.map((selected, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-2 items-center p-4 border-t border-gray-700 bg-gray-800">
+                          <div className="col-span-10">
+                            <select
+                              value={selected}
+                              onChange={e => updateSpecialtyRow(idx, e.target.value)}
+                              className="w-full border-2 border-gray-700 rounded-lg px-3 py-2 bg-gray-900 text-gray-100 focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value="">Seleccione una especialidad</option>
+                              {specialties.map(s => (
+                                <option key={s.CodigoEspecialidad} value={s.CodigoEspecialidad}>
+                                  {s.DescripcionEspecialidad}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-span-2 flex justify-center">
+                            <Button
+                              type="button"
+                              onClick={() => removeSpecialtyRow(idx)}
+                              color="danger"
+                              outline
+                              icon={mdiTrashCan}
+                              small
+                              label="Eliminar"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+                <Field
+                  type="hidden"
+                  name="CodigoEspecialidades"
+                  value={specialtyRows.join(',')}
+                />
+              </div>
 
               <Divider />
 
