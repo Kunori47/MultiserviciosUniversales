@@ -745,6 +745,24 @@ class PostService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
 
+    def postModelData(self, data: dict):
+        """
+        Special method for creating models with auto-incrementing NumeroCorrelativoModelo
+        """
+        try:
+            # Get the next NumeroCorrelativoModelo for the given CodigoMarca
+            database.execute("SELECT MAX(NumeroCorrelativoModelo) FROM Modelos WHERE CodigoMarca = ?", (data["CodigoMarca"],))
+            result = database.fetchone()
+            next_number = 1 if result is None or result[0] is None else result[0] + 1
+            
+            # Add the NumeroCorrelativoModelo to the data
+            data["NumeroCorrelativoModelo"] = next_number
+            
+            # Insert the model
+            return self.postData("Modelos", data)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating model: {str(e)}")
+
     def createPurchaseWithInventory(self, purchase_data: dict):
         """
         Create a purchase and update inventory in a single transaction

@@ -152,7 +152,6 @@ async def delete_model(CodigoMarca: int, NumeroCorrelativoModelo: int):
 
 @router.put("/model/update", tags=["Modelo"], response_model=dict)
 async def update_model(modelo: Model):
-async def update_model(modelo: Model):
     return UpdateController().put_data(table_name="Modelos", CodigoMarca=modelo.CodigoMarca, NumeroCorrelativoModelo=modelo.NumeroCorrelativoModelo, data={
         "DescripcionModelo": modelo.DescripcionModelo,
         "CantidadPuestos": modelo.CantidadPuestos,
