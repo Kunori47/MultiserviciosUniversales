@@ -2,6 +2,7 @@ import {
   mdiAccountCircle,
   mdiMonitor,
   mdiAlertCircle,
+  mdiBriefcase,
   mdiSquareEditOutline,
   mdiTable,
   mdiViewList,
@@ -28,11 +29,6 @@ const menuAside: MenuAsideItem[] = [
     icon: mdiRoomService,
   },
   {
-    href: "/dashboard/forms",
-    label: "Forms",
-    icon: mdiSquareEditOutline,
-  },
-  {
     href: "/dashboard/ui",
     label: "UI",
     icon: mdiTelevisionGuide,
@@ -48,14 +44,28 @@ const menuAside: MenuAsideItem[] = [
     icon: mdiAlertCircle,
   },
   {
-    label: "Dropdown",
-    icon: mdiViewList,
+    label: "Administración",
+    icon: mdiBriefcase,
     menu: [
       {
-        label: "Item One",
+        label: "Marcas y Modelos",
+        href: "/dashboard/administration/brands-models",
       },
       {
-        label: "Item Two",
+        label: "Planes de Mantenimiento",
+        href: "/dashboard/administration/maintenance-plans",
+      },
+      {
+        label: "Especialidades",
+        href: "/dashboard/administration/specialty",
+      },
+      {
+        label: "Lineas de Suministro",
+        href: "/dashboard/administration/supply-lines",
+      },
+      {
+        label: "Proveedores",
+        href: "/dashboard/administration/suppliers",
       },
     ],
   },

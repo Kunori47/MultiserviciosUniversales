@@ -149,7 +149,7 @@ const handleSetInactive = async () => {
             ))}
           </Buttons>
           <small className="mt-6 md:mt-0">
-            Page {currentPage + 1} of {numPages}
+Página {currentPage + 1} de {(numPages < 0) ? numPages : 1}
           </small>
         </div>
       </div>

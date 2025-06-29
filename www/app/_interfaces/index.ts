@@ -102,3 +102,52 @@ export type UserForm = {
   name: string | null;
   email: string | null;
 };
+
+export interface SupplyLine {
+  CodigoLinea: number;
+  DescripcionLinea: string;
+}
+
+export interface Vendor {
+  RIF: string;
+  RazonSocial: string;
+  Direccion: string;
+  TelefonoLocal: string;
+  TelefonoCelular: string;
+  PersonaContacto: string;
+}
+
+export interface MaintenancePlan {
+  CodigoMantenimiento: number;
+  TiempoUso: number;
+  Kilometraje: number;
+  DescripcionMantenimiento: string;
+  CodigoMarca: number;
+  NumeroCorrelativoModelo: number;
+}
+
+export interface Brand {
+  CodigoMarca: number;
+  Nombre: string;
+}
+
+export interface Model {
+  CodigoMarca: number;
+  NumeroCorrelativoModelo: number;
+  DescripcionModelo: string;
+  CantidadPuestos: number;
+  TipoRefrigerante: string;
+  TipoGasolina: string;
+  TipoAceite: string;
+  Peso: number;
+}
+
+export interface Specialty {
+  CodigoEspecialidad: number;
+  DescripcionEspecialidad: string;
+}
+
+export interface Service {
+  CodigoServicio: number;
+  NombreServicio: string;
+}

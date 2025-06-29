@@ -81,8 +81,69 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
+    def searchDataSupplierLines(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionLinea LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
-        
+    def searchDataVendors(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE RazonSocial LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataMaintenancePlans(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionMantenimiento LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataBrands(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE Nombre LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataModels(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionModelo LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataSpecialties(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionEspecialidad LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataServices(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE NombreServicio LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
     def countData(self, table_name: str):
         try:
             database.execute(f"SELECT COUNT(*) FROM {table_name}")
