@@ -152,6 +152,10 @@ async def update_brand(marca: Brand):
 async def read_models():
     return GetController().get_all(table_name="Modelos")
 
+@router.get("/model/search", tags=["Modelo"])
+async def search_models(q: str):
+    return GetController().search(table_name="Modelos", query=q)
+
 @router.get("/model/{CodigoMarca}/{NumeroCorrelativoModelo}", tags=["Modelo"], response_model=Model)
 async def read_model_by_code(CodigoMarca: int, NumeroCorrelativoModelo: int):
     model = GetController().get_by_id(table_name="Modelos", CodigoMarca=CodigoMarca, NumeroCorrelativoModelo=NumeroCorrelativoModelo)
@@ -160,10 +164,9 @@ async def read_model_by_code(CodigoMarca: int, NumeroCorrelativoModelo: int):
     return model
 
 @router.post("/model/create", tags=["Modelo"], response_model=dict)
-async def create_model(modelo: Model):
-    return PostController().post_data(table_name="Modelos", data={
+async def create_model(modelo: ModelCreate):
+    return PostController().post_model_data({
         "CodigoMarca": modelo.CodigoMarca,
-        "NumeroCorrelativoModelo": modelo.NumeroCorrelativoModelo,
         "DescripcionModelo": modelo.DescripcionModelo,
         "CantidadPuestos": modelo.CantidadPuestos,
         "TipoRefrigerante": modelo.TipoRefrigerante,
@@ -267,6 +270,10 @@ async def update_customer(cliente: Customer):
 async def read_maintenanceplan():
     return GetController().get_all(table_name="PlanesMantenimiento")
 
+@router.get("/maintenanceplan/search", tags=["Plan de Mantenimiento"])
+async def search_maintenance_plans(q: str):
+    return GetController().search(table_name="PlanesMantenimiento", query=q)
+
 @router.get("/maintenanceplan/{CodigoMantenimiento}", tags=["Plan de Mantenimiento"], response_model=MaintenancePlan)
 async def read_maintenanceplan_by_code(CodigoMantenimiento: int):
     maintenance_plan = GetController().get_by_id(table_name="PlanesMantenimiento", CodigoMantenimiento=CodigoMantenimiento)
@@ -304,6 +311,10 @@ async def update_maintenanceplan(planmantenimiento: MaintenancePlan):
 @router.get("/specialty", tags=["Especialidad"], response_model=list[Specialty])
 async def read_specialties():
     return GetController().get_all(table_name="Especialidades")
+
+@router.get("/specialty/search", tags=["Especialidad"])
+async def search_specialties(q: str):
+    return GetController().search(table_name="Especialidades", query=q)
 
 @router.get("/specialty/{CodigoEspecialidad}", tags=["Especialidad"], response_model=Specialty)
 async def read_specialty_by_code(CodigoEspecialidad: int):
@@ -368,6 +379,10 @@ async def update_service(servicio:  Service):
 @router.get("/supplier_line", tags=["Linea de Suministro"], response_model=list[SupplierLine])
 async def read_supplier_lines():
     return GetController().get_all(table_name="LineasSuministro")
+
+@router.get("/supplier_line/search", tags=["Linea de Suministro"])
+async def search_supplier_lines(q: str):
+    return GetController().search(table_name="LineasSuministro", query=q)
 
 @router.get("/supplier_line/{CodigoLinea}", tags=["Linea de Suministro"], response_model=SupplierLine)
 async def read_supplier_line_by_code(CodigoLinea: int):
@@ -440,6 +455,10 @@ async def update_product(producto: Product):
 @router.get("/vendor", tags=["Proveedor"], response_model=list[Vendor])
 async def read_vendors():
     return GetController().get_all(table_name="Proveedores")
+
+@router.get("/vendor/search", tags=["Proveedor"])
+async def search_vendors(q: str):
+    return GetController().search(table_name="Proveedores", query=q)
 
 @router.get("/vendor/{RIF}", tags=["Proveedor"], response_model=Vendor)
 async def read_vendor_by_rif(RIF: str):

@@ -27,7 +27,7 @@ export default function FormsPage() {
   return (
     <>
       <Head>
-        <title>{getPageTitle("Forms")}</title>
+        <title>{getPageTitle("Administración")}</title>
       </Head>
 
       <SectionMain>

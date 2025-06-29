@@ -90,8 +90,69 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
+    def searchDataSupplierLines(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionLinea LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
-        
+    def searchDataVendors(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE RazonSocial LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataMaintenancePlans(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionMantenimiento LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataBrands(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE Nombre LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataModels(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionModelo LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataSpecialties(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionEspecialidad LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
+    def searchDataServices(self, table_name: str, query: str):
+        try:
+            database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE NombreServicio LIKE ?", f'%{query}%')
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
+
     def countData(self, table_name: str):
         try:
             database.execute(f"SELECT COUNT(*) FROM {table_name}")
@@ -798,6 +859,24 @@ class PostService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
         
+    def postModelData(self, data: dict):
+        """
+        Special method for creating models with auto-incrementing NumeroCorrelativoModelo
+        """
+        try:
+            # Get the next NumeroCorrelativoModelo for the given CodigoMarca
+            database.execute("SELECT MAX(NumeroCorrelativoModelo) FROM Modelos WHERE CodigoMarca = ?", (data["CodigoMarca"],))
+            result = database.fetchone()
+            next_number = 1 if result is None or result[0] is None else result[0] + 1
+            
+            # Add the NumeroCorrelativoModelo to the data
+            data["NumeroCorrelativoModelo"] = next_number
+            
+            # Insert the model
+            return self.postData("Modelos", data)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating model: {str(e)}")
+
     def createPurchaseWithInventory(self, purchase_data: dict):
         """
         Create a purchase and update inventory in a single transaction

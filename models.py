@@ -24,6 +24,18 @@ class Brand(BaseModel):
     CodigoMarca: int = Field(..., description="The unique identifier for the brand")
     Nombre: str = Field(..., description="The name of the brand")
 
+class BrandCreate(BaseModel):
+    Nombre: str = Field(..., description="The name of the brand")
+
+class ModelCreate(BaseModel):
+    CodigoMarca: int = Field(..., description="The unique identifier for the model")
+    DescripcionModelo: str = Field(..., description="The description of the model")
+    CantidadPuestos: int = Field(..., description="The number of seats in the model")
+    TipoRefrigerante: str = Field(..., description="The type of refrigerant used in the model")
+    TipoGasolina: str = Field(..., description="The type of gasoline used in the model")
+    TipoAceite: str = Field(..., description="The type of oil used in the model")
+    Peso: float = Field(..., description="The weight of the model")
+
 class Model(BaseModel):
     CodigoMarca: int = Field(..., description="The unique identifier for the model")
     NumeroCorrelativoModelo: int = Field(..., description="The serial number of the model")
@@ -60,12 +72,21 @@ class Specialty(BaseModel):
     CodigoEspecialidad: int = Field(..., description="The unique identifier of the specialty")
     DescripcionEspecialidad: str = Field(..., description="The description of the specialty") 
 
+class SpecialtyCreate(BaseModel):
+    DescripcionEspecialidad: str = Field(..., description="The description of the specialty")
+
 class Service(BaseModel):
     CodigoServicio: int = Field(..., description="The unique identifier for the service")
     NombreServicio: str = Field(..., description="The name of the service")
 
+class ServiceCreate(BaseModel):
+    NombreServicio: str = Field(..., description="The name of the service")
+
 class SupplierLine(BaseModel):
     CodigoLinea: int = Field(..., description="The unique identifier for the supplier line")
+    DescripcionLinea: str = Field(..., description="The description of the supplier line")
+
+class SupplierLineCreate(BaseModel):
     DescripcionLinea: str = Field(..., description="The description of the supplier line")
 
 class Product(BaseModel):
@@ -208,3 +229,10 @@ class Remenfranq(BaseModel):
     FranquiciaRIF: str = Field(..., description="The RIF of the franchise associated with the remittance")
     Anio: str = Field(..., description="The year of the remittance")
     Mes: str = Field(..., description="The month of the remittance")
+
+class MaintenancePlanCreate(BaseModel):
+    TiempoUso: int = Field(..., description="The vehicle usage time")
+    Kilometraje: int = Field(..., description="The vehicle mileage" )
+    DescripcionMantenimiento: str = Field(..., description="Maintenance description")
+    CodigoMarca: int = Field(..., description="The brand code of the vehicle")
+    NumeroCorrelativoModelo: int = Field(..., description="The model serial number of the vehicle")
