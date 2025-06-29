@@ -170,7 +170,7 @@ export default function BrandsModelsPage() {
             label={"Agregar"}
             icon={mdiPlus}
             color="info"
-            href={activeTab === 'brands' ? "/dashboard/brands-models/create/brand" : "/dashboard/brands-models/create/model"}>
+            href={activeTab === 'brands' ? "/dashboard/administration/brands-models/create-brand" : "/dashboard/administration/brands-models/create-model"}>
         </Button>
       </SectionTitleLineWithButton>
 
@@ -189,7 +189,7 @@ export default function BrandsModelsPage() {
             isGrouped
           />
         </Buttons>
-      </div>
+    </div>
 
       {activeTab === 'brands' && (
         <CardBox className="mb-6" hasTable>

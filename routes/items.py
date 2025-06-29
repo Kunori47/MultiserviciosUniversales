@@ -105,8 +105,8 @@ async def read_brand_by_code(CodigoMarca: int):
     return brand
 
 @router.post("/brand/create", tags=["Marca"], response_model=dict)
-async def create_brand(marca: Brand):
-    return PostController().post_data(table_name="Marcas", data=marca.model_dump())
+async def create_brand(marca: BrandCreate):
+    return PostController().post_data(table_name="Marcas", data={"Nombre": marca.Nombre})
 
 @router.delete("/brand/delete", tags=["Marca"], response_model=dict)
 async def delete_brand(CodigoMarca: int):
@@ -134,10 +134,9 @@ async def read_model_by_code(CodigoMarca: int, NumeroCorrelativoModelo: int):
     return model
 
 @router.post("/model/create", tags=["Modelo"], response_model=dict)
-async def create_model(modelo: Model):
-    return PostController().post_data(table_name="Modelos", data={
+async def create_model(modelo: ModelCreate):
+    return PostController().post_model_data({
         "CodigoMarca": modelo.CodigoMarca,
-        "NumeroCorrelativoModelo": modelo.NumeroCorrelativoModelo,
         "DescripcionModelo": modelo.DescripcionModelo,
         "CantidadPuestos": modelo.CantidadPuestos,
         "TipoRefrigerante": modelo.TipoRefrigerante,

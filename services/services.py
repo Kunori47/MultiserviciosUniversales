@@ -195,7 +195,32 @@ class PostService:
         except Exception as e:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
-        
+    
+    def postModelData(self, data: dict):
+        try:
+            # Obtener el siguiente num correlativo para la marca
+            codigo_marca = data['CodigoMarca']
+            database.execute(
+                "SELECT ISNULL(MAX(NumeroCorrelativoModelo), 0) + 1 FROM Modelos WHERE CodigoMarca = ?", 
+                (codigo_marca,)
+            )
+            next_correlative = database.fetchone()[0]
+            
+            # Agregar el numero correlativo a los datos
+            data['NumeroCorrelativoModelo'] = next_correlative
+            
+            # Insertar el modelo
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['?' for _ in data])
+            values = tuple(data.values())
+            
+            database.execute(f"INSERT INTO Modelos ({columns}) VALUES ({placeholders})", values)
+            conn.commit()
+            return {"message": "Model inserted successfully", "NumeroCorrelativoModelo": next_correlative}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error inserting data into Modelos: {str(e)}")
+
 class DeleteService:
     def deleteData(self, table_name: str, **filters):
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])

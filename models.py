@@ -24,6 +24,18 @@ class Brand(BaseModel):
     CodigoMarca: int = Field(..., description="The unique identifier for the brand")
     Nombre: str = Field(..., description="The name of the brand")
 
+class BrandCreate(BaseModel):
+    Nombre: str = Field(..., description="The name of the brand")
+
+class ModelCreate(BaseModel):
+    CodigoMarca: int = Field(..., description="The unique identifier for the model")
+    DescripcionModelo: str = Field(..., description="The description of the model")
+    CantidadPuestos: int = Field(..., description="The number of seats in the model")
+    TipoRefrigerante: str = Field(..., description="The type of refrigerant used in the model")
+    TipoGasolina: str = Field(..., description="The type of gasoline used in the model")
+    TipoAceite: str = Field(..., description="The type of oil used in the model")
+    Peso: float = Field(..., description="The weight of the model")
+
 class Model(BaseModel):
     CodigoMarca: int = Field(..., description="The unique identifier for the model")
     NumeroCorrelativoModelo: int = Field(..., description="The serial number of the model")

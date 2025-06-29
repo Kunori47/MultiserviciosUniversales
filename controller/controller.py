@@ -70,6 +70,11 @@ class PostController:
             raise HTTPException(status_code=400, detail="No data provided")
         return self.post_service.postData(table_name, data)
     
+    def post_model_data(self, data: dict):
+        if not data:
+            raise HTTPException(status_code=400, detail="No data provided")
+        return self.post_service.postModelData(data)
+
 class UpdateController:
     def __init__(self):
         self.put_service = UpdateService()
