@@ -44,8 +44,6 @@ class GetController:
             return self.get_service.searchDataSpecialties(table_name, query)
         elif(table_name == 'Servicios'):
             return self.get_service.searchDataServices(table_name, query)
-        elif(table_name == 'Marcas'):
-            return self.get_service.searchDataBrand(table_name, query)
         
     def searchFilters(self, table_name: str, query: str, **filters):
         if not query:

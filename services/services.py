@@ -858,7 +858,8 @@ class PostService:
             return {"message": f"Data inserted successfully into {table_name}"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
-        
+
+
     def postModelData(self, data: dict):
         """
         Special method for creating models with auto-incrementing NumeroCorrelativoModelo
