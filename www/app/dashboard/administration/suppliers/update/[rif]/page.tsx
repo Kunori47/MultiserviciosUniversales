@@ -254,10 +254,6 @@ export default function UpdateSupplierPage() {
               <p><strong>Teléfono Celular:</strong> {formValues?.TelefonoCelular}</p>
               <p><strong>Persona de Contacto:</strong> {formValues?.PersonaContacto}</p>
             </div>
-            <div className="text-xs text-gray-500 dark:text-slate-400">
-              <p>• El RIF debe ser único en el sistema</p>
-              <p>• Los cambios se aplicarán inmediatamente</p>
-            </div>
           </div>
         </CardBoxModal>
 
