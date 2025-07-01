@@ -31,8 +31,8 @@ export default function InfoEmployeePage() {
       useEffect(() => {
           if (ci) {
             setIsLoading(true);
-            fetch(`http://127.0.0.1:8000/employee/${ci}`)
-                .then(res => res.json())
+          fetch(`http://127.0.0.1:8000/employee/${ci}`)
+              .then(res => res.json())
                 .then(data => {
                   setEmployee(data);
                   setIsLoading(false);

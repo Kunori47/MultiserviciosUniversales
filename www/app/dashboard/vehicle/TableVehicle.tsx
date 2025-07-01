@@ -1,6 +1,6 @@
 "use client";
 
-import { mdiPencil, mdiTrashCan, mdiEye, mdiTagEdit, mdiMagnify } from "@mdi/js";
+import { mdiPencil, mdiTrashCan, mdiEye, mdiMagnify, mdiTagEdit } from "@mdi/js";
 import React, { useState } from "react";
 import Button from "../../_components/Button";
 import Buttons from "../../_components/Buttons";
@@ -8,37 +8,37 @@ import CardBoxModal from "../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  vendors: any[];
-  onDelete: (rif: string) => void;
+  vehicles: any[];
+  onDelete: (codigo: number) => void;
 };
 
-const TableVendor = ({ vendors, onDelete }: Props) => {
+const TableVehicle = ({ vehicles, onDelete }: Props) => {
   const perPage = 5;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedVendor, setSelectedVendor] = useState<any | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filtrar proveedores por razón social
-  const filteredVendors = vendors.filter((vendor) =>
-    vendor.RazonSocial.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar vehículos por placa
+  const filteredVehicles = vehicles.filter((vehicle) =>
+    vehicle.Placa.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const numPages = Math.ceil(filteredVendors.length / perPage);
+  const numPages = Math.ceil(filteredVehicles.length / perPage);
   const pagesList: number[] = [];
   for (let i = 0; i < numPages; i++) pagesList.push(i);
 
-  const vendorsPaginated = filteredVendors.slice(
+  const vehiclesPaginated = filteredVehicles.slice(
     perPage * currentPage,
     perPage * (currentPage + 1)
   );
 
   const handleDelete = () => {
-    if (!selectedVendor) return;
-    onDelete(selectedVendor.RIF);
+    if (!selectedVehicle) return;
+    onDelete(selectedVehicle.CodigoVehiculo);
     setIsModalTrashActive(false);
-    setSelectedVendor(null);
+    setSelectedVehicle(null);
   };
 
   // Resetear página cuando cambie la búsqueda
@@ -56,11 +56,11 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
         onConfirm={handleDelete}
         onCancel={() => {
           setIsModalTrashActive(false);
-          setSelectedVendor(null);
+          setSelectedVehicle(null);
         }}
       >
         <p>
-          ¿Estás seguro de que quieres <b>eliminar</b> el proveedor?
+          ¿Estás seguro de que quieres <b>eliminar</b> el vehículo?
         </p>
       </CardBoxModal>
       
@@ -74,7 +74,7 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
           </div>
           <input
             type="text"
-            placeholder="Buscar por razón social..."
+            placeholder="Buscar por placa..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-slate-800 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm"
@@ -85,44 +85,35 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
       <table>
         <thead>
           <tr>
-            <th>RIF</th>
-            <th>Razón Social</th>
-            <th>Dirección</th>
-            <th>Teléfono Local</th>
-            <th>Teléfono Celular</th>
-            <th>Persona Contacto</th>
+            <th>Código</th>
+            <th>Placa</th>
+            <th>Fecha Adquisición</th>
+            <th>Tipo Aceite</th>
+            <th>Cédula Cliente</th>
             <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {vendorsPaginated.map((v) => (
-            <tr key={v.RIF}>
-              <td data-label="RIF">{v.RIF}</td>
-              <td data-label="Razón Social">
-                <a
-                  href={`/dashboard/vendor/${v.RIF}`}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold cursor-pointer"
-                >
-                  {v.RazonSocial}
-                </a>
-              </td>
-              <td data-label="Dirección">{v.Direccion}</td>
-              <td data-label="Teléfono Local">{v.TelefonoLocal}</td>
-              <td data-label="Teléfono Celular">{v.TelefonoCelular}</td>
-              <td data-label="Persona Contacto">{v.PersonaContacto}</td>
+          {vehiclesPaginated.map((v) => (
+            <tr key={v.CodigoVehiculo}>
+              <td data-label="Código">{v.CodigoVehiculo}</td>
+              <td data-label="Placa">{v.Placa}</td>
+              <td data-label="Fecha Adquisición">{v.FechaAdquisicion}</td>
+              <td data-label="Tipo Aceite">{v.TipoAceite}</td>
+              <td data-label="Cédula Cliente">{v.CedulaCliente}</td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
                     color="info"
                     icon={mdiEye}
-                    href={`/dashboard/vendor/${v.RIF}`}
+                    href={`/dashboard/vehicle/${v.CodigoVehiculo}`}
                     small
                     isGrouped
                   />
                   <Button
                     color="contrast"
                     icon={mdiTagEdit}
-                    href={`/dashboard/vendor/edit/${v.RIF}`}
+                    href={`/dashboard/vehicle/edit/${v.CodigoVehiculo}`}
                     small
                     isGrouped
                   />
@@ -131,7 +122,7 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
                     icon={mdiTrashCan}
                     onClick={() => {
                       setIsModalTrashActive(true);
-                      setSelectedVendor(v);
+                      setSelectedVehicle(v);
                     }}
                     small
                     isGrouped
@@ -166,4 +157,4 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
   );
 };
 
-export default TableVendor; 
+export default TableVehicle; 

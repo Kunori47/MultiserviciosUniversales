@@ -282,6 +282,45 @@ export default function OrderDetailsPage() {
           </CardBox>
 
           {/* Productos Utilizados */}
+          <CardBox className="bg-white shadow-lg mb-8">
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                <i className="mdi mdi-clipboard-list-outline text-blue-600 mr-2"></i>
+                Actividades de la Orden
+              </h3>
+              {orderDetails.products.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No hay actividades registradas para esta orden
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Servicio</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actividad</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Costo Mano de Obra</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from(new Map(orderDetails.products.map(item => [
+                        `${item.CodigoServicio}-${item.NumeroCorrelativoActividad}`,
+                        { NombreServicio: item.NombreServicio, DescripcionActividad: item.DescripcionActividad, Costo_Act: item.Costo_Act }
+                      ])).values()).map((act: any, idx) => (
+                        <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm text-gray-900">{act.NombreServicio}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700">{act.DescripcionActividad}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700">{formatCurrency(act.Costo_Act)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </CardBox>
+
+          {/* Productos Utilizados */}
           <CardBox className="bg-white shadow-lg">
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">

@@ -17,6 +17,7 @@ import TableFranchise from "./table/Franchise";
 import { useState, useEffect} from "react";
 import FormField from "../../_components/FormField";
 import { Field, Formik } from "formik";
+import RouteProtection from "../../_components/RouteProtection";
 
 
 export default function TablesPage() {
@@ -51,8 +52,9 @@ export default function TablesPage() {
 
 
   return (
-    <SectionMain>
-      <SectionTitleLineWithButton icon={mdiTableBorder} title="Franquicia" main>
+    // <RouteProtection requiredRole="Administrador">
+      <SectionMain>
+        <SectionTitleLineWithButton icon={mdiTableBorder} title="Franquicia" main>
         <Formik
           initialValues={{
               RIF: "",
@@ -111,6 +113,7 @@ export default function TablesPage() {
         <TableFranchise franchise={franchises} />
       </CardBox>
       
-    </SectionMain>
+      </SectionMain>
+    // </RouteProtection>
   );
 }

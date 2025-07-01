@@ -2,6 +2,7 @@ from db.database import database, conn
 from models import *
 from fastapi import UploadFile, HTTPException
 from typing import Optional
+from datetime import date
 
 class GetService:
 
@@ -152,7 +153,7 @@ class GetService:
             return results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
-
+        
     def countData(self, table_name: str):
         try:
             database.execute(f"SELECT COUNT(*) FROM {table_name}")
@@ -412,12 +413,14 @@ class GetService:
                     prod.DescripcionProducto,
                     ls.DescripcionLinea as Categoria,
                     s.NombreServicio,
-                    a.DescripcionActividad
+                    a.DescripcionActividad,
+                    oa.Costo_Act
                 FROM ProductosOrdenesServicio pos
                 INNER JOIN Productos prod ON pos.CodigoProducto = prod.CodigoProducto
                 INNER JOIN LineasSuministro ls ON prod.LineaSuministro = ls.CodigoLinea
                 INNER JOIN Servicios s ON pos.CodigoServicio = s.CodigoServicio
                 INNER JOIN Actividades a ON pos.CodigoServicio = a.CodigoServicio AND pos.NumeroCorrelativoActividad = a.NumeroCorrelativoActividad
+                INNER JOIN OrdenesActividades oa ON pos.CodigoOrdenServicio = oa.IDorden AND pos.CodigoServicio = oa.CodigoServicio AND pos.NumeroCorrelativoActividad = oa.NumeroCorrelativoActividad
                 WHERE pos.CodigoOrdenServicio = ? AND pos.FranquiciaRIF = ?
                 ORDER BY s.NombreServicio, a.NumeroCorrelativoActividad, prod.NombreProducto
             """
@@ -630,7 +633,6 @@ class GetService:
         """
         Check if a product has already been corrected in the current month and year
         """
-        from datetime import date
         current_date = date.today()
         current_month = current_date.month
         current_year = current_date.year
@@ -846,6 +848,159 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting new product to franchise: {str(e)}")
 
+    def getCustomerFrequency(self, mes, anio):
+        try:
+            query = '''
+                SELECT c.CI, c.NombreCompleto, c.Email, COUNT(os.ID) AS FrecuenciaMensual
+                FROM Clientes c
+                LEFT JOIN Vehiculos v ON c.CI = v.CedulaCliente
+                LEFT JOIN OrdenesServicio os ON v.CodigoVehiculo = os.CodigoVehiculo
+                    AND MONTH(os.FechaEntrada) = ? AND YEAR(os.FechaEntrada) = ?
+                GROUP BY c.CI, c.NombreCompleto, c.Email
+                ORDER BY FrecuenciaMensual DESC
+            '''
+            database.execute(query, (mes, anio))
+            columns = [col[0] for col in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching customer frequency: {str(e)}")
+
+    def getCustomerTotalFrequency(self):
+        try:
+            query = '''
+                SELECT c.CI, c.NombreCompleto, c.Email, COUNT(os.ID) AS FrecuenciaTotal
+                FROM Clientes c
+                LEFT JOIN Vehiculos v ON c.CI = v.CedulaCliente
+                LEFT JOIN OrdenesServicio os ON v.CodigoVehiculo = os.CodigoVehiculo
+                GROUP BY c.CI, c.NombreCompleto, c.Email
+                ORDER BY FrecuenciaTotal DESC
+            '''
+            database.execute(query)
+            columns = [col[0] for col in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching customer total frequency: {str(e)}")
+
+    def getOrdersByVehicle(self, codigo_vehiculo: int):
+        try:
+            query = '''
+                SELECT os.ID as NumeroOrden,
+                       os.FechaEntrada as FechaOrden,
+                       os.HoraEntrada,
+                       os.FechaSalidaEstimada,
+                       os.HoraSalidaEstimada,
+                       os.FechaSalidaReal,
+                       os.HoraSalidaReal,
+                       os.Comentario,
+                       os.CodigoVehiculo,
+                       c.CI as CI_Cliente,
+                       c.NombreCompleto as NombreCliente,
+                       CASE 
+                           WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                           ELSE 'En Proceso'
+                       END as Estado
+                FROM OrdenesServicio os
+                INNER JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
+                INNER JOIN Clientes c ON v.CedulaCliente = c.CI
+                WHERE os.CodigoVehiculo = ?
+                ORDER BY os.FechaEntrada DESC
+            '''
+            database.execute(query, (codigo_vehiculo,))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error getting orders by vehicle: {str(e)}")
+
+    def getActiveEmployeesByFranchise(self, franquicia_rif: str):
+        try:
+            database.execute("""
+                SELECT CI, NombreCompleto, Rol
+                FROM Empleados 
+                WHERE FranquiciaRIF = ? AND Estado = 'Activo'
+                ORDER BY NombreCompleto
+            """, (franquicia_rif,))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching active employees: {str(e)}")
+
+    def getAllServiceOrders(self):
+        try:
+            database.execute("""
+                SELECT 
+                    os.ID as NumeroOrden,
+                    os.FechaEntrada as FechaOrden,
+                    os.HoraEntrada,
+                    os.FechaSalidaEstimada,
+                    os.HoraSalidaEstimada,
+                    os.FechaSalidaReal,
+                    os.HoraSalidaReal,
+                    os.Comentario,
+                    os.Estado,
+                    os.FranquiciaRIF,
+                    c.NombreCompleto as NombreCliente,
+                    v.Placa,
+                    v.CodigoVehiculo
+                FROM OrdenesServicios os
+                LEFT JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
+                LEFT JOIN Clientes c ON v.CedulaCliente = c.CI
+                ORDER BY os.FechaEntrada DESC, os.HoraEntrada DESC
+            """)
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching all service orders: {str(e)}")
+
+    def get_pending_service_orders_by_employee(self, CI: str):
+        try:
+            query = '''
+                SELECT DISTINCT
+                    os.ID as NumeroOrden,
+                    os.FechaEntrada as FechaOrden,
+                    os.HoraEntrada,
+                    os.FechaSalidaEstimada,
+                    os.HoraSalidaEstimada,
+                    os.Comentario,
+                    CASE 
+                        WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                        ELSE 'En Proceso'
+                    END as Estado
+                FROM EmpleadosOrdenes eo
+                INNER JOIN OrdenesServicio os ON eo.OrdenServicioID = os.ID
+                WHERE eo.EmpleadoCI = ?
+                  AND os.FechaSalidaReal IS NULL
+                  AND os.HoraSalidaReal IS NULL
+                ORDER BY os.FechaEntrada DESC
+            '''
+            database.execute(query, (CI,))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching pending service orders: {str(e)}")
+
+    def getActivitiesByOrder(self, id_orden: int):
+        try:
+            query = '''
+                SELECT oa.CodigoServicio, s.NombreServicio, oa.NumeroCorrelativoActividad, a.DescripcionActividad, oa.Costo_Act
+                FROM OrdenesActividades oa
+                INNER JOIN Servicios s ON oa.CodigoServicio = s.CodigoServicio
+                INNER JOIN Actividades a ON oa.CodigoServicio = a.CodigoServicio AND oa.NumeroCorrelativoActividad = a.NumeroCorrelativoActividad
+                WHERE oa.IDorden = ?
+                ORDER BY s.NombreServicio, oa.NumeroCorrelativoActividad
+            '''
+            database.execute(query, (id_orden,))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error obteniendo actividades de la orden: {str(e)}")
+
 class PostService:
     def postData(self, table_name: str, data: dict):
         try:
@@ -858,7 +1013,7 @@ class PostService:
             return {"message": f"Data inserted successfully into {table_name}"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inserting data into {table_name}: {str(e)}")
-
+        
 
     def postModelData(self, data: dict):
         """
@@ -877,7 +1032,7 @@ class PostService:
             return self.postData("Modelos", data)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error creating model: {str(e)}")
-
+        
     def createPurchaseWithInventory(self, purchase_data: dict):
         """
         Create a purchase and update inventory in a single transaction
@@ -941,67 +1096,93 @@ class PostService:
             raise HTTPException(status_code=500, detail=f"Error creating purchase: {str(e)}")
 
     def createCorrectionWithInventory(self, correction_data: dict):
-        """
-        Create a correction and update inventory in a single transaction
-        correction_data should contain:
-        - FranquiciaRIF: string
-        - CodigoProducto: int
-        - Cantidad: int
-        - TipoAjuste: string
-        - Comentario: string
-        """
         try:
-            from datetime import date
+            # Iniciar transacción
+            database.execute("BEGIN TRANSACTION")
+            
+            # Crear la corrección
             current_date = date.today().isoformat()
+            database.execute("""
+                INSERT INTO Correcciones (FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                correction_data['FranquiciaRIF'],
+                correction_data['CodigoProducto'],
+                current_date,
+                correction_data['Cantidad'],
+                correction_data['TipoAjuste'],
+                correction_data.get('Comentario', '')
+            ))
             
-            # Start transaction
-            conn.autocommit = False
+            # Actualizar inventario
+            if correction_data['TipoAjuste'] == 'Aumento':
+                database.execute("""
+                    UPDATE ProductosFranquicia 
+                    SET Cantidad = Cantidad + ? 
+                    WHERE FranquiciaRIF = ? AND CodigoProducto = ?
+                """, (correction_data['Cantidad'], correction_data['FranquiciaRIF'], correction_data['CodigoProducto']))
+            else:  # Disminución
+                database.execute("""
+                    UPDATE ProductosFranquicia 
+                    SET Cantidad = Cantidad - ? 
+                    WHERE FranquiciaRIF = ? AND CodigoProducto = ?
+                """, (correction_data['Cantidad'], correction_data['FranquiciaRIF'], correction_data['CodigoProducto']))
             
-            # Create correction
-            correction_result = self.postData(table_name="Correcciones", data={
-                "FranquiciaRIF": correction_data["FranquiciaRIF"],
-                "CodigoProducto": correction_data["CodigoProducto"],
-                "FechaCorreccion": current_date,
-                "Cantidad": correction_data["Cantidad"],
-                "TipoAjuste": correction_data["TipoAjuste"],
-                "Comentario": correction_data["Comentario"]
-            })
-            
-            # Update franchise inventory
-            get_service = GetService()
-            current_quantity = get_service.getProductQuantity(correction_data["FranquiciaRIF"], correction_data["CodigoProducto"])
-            
-            if current_quantity > 0:
-                # Calculate new quantity based on adjustment type
-                adjustment_quantity = correction_data["Cantidad"]
-                
-                if correction_data["TipoAjuste"] == "Faltante":
-                    # For "Faltante", we add the quantity (increment)
-                    new_quantity = current_quantity + adjustment_quantity
-                else:
-                    # For "Sobrante", we subtract the quantity (decrement)
-                    new_quantity = current_quantity - adjustment_quantity
-                
-                # Ensure quantity doesn't go below 0
-                new_quantity = max(0, new_quantity)
-                
-                get_service.updateProductQuantity(correction_data["FranquiciaRIF"], correction_data["CodigoProducto"], new_quantity)
-            
-            # Commit transaction
-            conn.commit()
-            conn.autocommit = True
-            
-            return {
-                "message": "Correction created successfully",
-                "fecha_correccion": current_date,
-                "tipo_ajuste": correction_data["TipoAjuste"]
-            }
+            # Confirmar transacción
+            database.execute("COMMIT")
+            return {"message": "Corrección creada exitosamente"}
             
         except Exception as e:
-            # Rollback transaction on error
-            conn.rollback()
-            conn.autocommit = True
+            # Revertir transacción en caso de error
+            database.execute("ROLLBACK")
             raise HTTPException(status_code=500, detail=f"Error creating correction: {str(e)}")
+
+    def createServiceOrderWithEmployees(self, service_order_data: dict):
+        try:
+            # Iniciar transacción
+            database.execute("BEGIN TRANSACTION")
+            
+            # Obtener el ID máximo actual antes de insertar
+            database.execute("SELECT MAX(ID) FROM OrdenesServicio")
+            max_id_result = database.fetchone()
+            max_id_before = max_id_result[0] if max_id_result and max_id_result[0] else 0
+            
+            # Crear la orden de servicio
+            database.execute("""
+                INSERT INTO OrdenesServicio (FechaEntrada, HoraEntrada, FechaSalidaEstimada, HoraSalidaEstimada, CodigoVehiculo, Comentario)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                service_order_data["FechaEntrada"],
+                service_order_data["HoraEntrada"],
+                service_order_data["FechaSalidaEstimada"],
+                service_order_data["HoraSalidaEstimada"],
+                service_order_data["CodigoVehiculo"],
+                service_order_data["Comentario"] or ''
+            ))
+            
+            # Obtener el nuevo ID máximo (que será el ID de la orden creada)
+            database.execute("SELECT MAX(ID) FROM OrdenesServicio")
+            result = database.fetchone()
+            order_id = result[0] if result else None
+            
+            if not order_id or order_id <= max_id_before:
+                raise HTTPException(status_code=500, detail="No se pudo obtener el ID de la orden creada")
+            
+            # Asignar empleados a la orden
+            for empleado_ci in service_order_data["EmpleadosAsignados"]:
+                database.execute("""
+                    INSERT INTO EmpleadosOrdenes (EmpleadoCI, OrdenServicioID)
+                    VALUES (?, ?)
+                """, (empleado_ci, order_id))
+            
+            # Confirmar transacción
+            database.execute("COMMIT")
+            return {"message": "Orden de servicio creada exitosamente", "order_id": order_id}
+            
+        except Exception as e:
+            # Revertir transacción en caso de error
+            database.execute("ROLLBACK")
+            raise HTTPException(status_code=500, detail=f"Error creating service order: {str(e)}")
 
 class DeleteService:
     def deleteData(self, table_name: str, **filters):

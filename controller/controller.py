@@ -134,6 +134,27 @@ class GetController:
     def insert_new_product_to_franchise(self, franquicia_rif: str, codigo_producto: int, cantidad: int):
         return self.get_service.insertNewProductToFranchise(franquicia_rif, codigo_producto, cantidad)
     
+    def get_customer_frequency(self, mes, anio):
+        return self.get_service.getCustomerFrequency(mes, anio)
+
+    def get_customer_total_frequency(self):
+        return self.get_service.getCustomerTotalFrequency()
+
+    def get_orders_by_vehicle(self, codigo_vehiculo: int):
+        return self.get_service.getOrdersByVehicle(codigo_vehiculo)
+
+    def get_active_employees_by_franchise(self, franquicia_rif: str):
+        return self.get_service.getActiveEmployeesByFranchise(franquicia_rif)
+
+    def get_all_service_orders(self):
+        return self.get_service.getAllServiceOrders()
+    
+    def get_pending_service_orders_by_employee(self, CI):
+        return self.get_service.get_pending_service_orders_by_employee(CI)
+
+    def get_activities_by_order(self, id_orden: int):
+        return self.get_service.getActivitiesByOrder(id_orden)
+
 class PostController:
     def __init__(self):
         self.post_service = PostService()
@@ -159,6 +180,11 @@ class PostController:
             raise HTTPException(status_code=400, detail="No correction data provided")
         return self.post_service.createCorrectionWithInventory(correction_data)
     
+    def create_service_order_with_employees(self, service_order_data: dict):
+        if not service_order_data:
+            raise HTTPException(status_code=400, detail="No service order data provided")
+        return self.post_service.createServiceOrderWithEmployees(service_order_data)
+
 class UpdateController:
     def __init__(self):
         self.put_service = UpdateService()

@@ -1,5 +1,8 @@
 "use client"
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../_hooks/useAuth";
 import {
   mdiAccountMultiple,
   mdiCartOutline,
@@ -24,16 +27,68 @@ import { clients, transactions } from "./_lib/sampleData";
 import ChartLineSampleComponentBlock from "./_components/ChartLineSample/ComponentBlock";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { employee, loading, userRole, isManager } = useAuth();
+
+  useEffect(() => {
+    if (!loading && employee) {
+      if (isManager && employee.FranquiciaRIF) {
+        // Encargado: redirigir a su franquicia específica
+        router.replace(`/dashboard/franchise/${employee.FranquiciaRIF}`);
+      } else if (userRole === 'Empleado') {
+        // Empleado: redirigir a órdenes de servicio
+        router.replace('/dashboard/service-orders');
+      } else if (userRole === 'Administrador') {
+        // Administrador: puede ver el dashboard general
+        // No redirigir, mostrar el dashboard
+      } else {
+        // Otros roles: redirigir a su franquicia si tienen una
+        if (employee.FranquiciaRIF) {
+          router.replace(`/dashboard/franchise/${employee.FranquiciaRIF}`);
+        }
+      }
+    }
+  }, [employee, loading, router, userRole, isManager]);
+
+  // Si está cargando, mostrar loading
+  if (loading) {
+    return (
+      <SectionMain>
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <span className="ml-2 text-gray-600">Cargando...</span>
+        </div>
+      </SectionMain>
+    );
+  }
+
+  // Solo mostrar dashboard general para administradores
+  if (userRole !== 'Administrador') {
+    return (
+      <SectionMain>
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <span className="ml-2 text-gray-600">Redirigiendo...</span>
+        </div>
+      </SectionMain>
+    );
+  }
+
   const clientsListed = clients.slice(0, 4);
 
   return (
     <SectionMain>
       <SectionTitleLineWithButton
         icon={mdiChartTimelineVariant}
-        title="Overview"
+        title="Dashboard General - Administrador"
         main
       >
-        
+        <Button
+          href="/dashboard/franchise"
+          color="info"
+          label="Ver Franquicias"
+          roundedFull
+        />
       </SectionTitleLineWithButton>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
@@ -89,16 +144,6 @@ export default function DashboardPage() {
       </div>
 
       <ChartLineSampleComponentBlock />
-
-      {/* Enlace simple a Marcas */}
-      <SectionTitleLineWithButton icon={mdiCar} title="Marcas" main>
-        <Button
-          label="Gestionar Marcas"
-          icon={mdiCar}
-          color="info"
-          href="/dashboard/brands"
-        />
-      </SectionTitleLineWithButton>
 
       <SectionTitleLineWithButton icon={mdiAccountMultiple} title="Clients" />
 

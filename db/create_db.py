@@ -276,6 +276,8 @@ def crear_base_datos():
             PRIMARY KEY(FranquiciaRIF, CodigoProducto),
             FOREIGN KEY (FranquiciaRIF) REFERENCES Franquicias(RIF),
             FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto)
+                ON DELETE NO ACTION
+                ON UPDATE CASCADE
         )
         """)
         print("✓ Tabla 'ProductosFranquicia' creada")
@@ -323,7 +325,11 @@ def crear_base_datos():
             Costo_Act DECIMAL(10, 2) NOT NULL CHECK (Costo_Act >= 0),
             PRIMARY KEY (IDorden, CodigoServicio, NumeroCorrelativoActividad),
             FOREIGN KEY (IDorden) REFERENCES OrdenesServicio(ID),
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
             FOREIGN KEY (CodigoServicio, NumeroCorrelativoActividad) REFERENCES Actividades(CodigoServicio, NumeroCorrelativoActividad)
+                ON DELETE NO ACTION
+                ON UPDATE CASCADE
         )
         """)
         print("✓ Tabla 'OrdenesActividades' creada")
@@ -470,8 +476,12 @@ def crear_base_datos():
                     EmpleadoCI VARCHAR(10),
                     OrdenServicioID INT,
                     PRIMARY KEY(EmpleadoCI, OrdenServicioID),
-                    FOREIGN KEY (EmpleadoCI) REFERENCES Empleados(CI),
+                    FOREIGN KEY (EmpleadoCI) REFERENCES Empleados(CI)
+                        ON DELETE NO ACTION
+                        ON UPDATE CASCADE,
                     FOREIGN KEY (OrdenServicioID) REFERENCES OrdenesServicio(ID)
+                        ON DELETE NO ACTION
+                        ON UPDATE CASCADE
                 )
             """),
             ("TelefonosClientes", """
@@ -480,6 +490,8 @@ def crear_base_datos():
                     Telefono CHAR(12) CHECK (LEN(Telefono) = 12),
                     PRIMARY KEY(Cliente, Telefono),
                     FOREIGN KEY(Cliente) REFERENCES Clientes(CI)
+                        ON DELETE NO ACTION
+                        ON UPDATE CASCADE
                 )
             """),
             ("MantenimientosVehiculos", """
@@ -489,6 +501,8 @@ def crear_base_datos():
                     DescripcionMantenimiento VARCHAR(100) NOT NULL,
                     PRIMARY KEY(Vehiculo, FechaMantenimiento),
                     FOREIGN KEY(Vehiculo) REFERENCES Vehiculos(CodigoVehiculo)
+                        ON DELETE NO ACTION
+                        ON UPDATE CASCADE
                 )
             """)
         ]

@@ -8,37 +8,41 @@ import CardBoxModal from "../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  vendors: any[];
-  onDelete: (rif: string) => void;
+  customers: any[];
+  frequency?: Record<string, number>;
+  onDelete: (ci: string) => void;
 };
 
-const TableVendor = ({ vendors, onDelete }: Props) => {
+const TableCustomer = ({ customers, frequency = {}, onDelete }: Props) => {
   const perPage = 5;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedVendor, setSelectedVendor] = useState<any | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filtrar proveedores por razón social
-  const filteredVendors = vendors.filter((vendor) =>
-    vendor.RazonSocial.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar clientes por nombre completo
+  const filteredCustomers = customers.filter((customer) =>
+    customer.NombreCompleto.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const numPages = Math.ceil(filteredVendors.length / perPage);
+  // Ordenar por frecuencia mensual descendente
+  const sortedCustomers = [...filteredCustomers].sort((a, b) => (frequency[b.CI] ?? 0) - (frequency[a.CI] ?? 0));
+
+  const numPages = Math.ceil(sortedCustomers.length / perPage);
   const pagesList: number[] = [];
   for (let i = 0; i < numPages; i++) pagesList.push(i);
 
-  const vendorsPaginated = filteredVendors.slice(
+  const customersPaginated = sortedCustomers.slice(
     perPage * currentPage,
     perPage * (currentPage + 1)
   );
 
   const handleDelete = () => {
-    if (!selectedVendor) return;
-    onDelete(selectedVendor.RIF);
+    if (!selectedCustomer) return;
+    onDelete(selectedCustomer.CI);
     setIsModalTrashActive(false);
-    setSelectedVendor(null);
+    setSelectedCustomer(null);
   };
 
   // Resetear página cuando cambie la búsqueda
@@ -56,11 +60,11 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
         onConfirm={handleDelete}
         onCancel={() => {
           setIsModalTrashActive(false);
-          setSelectedVendor(null);
+          setSelectedCustomer(null);
         }}
       >
         <p>
-          ¿Estás seguro de que quieres <b>eliminar</b> el proveedor?
+          ¿Estás seguro de que quieres <b>eliminar</b> el cliente?
         </p>
       </CardBoxModal>
       
@@ -74,7 +78,7 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
           </div>
           <input
             type="text"
-            placeholder="Buscar por razón social..."
+            placeholder="Buscar por nombre..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-slate-800 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm"
@@ -85,44 +89,33 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
       <table>
         <thead>
           <tr>
-            <th>RIF</th>
-            <th>Razón Social</th>
-            <th>Dirección</th>
-            <th>Teléfono Local</th>
-            <th>Teléfono Celular</th>
-            <th>Persona Contacto</th>
+            <th>CI</th>
+            <th>Nombre Completo</th>
+            <th>Email</th>
+            <th>Frecuencia (mes)</th>
             <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {vendorsPaginated.map((v) => (
-            <tr key={v.RIF}>
-              <td data-label="RIF">{v.RIF}</td>
-              <td data-label="Razón Social">
-                <a
-                  href={`/dashboard/vendor/${v.RIF}`}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold cursor-pointer"
-                >
-                  {v.RazonSocial}
-                </a>
-              </td>
-              <td data-label="Dirección">{v.Direccion}</td>
-              <td data-label="Teléfono Local">{v.TelefonoLocal}</td>
-              <td data-label="Teléfono Celular">{v.TelefonoCelular}</td>
-              <td data-label="Persona Contacto">{v.PersonaContacto}</td>
+          {customersPaginated.map((c) => (
+            <tr key={c.CI}>
+              <td data-label="CI">{c.CI}</td>
+              <td data-label="Nombre Completo">{c.NombreCompleto}</td>
+              <td data-label="Email">{c.Email}</td>
+              <td data-label="Frecuencia (mes)">{frequency[c.CI] ?? 0}</td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
                     color="info"
                     icon={mdiEye}
-                    href={`/dashboard/vendor/${v.RIF}`}
+                    href={`/dashboard/customer/${c.CI}`}
                     small
                     isGrouped
                   />
                   <Button
                     color="contrast"
                     icon={mdiTagEdit}
-                    href={`/dashboard/vendor/edit/${v.RIF}`}
+                    href={`/dashboard/customer/edit/${c.CI}`}
                     small
                     isGrouped
                   />
@@ -131,7 +124,7 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
                     icon={mdiTrashCan}
                     onClick={() => {
                       setIsModalTrashActive(true);
-                      setSelectedVendor(v);
+                      setSelectedCustomer(c);
                     }}
                     small
                     isGrouped
@@ -166,4 +159,4 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
   );
 };
 
-export default TableVendor; 
+export default TableCustomer; 

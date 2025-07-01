@@ -2,15 +2,19 @@
 
 import React, { ReactNode } from "react";
 import { useState } from "react";
-import { mdiForwardburger, mdiBackburger, mdiMenu } from "@mdi/js";
+import { mdiForwardburger, mdiBackburger, mdiMenu, mdiLogout } from "@mdi/js";
 import menuAside from "./_lib/menuAside";
 import menuNavBar from "./_lib/menuNavBar";
+import { getFilteredMenu } from "./_lib/menuAsideFiltered";
 import Icon from "../_components/Icon";
 import NavBar from "./_components/NavBar";
 import NavBarItemPlain from "./_components/NavBar/Item/Plain";
 import AsideMenu from "./_components/AsideMenu";
 import FormField from "../_components/FormField";
+import Button from "../_components/Button";
 import { Field, Form, Formik } from "formik";
+import { useAuth } from "../_hooks/useAuth";
+import { useRouteProtection } from "../_hooks/useRouteProtection";
 
 type Props = {
   children: ReactNode;
@@ -19,6 +23,13 @@ type Props = {
 export default function LayoutAuthenticated({ children }: Props) {
   const [isAsideMobileExpanded, setIsAsideMobileExpanded] = useState(false);
   const [isAsideLgActive, setIsAsideLgActive] = useState(false);
+  const { employee, franchise, loading, logout, isAuthenticated, userRole, isManager } = useAuth();
+
+  // Aplicar protección de rutas
+  useRouteProtection();
+
+  // Obtener el menú filtrado basado en el rol del usuario
+  const filteredMenu = getFilteredMenu(userRole, employee?.FranquiciaRIF);
 
   const handleRouteChange = () => {
     setIsAsideMobileExpanded(false);
@@ -26,6 +37,21 @@ export default function LayoutAuthenticated({ children }: Props) {
   };
 
   const layoutAsidePadding = "xl:pl-60";
+
+  // Mostrar loading mientras verifica autenticación
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span className="ml-2 text-gray-600">Verificando autenticación...</span>
+      </div>
+    );
+  }
+
+  // Si no está autenticado, no mostrar nada (el hook ya redirige)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className={`overflow-hidden lg:overflow-visible`}>
@@ -53,31 +79,11 @@ export default function LayoutAuthenticated({ children }: Props) {
           >
             <Icon path={mdiMenu} size="24" />
           </NavBarItemPlain>
-          <NavBarItemPlain useMargin>
-            <Formik
-              initialValues={{
-                search: "",
-              }}
-              onSubmit={(values) => alert(JSON.stringify(values, null, 2))}
-            >
-              <Form>
-                <FormField isBorderless isTransparent>
-                  {({ className }) => (
-                    <Field
-                      name="search"
-                      placeholder="Search"
-                      className={className}
-                    />
-                  )}
-                </FormField>
-              </Form>
-            </Formik>
-          </NavBarItemPlain>
         </NavBar>
         <AsideMenu
           isAsideMobileExpanded={isAsideMobileExpanded}
           isAsideLgActive={isAsideLgActive}
-          menu={menuAside}
+          menu={filteredMenu}
           onAsideLgClose={() => setIsAsideLgActive(false)}
           onRouteChange={handleRouteChange}
         />

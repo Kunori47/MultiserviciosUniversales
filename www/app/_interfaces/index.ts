@@ -1,4 +1,4 @@
-export type UserPayloadObject = {
+  export type UserPayloadObject = {
   name: string;
   email: string;
 };

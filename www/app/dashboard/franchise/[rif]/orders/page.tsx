@@ -5,6 +5,8 @@ import {
   mdiInformation,
   mdiFilter,
   mdiCalendar,
+  mdiPlus,
+  mdiTrashCan,
 } from "@mdi/js";
 import Button from "../../../../_components/Button";
 import Divider from "../../../../_components/Divider";
@@ -139,6 +141,19 @@ export default function OrdersPage() {
     return timeString ? timeString.substring(0, 5) : "";
   };
 
+  const handleDeleteOrder = async (numeroOrden) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar esta orden de servicio?")) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/service_order/delete/${numeroOrden}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Error eliminando la orden");
+      fetchOrders(); // Refrescar la lista
+    } catch (err) {
+      alert("No se pudo eliminar la orden");
+    }
+  };
+
   if (loading) {
     return (
       <SectionMain>
@@ -158,12 +173,21 @@ export default function OrdersPage() {
             title={`Historial de Órdenes de Servicio - ${rif}`}
             main
           >
+            <div className="flex gap-2">
+              <Button
+                href="/dashboard/service-orders/create"
+                icon={mdiPlus}
+                color="success"
+                label="Nueva Orden"
+                roundedFull
+              />
             <Button
               href={`/dashboard/franchise/${rif}`}
               color="info"
               label="Volver"
               roundedFull
             />
+            </div>
           </SectionTitleLineWithButton>
 
           <Divider />
@@ -296,13 +320,24 @@ export default function OrdersPage() {
                           {order.Comentario || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
-                          <Button
-                            color="info"
-                            outline
-                            small
-                            href={`/dashboard/franchise/${rif}/orders/${order.NumeroOrden}`}
-                            icon={mdiInformation}
-                          />
+                          <div className="flex gap-2">
+                            <Button
+                              color="info"
+                              outline
+                              small
+                              href={`/dashboard/franchise/${rif}/orders/${order.NumeroOrden}`}
+                              icon={mdiInformation}
+                            />
+                            {(!order.FechaSalidaReal && !order.HoraSalidaReal) && (
+                              <Button
+                                color="danger"
+                                outline
+                                small
+                                icon={mdiTrashCan}
+                                onClick={() => handleDeleteOrder(order.NumeroOrden)}
+                              />
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))

@@ -16,12 +16,15 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useAuth } from "../../../_hooks/useAuth";
+import RouteProtection from "../../../_components/RouteProtection";
 
 
 export default function InfoPage() {
 
       const params = useParams();
       const rif = params?.rif as string;
+      const { userRole } = useAuth();
       const [franchise, setFranchise] = useState<any>(null);
       const [encargado, setEncargado] = useState<any>(null);
       const [cantemployee, setCantEmployee] = useState<any>(null);
@@ -110,7 +113,7 @@ export default function InfoPage() {
           setFecha(date);
         };
   return (
-    <>
+    // <RouteProtection requiredRole="both" requireFranchiseMatch={true}>
       <SectionMain>
         <div className="max-w-4xl mx-auto">
         <SectionTitleLineWithButton
@@ -122,12 +125,14 @@ export default function InfoPage() {
               <p className="text-lg font-semibold text-gray-700 mb-2">
                 Encargado: {encargado ? encargado.NombreCompleto : "Cargando encargado..."}
               </p>
+          {userRole === 'Administrador' && (
           <Button
-            href="/dashboard/franchise"
+            href={'/dashboard/franchise'}
             color="info"
             label="Atras"
             roundedFull
           />
+          )}
             </div>
         </SectionTitleLineWithButton>
 
@@ -283,6 +288,6 @@ export default function InfoPage() {
         </CardBox>
         </div>
       </SectionMain>
-    </>
+    // </RouteProtection>
   );
 }

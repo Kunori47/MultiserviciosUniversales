@@ -127,14 +127,14 @@ export default function EmployeeCreatePage() {
                 const data = await res.json();
                 for (const codigo of specialtyRows) {
                   if (codigo) {
-                    await fetch("http://127.0.0.1:8000/speciality_employee", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        EmpleadoCI: values.CI,
+                  await fetch("http://127.0.0.1:8000/speciality_employee", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      EmpleadoCI: values.CI,
                         CodigoEspecialidad: parseInt(codigo),
-                      }),
-                    });
+                    }),
+                  });
                   }
                 }
                 alert("Empleado creado correctamente");
@@ -318,7 +318,7 @@ export default function EmployeeCreatePage() {
                   name="CodigoEspecialidades"
                   value={specialtyRows.join(',')}
                 />
-              </div>
+                </div>
 
               <Divider />
 

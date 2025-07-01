@@ -1,12 +1,13 @@
 "use client";
 
 import React, { ReactNode, useState } from "react";
-import { mdiClose, mdiDotsVertical } from "@mdi/js";
+import { mdiClose, mdiDotsVertical, mdiLogout } from "@mdi/js";
 import { containerMaxW } from "../../../_lib/config";
 import Icon from "../../../_components/Icon";
 import NavBarItemPlain from "./Item/Plain";
 import NavBarMenuList from "./MenuList";
 import { MenuNavBarItem } from "../../../_interfaces";
+import { useAuth } from "../../../_hooks/useAuth";
 
 type Props = {
   menu: MenuNavBarItem[];
@@ -16,6 +17,7 @@ type Props = {
 
 export default function NavBar({ menu, className = "", children }: Props) {
   const [isMenuNavBarActive, setIsMenuNavBarActive] = useState(false);
+  const { logout } = useAuth();
 
   const handleMenuNavBarToggleClick = () => {
     setIsMenuNavBarActive(!isMenuNavBarActive);
@@ -45,6 +47,12 @@ export default function NavBar({ menu, className = "", children }: Props) {
           } max-h-screen-menu overflow-y-auto lg:overflow-visible absolute w-screen top-14 left-0 bg-gray-50 shadow-lg lg:w-auto lg:flex lg:static lg:shadow-none dark:bg-slate-800`}
         >
           <NavBarMenuList menu={menu} onRouteChange={handleRouteChange} />
+          <div className="lg:hidden">
+            <NavBarItemPlain onClick={logout}>
+              <Icon path={mdiLogout} size="24" />
+              <span className="ml-2">Cerrar Sesión</span>
+            </NavBarItemPlain>
+          </div>
         </div>
       </div>
     </nav>

@@ -1,15 +1,72 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import RedirectResponse
 from controller.controller import *
 from models import *
 from typing import Optional
 from datetime import date
+from pydantic import BaseModel
+from db.database import database
 
 router = APIRouter()
+
+class LoginRequest(BaseModel):
+    cedula: str
 
 @router.get("/")
 async def read_root():
     return RedirectResponse(url="/docs")
+
+@router.post("/auth/login", tags=["Autenticación"])
+async def login_employee(login_data: LoginRequest):
+    """
+    Autenticar empleado por cédula y devolver información de la franquicia
+    """
+    try:
+        employee = GetController().get_by_id(table_name="Empleados", CI=login_data.cedula)
+        if not employee:
+            raise HTTPException(status_code=401, detail="Cédula no encontrada")
+        
+        # Convertir employee a diccionario
+        # employee es una tupla de fetchone(), necesitamos obtener las columnas
+        
+        # Obtener las columnas de la tabla Empleados
+        database.execute("SELECT * FROM Empleados WHERE 1=0")  # Query vacío para obtener columnas
+        columns = [column[0] for column in database.description]
+        
+        # Convertir la tupla employee a diccionario
+        employee_dict = dict(zip(columns, employee))
+        
+        # Obtener información de la franquicia
+        franchise_dict = None
+        if employee_dict.get('FranquiciaRIF'):
+            franchise = GetController().get_by_id(table_name="Franquicias", RIF=employee_dict['FranquiciaRIF'])
+            
+            if franchise:
+                # Obtener las columnas de la tabla Franquicias
+                database.execute("SELECT * FROM Franquicias WHERE 1=0")
+                franchise_columns = [column[0] for column in database.description]
+                
+                # Convertir la tupla franchise a diccionario
+                franchise_dict = dict(zip(franchise_columns, franchise))
+        
+        return {
+            "success": True,
+            "employee": {
+                "CI": employee_dict.get('CI'),
+                "NombreCompleto": employee_dict.get('NombreCompleto'),
+                "Rol": employee_dict.get('Rol'),
+                "FranquiciaRIF": employee_dict.get('FranquiciaRIF')
+            },
+            "franchise": {
+                "RIF": franchise_dict.get('RIF'),
+                "Nombre": franchise_dict.get('Nombre'),
+                "Direccion": franchise_dict.get('Direccion')
+            } if franchise_dict else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en autenticación: {str(e)}")
 
 " Franquicia Endpoints "
 
@@ -211,14 +268,14 @@ async def read_vehicle_by_code(CodigoVehiculo: int):
     return vehicle
 
 @router.post("/vehicle/create", tags=["Vehiculo"], response_model=dict)
-async def create_vehicle(vehiculo: Vehicle):
+async def create_vehicle(CodigoMarca: int, NumeroCorrelativoModelo: int, Placa: str, FechaAdquisicion: str, TipoAceite: str, CedulaCliente: str):
     return PostController().post_data(table_name="Vehiculos", data={
-        "CodigoMarca": vehiculo.CodigoMarca,
-        "NumeroCorrelativoModelo": vehiculo.NumeroCorrelativoModelo,
-        "Placa": vehiculo.Placa,
-        "FechaAdquisicion": vehiculo.FechaAdquisicion,
-        "TipoAceite": vehiculo.TipoAceite,
-        "CedulaCliente": vehiculo.CedulaCliente
+        "CodigoMarca": CodigoMarca,
+        "NumeroCorrelativoModelo": NumeroCorrelativoModelo,
+        "Placa": Placa,
+        "FechaAdquisicion": FechaAdquisicion,
+        "TipoAceite": TipoAceite,
+        "CedulaCliente": CedulaCliente
     })
 
 @router.delete("/vehicle/delete", tags=["Vehiculo"], response_model=dict)
@@ -238,6 +295,21 @@ async def update_vehicle(vehiculo: Vehicle):
 @router.get("/customer", tags=["Cliente"], response_model=list[Customer])
 async def read_customers():
     return GetController().get_all(table_name="Clientes")
+
+@router.get("/customer/frequency", tags=["Cliente"])
+async def customer_frequency(mes: Optional[int] = None, anio: Optional[int] = None):
+    """
+    Devuelve la frecuencia mensual de visitas de cada cliente (cantidad de órdenes de servicio en el mes y año dados, o actual si no se pasan)
+    """
+    from datetime import datetime
+    now = datetime.now()
+    mes = mes or now.month
+    anio = anio or now.year
+    return GetController().get_customer_frequency(mes, anio)
+
+@router.get("/customer/frequency_total", tags=["Cliente"])
+async def customer_total_frequency():
+    return GetController().get_customer_total_frequency()
 
 @router.get("/customer/{CI}", tags=["Cliente"], response_model=Customer)
 async def read_customer_by_ci(CI: str):
@@ -499,7 +571,14 @@ async def update_vendor(proveedor: Vendor):
 
 @router.get("/service_order", tags=["Orden de Servicio"], response_model=list[ServiceOrder])
 async def read_service_orders():
-    return GetController().get_all(table_name="OrdenesServicios")  
+    return GetController().get_all(table_name="OrdenesServicio")  
+
+@router.get("/service_order/all", tags=["Orden de Servicio"])
+async def get_all_service_orders():
+    """
+    Get all service orders with customer and vehicle information
+    """
+    return GetController().get_all_service_orders()
 
 @router.get("/service_order/franchise/{FranquiciaRIF}", tags=["Orden de Servicio"])
 async def get_orders_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None, estado: Optional[str] = None):
@@ -515,31 +594,46 @@ async def get_order_details(FranquiciaRIF: str, NumeroOrden: int):
 
 @router.get("/service_order/{ID}", tags=["Orden de Servicio"], response_model=ServiceOrder)
 async def read_service_order_by_id(ID: int):
-    service_order = GetController().get_by_id(table_name="OrdenesServicios", ID=ID)
+    service_order = GetController().get_by_id(table_name="OrdenesServicio", ID=ID)
     if not service_order:
         raise HTTPException(status_code=404, detail="Orden de Servicio not found")
     return service_order
 
+@router.get("/service_order/vehicle/{CodigoVehiculo}", tags=["Orden de Servicio"])
+async def get_orders_by_vehicle(CodigoVehiculo: int):
+    """
+    Get all service orders for a specific vehicle
+    """
+    return GetController().get_orders_by_vehicle(CodigoVehiculo)
+
 @router.post("/service_order/create", tags=["Orden de Servicio"], response_model=dict)
-async def create_service_order(ordenservicio: ServiceOrder):
-    return PostController().post_data(table_name="OrdenesServicios", data={
-        "FechaEntrada": ordenservicio.FechaEntrada,
-        "HoraEntrada": ordenservicio.HoraEntrada,
-        "FechaSalidaEstimada": ordenservicio.FechaSalidaEstimada,
-        "HoraSalidaEstimada": ordenservicio.HoraSalidaEstimada,
-        "CodigoVehiculo": ordenservicio.CodigoVehiculo
-    })
+async def create_service_order(service_order_data: ServiceOrderCreate):
+    return PostController().create_service_order_with_employees(service_order_data.model_dump())
 
 @router.put("/service_order/update", tags=["Orden de Servicio"], response_model=dict)
-async def update_service_order(ordenservicio: ServiceOrder):
+async def update_service_order(ID: int, FechaSalidaReal: str, HoraSalidaReal: str, Comentario: str):
     data = {}
-    if ordenservicio.FechaSalidaReal is not None:
-        data["FechaSalidaReal"] = ordenservicio.FechaSalidaReal
-    if ordenservicio.HoraSalidaReal is not None:
-        data["HoraSalidaReal"] = ordenservicio.HoraSalidaReal
-    if ordenservicio.Comentario is not None:
-        data["Comentario"] = ordenservicio.Comentario
-    return UpdateController().put_data(table_name="OrdenesServicios", ID=ordenservicio.ID, data=data)
+    if FechaSalidaReal is not None:
+        data["FechaSalidaReal"] = FechaSalidaReal
+    if HoraSalidaReal is not None:
+        data["HoraSalidaReal"] = HoraSalidaReal
+    if Comentario is not None:
+        data["Comentario"] = Comentario
+    return UpdateController().put_data(table_name="OrdenesServicio", ID=ID, data=data)
+
+@router.delete("/service_order/delete/{ID}", tags=["Orden de Servicio"], response_model=dict)
+async def delete_service_order(ID: int):
+    """
+    Elimina una orden de servicio por su ID.
+    """
+    return DeleteController().delete_data(table_name="OrdenesServicio", ID=ID)
+
+@router.get("/service_order/employee/{CI}/pending", tags=["Orden de Servicio"])
+async def get_pending_service_orders_by_employee(CI: str):
+    """
+    Devuelve las órdenes de servicio asignadas a un empleado (por CI) que no tienen FechaSalidaReal ni HoraSalidaReal.
+    """
+    return GetController().get_pending_service_orders_by_employee(CI)
 
 
 " Factura Endpoints "
@@ -726,13 +820,35 @@ async def read_orderxactivity_by_code(IDorden: int, CodigoServicio: int, NumeroC
     return orderxactivity
 
 @router.post("/orderxactivity/create", tags=["OrdenxActividad"], response_model=dict)
-async def create_orderxactivity(ordenxactividad: OrderxActivity):
+async def create_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int):
     return PostController().post_data(table_name="OrdenesActividades", data={
-        "IDorden": ordenxactividad.IDorden,
-        "CodigoServicio": ordenxactividad.CodigoServicio,
-        "NumeroCorrelativoActividad": ordenxactividad.NumeroCorrelativoActividad,
-        "Costo_Act": ordenxactividad.Costo_Act
+        "IDorden": IDorden,
+        "CodigoServicio": CodigoServicio,
+        "NumeroCorrelativoActividad": NumeroCorrelativoActividad,
+
         })
+
+@router.get("/orderxactivity/order/{IDorden}", tags=["OrdenxActividad"])
+async def get_activities_by_order(IDorden: int):
+    """
+    Devuelve todas las actividades (servicio y actividad) de una orden específica.
+    """
+    return GetController().get_activities_by_order(IDorden)
+
+@router.put("/orderxactivity/{IDorden}/{CodigoServicio}/{NumeroCorrelativoActividad}", tags=["OrdenxActividad"])
+async def update_orderxactivity(IDorden: int, CodigoServicio: int, NumeroCorrelativoActividad: int, data: dict = Body(...)):
+    """
+    Actualiza el costo de la mano de obra (Costo_Act) de una actividad de orden.
+    """
+    if "Costo_Act" not in data:
+        raise HTTPException(status_code=400, detail="Costo_Act es requerido")
+    return UpdateController().put_data(
+        table_name="OrdenesActividades",
+        IDorden=IDorden,
+        CodigoServicio=CodigoServicio,
+        NumeroCorrelativoActividad=NumeroCorrelativoActividad,
+        data={"Costo_Act": data["Costo_Act"]}
+    )
 
 "Pagos Endpoints"
 
@@ -812,7 +928,7 @@ async def read_employee_order_count_emp(EmpleadoCI: str):
 
 @router.get("/employee_order/{empleado_ci}/{codigo_orden}", tags=["EmpleadosOrden"], response_model=EmployeeOrder)
 async def read_employee_order_by_code(empleado_ci: str, codigo_orden: int):
-    empleado_orden = GetController().get_by_id(table_name="EmpleadosOrdenes", EmpleadoCI=empleado_ci, CodigoOrden=codigo_orden)
+    empleado_orden = GetController().get_by_id(table_name="EmpleadosOrdenes", EmpleadoCI=empleado_ci, OrdenServicioID=codigo_orden)
     if not empleado_orden:
         raise HTTPException(status_code=404, detail="EmpleadoOrden not found")
     return empleado_orden
@@ -821,7 +937,7 @@ async def read_employee_order_by_code(empleado_ci: str, codigo_orden: int):
 async def create_employee_order(empleadoorden: EmployeeOrder):
     return PostController().post_data(table_name="EmpleadosOrdenes", data={
         "EmpleadoCI": empleadoorden.EmpleadoCI,
-        "CodigoOrden": empleadoorden.OrdenServicioID
+        "OrdenServicioID": empleadoorden.OrdenServicioID
     })
 
 

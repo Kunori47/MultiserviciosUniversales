@@ -5,6 +5,7 @@ import AsideMenuItem from "./Item";
 import AsideMenuList from "./List";
 import { MenuAsideItem } from "../../../_interfaces";
 import { useAppSelector } from "../../../_stores/hooks";
+import { useAuth } from "../../../_hooks/useAuth";
 
 type Props = {
   menu: MenuAsideItem[];
@@ -19,13 +20,14 @@ export default function AsideMenuLayer({
   ...props
 }: Props) {
   const darkMode = useAppSelector((state) => state.darkMode.isEnabled);
+  const { logout } = useAuth();
 
   const logoutItem: MenuAsideItem = {
-    label: "Logout",
+    label: "Cerrar Sesión",
     icon: mdiLogout,
     color: "info",
-    isLogout: false,
-    href: "/login",
+    isLogout: true,
+    href: "#",
   };
 
   const handleAsideLgCloseClick = (e: React.MouseEvent) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { mdiPencil, mdiTrashCan } from "@mdi/js";
+import { mdiPencil, mdiTrashCan, mdiMagnify } from "@mdi/js";
 import React, { useState } from "react";
 import Button from "../../_components/Button";
 import Buttons from "../../_components/Buttons";
@@ -18,12 +18,18 @@ const TableSupplierLine = ({ lines, onDelete }: Props) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedLine, setSelectedLine] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const numPages = Math.ceil(lines.length / perPage);
+  // Filtrar líneas de suministro por descripción
+  const filteredLines = lines.filter((line) =>
+    line.DescripcionLinea.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const numPages = Math.ceil(filteredLines.length / perPage);
   const pagesList: number[] = [];
   for (let i = 0; i < numPages; i++) pagesList.push(i);
 
-  const linesPaginated = lines.slice(
+  const linesPaginated = filteredLines.slice(
     perPage * currentPage,
     perPage * (currentPage + 1)
   );
@@ -34,6 +40,11 @@ const TableSupplierLine = ({ lines, onDelete }: Props) => {
     setIsModalTrashActive(false);
     setSelectedLine(null);
   };
+
+  // Resetear página cuando cambie la búsqueda
+  React.useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
 
   return (
     <>
@@ -52,6 +63,25 @@ const TableSupplierLine = ({ lines, onDelete }: Props) => {
           ¿Estás seguro de que quieres <b>eliminar</b> la línea de suministro?
         </p>
       </CardBoxModal>
+      
+      {/* Barra de búsqueda */}
+      <div className="mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar por descripción..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-slate-800 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm"
+          />
+        </div>
+      </div>
+
       <table>
         <thead>
           <tr>

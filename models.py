@@ -117,6 +117,15 @@ class ServiceOrder(BaseModel):
     Comentario: Optional[str] = Field(..., description="Comments on the service order")
     CodigoVehiculo: int = Field(..., description="The vehicle code associated with the service order")
 
+class ServiceOrderCreate(BaseModel):
+    FechaEntrada: str = Field(..., description="The entry date of the service order")
+    HoraEntrada: str = Field(..., description="The entry time of the service order")
+    FechaSalidaEstimada: str = Field(..., description="The exit date of the service order")
+    HoraSalidaEstimada: str = Field(..., description="The exit time of the service order")
+    CodigoVehiculo: int = Field(..., description="The vehicle code associated with the service order")
+    Comentario: Optional[str] = Field(None, description="Comments on the service order")
+    EmpleadosAsignados: list[str] = Field(..., description="List of employee CIs assigned to this order")
+
 class Invoice(BaseModel):
     NumeroFactura: int = Field(..., description="The unique identifier for the invoice")
     FechaEmision: str = Field(..., description="The issue date of the invoice")
@@ -149,7 +158,7 @@ class OrderxActivity(BaseModel):
     IDorden: int = Field(..., description="The unique identifier for the order")
     CodigoServicio: int = Field(..., description="The service code associated with the order")
     NumeroCorrelativoActividad: int = Field(..., description="The serial number of the activity")
-    Costo_Act: float = Field(..., description="The cost of the activity in the order")
+    Costo_Act: Optional[float] = Field(None, description="The cost of the activity in the order")
     
 class Pay(BaseModel):
     NumeroFactura: int = Field(..., description="Unique invoice number associated with the payment.")

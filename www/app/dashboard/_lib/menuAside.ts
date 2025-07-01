@@ -14,6 +14,8 @@ import {
   mdiReproduction,
   mdiPackage,
   mdiTruck,
+  mdiAccountGroup,
+  mdiBallotOutline,
 } from "@mdi/js";
 import { MenuAsideItem } from "../../_interfaces";
 
@@ -54,31 +56,16 @@ const menuAside: MenuAsideItem[] = [
     icon: mdiTruck,
   },
   {
-    label: "Administración",
-    icon: mdiBriefcase,
-    menu: [
-      {
-        label: "Marcas y Modelos",
-        href: "/dashboard/administration/brands-models",
-      },
-      {
-        label: "Planes de Mantenimiento",
-        href: "/dashboard/administration/maintenance-plans",
-      },
-      {
-        label: "Especialidades",
-        href: "/dashboard/administration/specialty",
-      },
-      {
-        label: "Lineas de Suministro",
-        href: "/dashboard/administration/supply-lines",
-      },
-      {
-        label: "Proveedores",
-        href: "/dashboard/administration/suppliers",
-      },
-    ],
+    href: "/dashboard/customer",
+    label: "Clientes",
+    icon: mdiAccountGroup,
   },
+  {
+    href: "/dashboard/vehicle",
+    label: "Vehículos",
+    icon: mdiCar,
+  },
+
 ];
 
 export default menuAside;
