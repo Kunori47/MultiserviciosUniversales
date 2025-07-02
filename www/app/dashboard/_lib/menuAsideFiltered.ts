@@ -53,6 +53,11 @@ export const getFilteredMenu = (userRole: UserRole, franchiseRIF?: string): Menu
         icon: mdiBallotOutline,
         label: "Órdenes de Servicio",
       },
+      {
+        href: `/dashboard/vehicle`,
+        icon: menuAside.find(item => item.href === "/dashboard/vehicle")?.icon,
+        label: "Vehículos",
+      },
     ];
   }
 

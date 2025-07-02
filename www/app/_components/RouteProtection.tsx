@@ -7,7 +7,7 @@ import SectionMain from "./Section/Main";
 
 interface RouteProtectionProps {
   children: ReactNode;
-  requiredRole?: 'Administrador' | 'Encargado' | 'both';
+  requiredRole?: 'Administrador' | 'Encargado' | 'Empleado' | 'both';
   requireFranchiseMatch?: boolean;
   fallbackComponent?: ReactNode;
 }

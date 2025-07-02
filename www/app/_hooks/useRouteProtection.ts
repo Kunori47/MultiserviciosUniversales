@@ -25,6 +25,7 @@ const MANAGER_ONLY_ROUTES = [
 // Rutas permitidas solo para empleados
 const EMPLOYEE_ONLY_ROUTES = [
   "/dashboard/service-orders",
+  "/dashboard/vehicle",
 ];
 
 // Rutas que requieren que el usuario pertenezca a la franquicia específica

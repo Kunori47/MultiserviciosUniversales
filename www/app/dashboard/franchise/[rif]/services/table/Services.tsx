@@ -1,7 +1,7 @@
 "use client";
 
-import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
-import React, { useState } from "react";
+import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan, mdiAccountMultiple } from "@mdi/js";
+import React, { useState, useEffect } from "react";
 import Button from "../../../../../_components/Button";
 import Buttons from "../../../../../_components/Buttons";
 import CardBoxModal from "../../../../../_components/CardBox/Modal";
@@ -10,6 +10,12 @@ import { useRouter } from "next/navigation";
 interface Service {
   CodigoServicio: number;
   NombreServicio: string;
+}
+
+interface EmployeeResponsibility {
+  EmpleadoCI: string;
+  CodigoServicio: number;
+  NombreEmpleado?: string;
 }
 
 type Props = {
@@ -37,6 +43,58 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
 
   const [selectedService, setSelectedService] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [serviceResponsibilities, setServiceResponsibilities] = useState<{[key: number]: EmployeeResponsibility[]}>({});
+  const [loadingResponsibilities, setLoadingResponsibilities] = useState(false);
+
+  // Función para obtener los responsables de un servicio específico
+  const fetchServiceResponsibilities = async (codigoServicio: number) => {
+    try {
+      setLoadingResponsibilities(true);
+      const res = await fetch(`http://127.0.0.1:8000/employee_responsibilities`);
+      const data = await res.json();
+      
+      if (Array.isArray(data)) {
+        // Filtrar responsabilidades para este servicio específico
+        const responsibilities = data.filter((resp: EmployeeResponsibility) => 
+          resp.CodigoServicio === codigoServicio
+        );
+        
+        // Obtener información adicional de los empleados
+        const responsibilitiesWithNames = await Promise.all(
+          responsibilities.map(async (resp: EmployeeResponsibility) => {
+            try {
+              const employeeRes = await fetch(`http://127.0.0.1:8000/employee/${resp.EmpleadoCI}`);
+              const employeeData = await employeeRes.json();
+              return {
+                ...resp,
+                NombreEmpleado: employeeData.NombreCompleto
+              };
+            } catch (error) {
+              return resp;
+            }
+          })
+        );
+        
+        setServiceResponsibilities(prev => ({
+          ...prev,
+          [codigoServicio]: responsibilitiesWithNames
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching service responsibilities:", error);
+    } finally {
+      setLoadingResponsibilities(false);
+    }
+  };
+
+  // Cargar responsabilidades cuando cambian los servicios
+  useEffect(() => {
+    servicesPaginated.forEach(service => {
+      if (!serviceResponsibilities[service.CodigoServicio]) {
+        fetchServiceResponsibilities(service.CodigoServicio);
+      }
+    });
+  }, [servicesPaginated]);
 
   const handleDelete = async () => {
     if (!selectedService) return;
@@ -79,10 +137,15 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
           <tr>
             <th>Código</th>
             <th>Nombre del Servicio</th>
+            <th>Responsables</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {servicesPaginated.map((service: Service) => (
+          {servicesPaginated.map((service: Service) => {
+            const responsibilities = serviceResponsibilities[service.CodigoServicio] || [];
+            
+            return (
             <tr key={service.CodigoServicio}>
               <td data-label="Código">
                 <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
@@ -90,6 +153,34 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
                 </span>
               </td>
               <td data-label="Nombre del Servicio">{service.NombreServicio}</td>
+                <td data-label="Responsables">
+                  {loadingResponsibilities ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                      <span className="text-sm text-gray-500">Cargando...</span>
+                    </div>
+                  ) : responsibilities.length === 0 ? (
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span className="text-sm">Sin responsables</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {responsibilities.map((resp, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <svg className="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {resp.NombreEmpleado || resp.EmpleadoCI}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
@@ -119,7 +210,8 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
                 </Buttons>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
       <div className="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800">

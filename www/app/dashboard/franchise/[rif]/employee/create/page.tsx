@@ -118,7 +118,7 @@ export default function EmployeeCreatePage() {
                         Telefono: values.Telefono,
                         Salario: values.Salario,
                         FranquiciaRIF: rif,
-                        Rol: values.Rol,
+                        Rol: "Empleado",
                     }),
                 });
                 if (!res.ok) {
@@ -220,22 +220,6 @@ export default function EmployeeCreatePage() {
                             className={className}
                             required
                         />
-                        )}
-                    </FormField>
-                    <FormField label="Rol" labelFor="Rol" icon={mdiIdentifier}>
-                        {({ className }) => (
-                        <Field
-                            name="Rol"
-                            id="Rol"
-                            component="select"
-                            className={className}
-                            required
-                        >
-                            <option value="Encargado">Encargado</option>
-
-                            <option value="Empleado">Empleado</option>
-
-                        </Field>
                         )}
                     </FormField>
 

@@ -6,6 +6,7 @@ import Button from "../../_components/Button";
 import Buttons from "../../_components/Buttons";
 import CardBoxModal from "../../_components/CardBox/Modal";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../_hooks/useAuth";
 
 type Props = {
   vehicles: any[];
@@ -19,6 +20,10 @@ const TableVehicle = ({ vehicles, onDelete }: Props) => {
   const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const { userRole } = useAuth();
+
+  // Solo administradores y encargados pueden editar/eliminar
+  const canEditDelete = userRole === 'Administrador' || userRole === 'Encargado';
 
   // Filtrar vehículos por placa
   const filteredVehicles = vehicles.filter((vehicle) =>
@@ -110,23 +115,27 @@ const TableVehicle = ({ vehicles, onDelete }: Props) => {
                     small
                     isGrouped
                   />
-                  <Button
-                    color="contrast"
-                    icon={mdiTagEdit}
-                    href={`/dashboard/vehicle/edit/${v.CodigoVehiculo}`}
-                    small
-                    isGrouped
-                  />
-                  <Button
-                    color="danger"
-                    icon={mdiTrashCan}
-                    onClick={() => {
-                      setIsModalTrashActive(true);
-                      setSelectedVehicle(v);
-                    }}
-                    small
-                    isGrouped
-                  />
+                  {canEditDelete && (
+                    <>
+                      <Button
+                        color="contrast"
+                        icon={mdiTagEdit}
+                        href={`/dashboard/vehicle/edit/${v.CodigoVehiculo}`}
+                        small
+                        isGrouped
+                      />
+                      <Button
+                        color="danger"
+                        icon={mdiTrashCan}
+                        onClick={() => {
+                          setIsModalTrashActive(true);
+                          setSelectedVehicle(v);
+                        }}
+                        small
+                        isGrouped
+                      />
+                    </>
+                  )}
                 </Buttons>
               </td>
             </tr>

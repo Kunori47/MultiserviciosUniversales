@@ -7,7 +7,8 @@ import CardBox from "../../../_components/CardBox";
 import Divider from "../../../_components/Divider";
 import SectionMain from "../../../_components/Section/Main";
 import SectionTitleLineWithButton from "../../../_components/Section/TitleLineWithButton";
-import { mdiCar, mdiArrowLeft, mdiAccount, mdiInformation } from "@mdi/js";
+import { mdiCar, mdiArrowLeft, mdiAccount, mdiInformation, mdiWrench, mdiHistory } from "@mdi/js";
+import CardBoxModal from "../../../_components/CardBox/Modal";
 
 interface Brand {
   CodigoMarca: number;
@@ -31,6 +32,12 @@ interface Customer {
   Email: string;
 }
 
+interface VehicleMaintenance {
+  Vehiculo: number;
+  FechaMantenimiento: string;
+  DescripcionMantenimiento: string;
+}
+
 export default function VehicleInfoPage() {
   const params = useParams();
   const router = useRouter();
@@ -42,6 +49,9 @@ export default function VehicleInfoPage() {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [maintenanceHistory, setMaintenanceHistory] = useState<VehicleMaintenance[]>([]);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [isMaintenanceModalActive, setIsMaintenanceModalActive] = useState(false);
 
   useEffect(() => {
     if (!codigoVehiculo) return;
@@ -92,6 +102,31 @@ export default function VehicleInfoPage() {
     fetchOrders();
   }, [codigoVehiculo]);
 
+  const fetchMaintenanceHistory = async () => {
+    try {
+      setMaintenanceLoading(true);
+      const res = await fetch(`http://127.0.0.1:8000/vehicle_maintenances`);
+      const data = await res.json();
+      
+      // Filtrar solo los mantenimientos de este vehículo
+      const vehicleMaintenance = Array.isArray(data) 
+        ? data.filter((maintenance: VehicleMaintenance) => maintenance.Vehiculo === parseInt(codigoVehiculo))
+        : [];
+      
+      setMaintenanceHistory(vehicleMaintenance);
+    } catch (error) {
+      console.error("Error fetching maintenance history:", error);
+      setMaintenanceHistory([]);
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleShowMaintenanceHistory = () => {
+    setIsMaintenanceModalActive(true);
+    fetchMaintenanceHistory();
+  };
+
   if (loading || !vehicle) {
     return (
       <SectionMain>
@@ -122,9 +157,18 @@ export default function VehicleInfoPage() {
       
       {/* Información del Vehículo */}
       <CardBox className="mb-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-          Datos del Vehículo
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+            Datos del Vehículo
+          </h2>
+          <Button
+            color="info"
+            label="Historial de Mantenimiento"
+            icon={mdiHistory}
+            onClick={handleShowMaintenanceHistory}
+            small
+          />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block font-semibold text-gray-600 dark:text-gray-400 mb-1">Código del Vehículo</label>
@@ -288,6 +332,64 @@ export default function VehicleInfoPage() {
           </div>
         )}
       </CardBox>
+
+      {/* Modal de Historial de Mantenimiento */}
+      <CardBoxModal
+        title={`Historial de Mantenimiento - Vehículo ${vehicle.Placa}`}
+        buttonColor="info"
+        buttonLabel="Cerrar"
+        isActive={isMaintenanceModalActive}
+        onConfirm={() => setIsMaintenanceModalActive(false)}
+        onCancel={() => setIsMaintenanceModalActive(false)}
+      >
+        <div className="space-y-4">
+          {maintenanceLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <span className="ml-2 text-gray-600">Cargando historial...</span>
+            </div>
+          ) : maintenanceHistory.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500 mb-2">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="text-gray-500">No se encontró historial de mantenimiento para este vehículo</p>
+            </div>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <div className="space-y-4">
+                {maintenanceHistory
+                  .sort((a, b) => new Date(b.FechaMantenimiento).getTime() - new Date(a.FechaMantenimiento).getTime())
+                  .map((maintenance, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-slate-700">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">
+                              {new Date(maintenance.FechaMantenimiento).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                            {maintenance.DescripcionMantenimiento}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </CardBoxModal>
     </SectionMain>
   );
 } 

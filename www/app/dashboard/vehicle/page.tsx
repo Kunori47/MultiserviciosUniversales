@@ -8,10 +8,15 @@ import SectionMain from "../../_components/Section/Main";
 import SectionTitleLineWithButton from "../../_components/Section/TitleLineWithButton";
 import { mdiCar, mdiPlus } from "@mdi/js";
 import TableVehicle from "./TableVehicle";
+import { useAuth } from "../../_hooks/useAuth";
 
 export default function VehicleListPage() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { userRole } = useAuth();
+
+  // Solo mostrar botón de agregar para administradores y encargados
+  const canAddVehicle = userRole === 'Administrador' || userRole === 'Encargado';
 
   const fetchVehicles = async () => {
     setLoading(true);
@@ -42,13 +47,15 @@ export default function VehicleListPage() {
         title="Gestión de Vehículos"
         main
       >
-        <Button
-          href="/dashboard/vehicle/create"
-          color="success"
-          label="Agregar Vehículo"
-          icon={mdiPlus}
-          roundedFull
-        />
+        {canAddVehicle && (
+          <Button
+            href="/dashboard/vehicle/create"
+            color="success"
+            label="Agregar Vehículo"
+            icon={mdiPlus}
+            roundedFull
+          />
+        )}
       </SectionTitleLineWithButton>
       <Divider />
       <CardBox>

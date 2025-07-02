@@ -4,6 +4,8 @@ import {
   mdiArrowLeft,
   mdiWrench,
   mdiContentSave,
+  mdiAccountPlus,
+  mdiAccountRemove,
 } from "@mdi/js";
 import Button from "../../../../../../_components/Button";
 import CardBox from "../../../../../../_components/CardBox";
@@ -15,6 +17,17 @@ import { useEffect, useState } from "react";
 interface Service {
   CodigoServicio: number;
   NombreServicio: string;
+}
+
+interface Employee {
+  CI: string;
+  NombreCompleto: string;
+  Rol: string;
+}
+
+interface EmployeeResponsibility {
+  EmpleadoCI: string;
+  CodigoServicio: number;
 }
 
 export default function EditServicePage() {
@@ -32,6 +45,11 @@ export default function EditServicePage() {
   const [form, setForm] = useState({
     NombreServicio: ""
   });
+
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [currentResponsibilities, setCurrentResponsibilities] = useState<EmployeeResponsibility[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -57,10 +75,100 @@ export default function EditServicePage() {
       if (!franchiseRes.ok) throw new Error("Error cargando franquicia");
       const franchiseData = await franchiseRes.json();
       setFranchise(franchiseData);
+
+      // Fetch employees and responsibilities
+      await Promise.all([
+        fetchEmployees(),
+        fetchCurrentResponsibilities()
+      ]);
     } catch (err) {
       console.error("Error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      setLoadingEmployees(true);
+      const res = await fetch(`http://127.0.0.1:8000/employee/franchise/${rif}`);
+      if (!res.ok) throw new Error("Error cargando empleados");
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+      setEmployees([]);
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
+  const fetchCurrentResponsibilities = async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/employee_responsibilities`);
+      if (!res.ok) throw new Error("Error cargando responsabilidades");
+      const data = await res.json();
+      
+      if (Array.isArray(data)) {
+        const serviceResponsibilities = data.filter((resp: EmployeeResponsibility) => 
+          resp.CodigoServicio === parseInt(codigoServicio)
+        );
+        setCurrentResponsibilities(serviceResponsibilities);
+      }
+    } catch (err) {
+      console.error("Error fetching responsibilities:", err);
+      setCurrentResponsibilities([]);
+    }
+  };
+
+  const handleAddResponsibility = async () => {
+    if (!selectedEmployee || !service) return;
+
+    // Verificar si ya existe la responsabilidad
+    const exists = currentResponsibilities.some(resp => resp.EmpleadoCI === selectedEmployee);
+    if (exists) {
+      alert("Este empleado ya es responsable de este servicio");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/employee_responsibilities/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          EmpleadoCI: selectedEmployee,
+          CodigoServicio: service.CodigoServicio
+        }),
+      });
+
+      if (!res.ok) throw new Error("Error agregando responsabilidad");
+
+      // Actualizar la lista de responsabilidades
+      await fetchCurrentResponsibilities();
+      setSelectedEmployee("");
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Error al agregar la responsabilidad");
+    }
+  };
+
+  const handleRemoveResponsibility = async (empleadoCI: string) => {
+    if (!service) return;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/employee_responsibilities/delete?EmpleadoCI=${empleadoCI}&CodigoServicio=${service.CodigoServicio}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error("Error eliminando responsabilidad");
+
+      // Actualizar la lista de responsabilidades
+      await fetchCurrentResponsibilities();
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Error al eliminar la responsabilidad");
     }
   };
 
@@ -195,6 +303,103 @@ export default function EditServicePage() {
               <p className="mt-1 text-sm text-gray-500">
                 Proporciona un nombre descriptivo para este servicio.
               </p>
+            </div>
+
+            {/* Gestión de Responsables */}
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h5 className="text-lg font-medium text-gray-900">Responsables del Servicio</h5>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span className="text-sm text-gray-500">Gestión de empleados responsables</span>
+                </div>
+              </div>
+
+              {/* Agregar Responsable */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <div className="flex items-end space-x-3">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Agregar Responsable
+                    </label>
+                    <select
+                      value={selectedEmployee}
+                      onChange={(e) => setSelectedEmployee(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loadingEmployees}
+                    >
+                      <option value="">Selecciona un empleado...</option>
+                      {employees.map((employee) => (
+                        <option key={employee.CI} value={employee.CI}>
+                          {employee.NombreCompleto} - {employee.CI}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Selecciona un empleado para asignarlo como responsable de este servicio.
+                    </p>
+                  </div>
+                  <Button
+                    color="success"
+                    icon={mdiAccountPlus}
+                    label="Agregar"
+                    onClick={handleAddResponsibility}
+                    disabled={!selectedEmployee || loadingEmployees}
+                    small
+                  />
+                </div>
+              </div>
+
+              {/* Lista de Responsables Actuales */}
+              <div>
+                <h6 className="text-sm font-medium text-gray-700 mb-3">Responsables Actuales</h6>
+                {loadingEmployees ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    <span className="ml-2 text-gray-600">Cargando responsables...</span>
+                  </div>
+                ) : currentResponsibilities.length === 0 ? (
+                  <div className="text-center py-6 bg-gray-50 rounded-lg">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500">No hay responsables asignados</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {currentResponsibilities.map((resp) => {
+                      const employee = employees.find(emp => emp.CI === resp.EmpleadoCI);
+                      return (
+                        <div key={resp.EmpleadoCI} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-blue-100 rounded-full">
+                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {employee?.NombreCompleto || resp.EmpleadoCI}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {employee?.Rol || 'Empleado'} - {resp.EmpleadoCI}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            color="danger"
+                            icon={mdiAccountRemove}
+                            onClick={() => handleRemoveResponsibility(resp.EmpleadoCI)}
+                            small
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="flex justify-end space-x-3 pt-4 border-t">

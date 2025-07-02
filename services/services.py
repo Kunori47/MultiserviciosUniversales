@@ -819,6 +819,7 @@ class GetService:
     def getProductQuantity(self, franquicia_rif: str, codigo_producto: int):
         """
         Get the current quantity of a product in franchise inventory
+        NOTE: This method is no longer used in purchase process due to database trigger
         """
         try:
             database.execute("SELECT Cantidad FROM ProductosFranquicia WHERE FranquiciaRIF = ? AND CodigoProducto = ?", 
@@ -831,6 +832,7 @@ class GetService:
     def updateProductQuantity(self, franquicia_rif: str, codigo_producto: int, new_quantity: int):
         """
         Update the quantity of a product in franchise inventory
+        NOTE: This method is no longer used in purchase process due to database trigger
         """
         try:
             database.execute("UPDATE ProductosFranquicia SET Cantidad = ? WHERE FranquiciaRIF = ? AND CodigoProducto = ?", 
@@ -841,6 +843,7 @@ class GetService:
     def insertNewProductToFranchise(self, franquicia_rif: str, codigo_producto: int, cantidad: int):
         """
         Insert a new product to franchise inventory
+        NOTE: This method is no longer used in purchase process due to database trigger
         """
         try:
             database.execute("INSERT INTO ProductosFranquicia (FranquiciaRIF, CodigoProducto, Cantidad, Precio, CantidadMinima, CantidadMaxima) VALUES (?, ?, ?, ?, ?, ?)", 
@@ -940,18 +943,29 @@ class GetService:
                     os.FechaSalidaReal,
                     os.HoraSalidaReal,
                     os.Comentario,
-                    os.Estado,
-                    os.FranquiciaRIF,
                     c.NombreCompleto as NombreCliente,
                     v.Placa,
-                    v.CodigoVehiculo
-                FROM OrdenesServicios os
+                    v.CodigoVehiculo,
+                    v.CodigoMarca,
+                    v.NumeroCorrelativoModelo,
+                    v.CedulaCliente
+                FROM OrdenesServicio os
                 LEFT JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
                 LEFT JOIN Clientes c ON v.CedulaCliente = c.CI
                 ORDER BY os.FechaEntrada DESC, os.HoraEntrada DESC
             """)
             columns = [column[0] for column in database.description]
             results = [dict(zip(columns, row)) for row in database.fetchall()]
+            
+            # Agregar información de actividades para cada orden
+            for result in results:
+                if result['NumeroOrden']:
+                    try:
+                        activities = self.getActivitiesByOrder(result['NumeroOrden'])
+                        result['Actividades'] = activities
+                    except:
+                        result['Actividades'] = []
+            
             return results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error fetching all service orders: {str(e)}")
@@ -1056,6 +1070,7 @@ class PostService:
             numero_compra = get_service.getPurchaseNumber(purchase_data["Fecha"], purchase_data["ProveedorRIF"])
             
             # Create inventory increases for each item
+            # The trigger will automatically update the inventory
             for item in purchase_data["items"]:
                 inventory_data = {
                     "NumeroCompra": numero_compra,
@@ -1067,17 +1082,7 @@ class PostService:
                 }
                 
                 self.postData(table_name="AumentosInventario", data=inventory_data)
-                
-                # Update franchise inventory
-                current_quantity = get_service.getProductQuantity(item["FranquiciaRIF"], item["CodigoProducto"])
-                
-                if current_quantity > 0:
-                    # Update existing product quantity
-                    new_quantity = current_quantity + item["CantidadDisponible"]
-                    get_service.updateProductQuantity(item["FranquiciaRIF"], item["CodigoProducto"], new_quantity)
-                else:
-                    # Add new product to franchise inventory
-                    get_service.insertNewProductToFranchise(item["FranquiciaRIF"], item["CodigoProducto"], item["CantidadDisponible"])
+                # El trigger se ejecutará automáticamente aquí y actualizará el inventario
             
             # Commit transaction
             conn.commit()
