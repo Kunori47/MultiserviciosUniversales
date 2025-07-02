@@ -979,11 +979,11 @@ async def get_vehicle_maintenance_by_code(vehiculo: int, fecha_mantenimiento: da
     return vehicle_maintenance
 
 @router.post("/vehicle_maintenances/create", tags=["Mantenimiento de Vehículos"], response_model=dict)
-async def create_vehicle_maintenance(vehiculomant: VehicleMaintenance):
+async def create_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: date, DescripcionMantenimiento: str):
     return PostController().post_data(table_name="MantenimientosVehiculos", data={
-        "Vehiculo": vehiculomant.Vehiculo,
-        "FechaMantenimiento": vehiculomant.FechaMantenimiento,
-        "Descripcion": vehiculomant.DescripcionMantenimiento
+        "Vehiculo": Vehiculo,
+        "FechaMantenimiento": FechaMantenimiento,
+        "Descripcion": DescripcionMantenimiento
         })
 
 @router.delete("/vehicle_maintenances/delete", tags=["Mantenimiento de Vehículos"], response_model=dict)

@@ -1102,10 +1102,7 @@ class PostService:
 
     def createCorrectionWithInventory(self, correction_data: dict):
         try:
-            # Iniciar transacción
-            database.execute("BEGIN TRANSACTION")
-            
-            # Crear la corrección
+            # Crear la corrección - el trigger se encargará de actualizar el inventario automáticamente
             current_date = date.today().isoformat()
             database.execute("""
                 INSERT INTO Correcciones (FranquiciaRIF, CodigoProducto, FechaCorreccion, Cantidad, TipoAjuste, Comentario)
@@ -1119,27 +1116,13 @@ class PostService:
                 correction_data.get('Comentario', '')
             ))
             
-            # Actualizar inventario
-            if correction_data['TipoAjuste'] == 'Aumento':
-                database.execute("""
-                    UPDATE ProductosFranquicia 
-                    SET Cantidad = Cantidad + ? 
-                    WHERE FranquiciaRIF = ? AND CodigoProducto = ?
-                """, (correction_data['Cantidad'], correction_data['FranquiciaRIF'], correction_data['CodigoProducto']))
-            else:  # Disminución
-                database.execute("""
-                    UPDATE ProductosFranquicia 
-                    SET Cantidad = Cantidad - ? 
-                    WHERE FranquiciaRIF = ? AND CodigoProducto = ?
-                """, (correction_data['Cantidad'], correction_data['FranquiciaRIF'], correction_data['CodigoProducto']))
-            
             # Confirmar transacción
-            database.execute("COMMIT")
+            conn.commit()
             return {"message": "Corrección creada exitosamente"}
             
         except Exception as e:
             # Revertir transacción en caso de error
-            database.execute("ROLLBACK")
+            conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error creating correction: {str(e)}")
 
     def createServiceOrderWithEmployees(self, service_order_data: dict):

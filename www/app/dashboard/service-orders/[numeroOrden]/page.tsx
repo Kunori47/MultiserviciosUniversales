@@ -129,14 +129,10 @@ export default function EmployeeOrderDetailPage() {
       });
       
       // 4. Crear registro de mantenimiento del vehículo
-      await fetch(`http://127.0.0.1:8000/vehicle_maintenances/create`, {
+      await fetch(`http://127.0.0.1:8000/vehicle_maintenances/create?Vehiculo=${order.CodigoVehiculo}&FechaMantenimiento=${fechaSalidaReal}&DescripcionMantenimiento=${comentario || `Mantenimiento realizado en orden de servicio #${numeroOrden}`}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Vehiculo: order.CodigoVehiculo,
-          FechaMantenimiento: fechaSalidaReal,
-          DescripcionMantenimiento: comentario || `Mantenimiento realizado en orden de servicio #${numeroOrden}`
-        }),
+        body: JSON.stringify(order.CodigoVehiculo),
       });
       
       alert("Salida registrada y datos guardados correctamente");
