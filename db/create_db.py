@@ -1,5 +1,6 @@
 from db.database import conn, cursor
 from db.insert_db import seed_tables
+from db.create_trigger import create_inventory_trigger, create_correction_trigger, create_service_order_trigger, create_franchise_manager_trigger
 import pyodbc
 
 def crear_base_datos():
@@ -667,6 +668,10 @@ if __name__ == "__main__":
         verificar_base_datos()
         print("=" * 70)
         print("\n✅ Proceso de creacion completado exitosamente!")
+        create_inventory_trigger()
+        create_correction_trigger()
+        create_service_order_trigger()
+        create_franchise_manager_trigger()
         seed_tables()
         
         print("\n✅Proceso completado exitosamente!")

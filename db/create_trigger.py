@@ -72,8 +72,8 @@ def create_correction_trigger():
                     -- Update inventory based on correction type
                     UPDATE ProductosFranquicia 
                     SET Cantidad = CASE 
-                        WHEN inserted.TipoAjuste = 'Faltante' THEN pf.Cantidad + inserted.Cantidad
-                        WHEN inserted.TipoAjuste = 'Sobrante' THEN pf.Cantidad - inserted.Cantidad
+                        WHEN inserted.TipoAjuste = N''Faltante'' THEN pf.Cantidad + inserted.Cantidad
+                        WHEN inserted.TipoAjuste = N''Sobrante'' THEN pf.Cantidad - inserted.Cantidad
                         ELSE pf.Cantidad
                     END
                     FROM ProductosFranquicia pf
@@ -89,7 +89,7 @@ def create_correction_trigger():
                         inserted.Cantidad, 
                         0, 0, 0
                     FROM inserted
-                    WHERE inserted.TipoAjuste = 'Faltante'
+                    WHERE inserted.TipoAjuste = N''Faltante''
                     AND NOT EXISTS (
                         SELECT 1 FROM ProductosFranquicia pf 
                         WHERE pf.FranquiciaRIF = inserted.FranquiciaRIF 
@@ -132,18 +132,8 @@ def create_service_order_trigger():
                     INNER JOIN inserted ON pf.FranquiciaRIF = inserted.FranquiciaRIF 
                     AND pf.CodigoProducto = inserted.CodigoProducto;
                     
-                    -- Log warning if inventory goes below minimum (optional)
-                    -- This could be extended to send notifications or alerts
-                    IF EXISTS (
-                        SELECT 1 FROM ProductosFranquicia pf
-                        INNER JOIN inserted ON pf.FranquiciaRIF = inserted.FranquiciaRIF 
-                        AND pf.CodigoProducto = inserted.CodigoProducto
-                        WHERE pf.Cantidad < pf.CantidadMinima
-                    )
-                    BEGIN
-                        -- You could insert into a notifications table here
-                        PRINT 'Warning: Product inventory is below minimum threshold';
-                    END;
+                    -- Note: Inventory level warnings can be handled in application logic
+                    -- or through a separate monitoring process
                 END
             ')
         END
@@ -167,27 +157,25 @@ def create_franchise_manager_trigger():
         trigger_sql = """
         IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'manage_franchise_manager_assignment')
         BEGIN
-            CREATE TRIGGER manage_franchise_manager_assignment
-            ON Franquicias
-            AFTER UPDATE
-            AS
-            BEGIN
-                SET NOCOUNT ON;
-                
-                -- Only proceed if CI_Encargado was changed
-                IF UPDATE(CI_Encargado)
+            EXEC('
+                CREATE TRIGGER manage_franchise_manager_assignment
+                ON Franquicias
+                AFTER UPDATE
+                AS
                 BEGIN
+                    SET NOCOUNT ON;
+                    
                     -- Handle the new manager assignment
                     IF EXISTS (SELECT 1 FROM inserted WHERE CI_Encargado IS NOT NULL)
                     BEGIN
-                        -- Update the employee's role to 'Encargado' and assign FranquiciaRIF
+                        -- Update the employee''s role to ''Encargado'' and assign FranquiciaRIF
                         UPDATE Empleados 
-                        SET Rol = 'Encargado', 
+                        SET Rol = N''Encargado'', 
                             FranquiciaRIF = i.RIF
                         FROM Empleados e
                         INNER JOIN inserted i ON e.CI = i.CI_Encargado;
                         
-                        -- If the employee doesn't exist, this will not affect any rows
+                        -- If the employee doesn''t exist, this will not affect any rows
                         -- but the trigger will still complete successfully
                     END;
                     
@@ -201,7 +189,7 @@ def create_franchise_manager_trigger():
                     BEGIN
                         -- Check if the previous manager is still assigned to any franchise
                         UPDATE Empleados 
-                        SET Rol = 'Empleado'
+                        SET Rol = N''Empleado''
                         WHERE CI IN (
                             SELECT d.CI_Encargado 
                             FROM deleted d 
@@ -215,8 +203,8 @@ def create_franchise_manager_trigger():
                             )
                         );
                     END;
-                END;
-            END
+                END
+            ')
         END
         """
         
