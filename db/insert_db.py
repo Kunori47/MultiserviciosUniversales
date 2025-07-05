@@ -10,6 +10,7 @@ def seed_tables():
 
         # 1. Empleados
         empleados = [
+            ('V-12345670', 'Puta el Cat', 'Calle 2', '0412-0000000', 2500.00, None, 'Encargado'),
             ('V-12345678', 'Juan Pérez', 'Calle 1', '0412-0000000', 1500.00, None, 'Encargado'),
             ('V-87654321', 'María Gómez', 'Calle 2', '0412-0000001', 1200.00, None, 'Empleado'),
             ('V-23456789', 'Carlos López', 'Calle 3', '0412-0000002', 1000.00, None, 'Encargado'),
@@ -193,12 +194,12 @@ def seed_tables():
         # 17. Actividades
         cursor.execute("""
         INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad) 
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?)
         """, (1, 1, "Drenar aceite usado"))
         
         cursor.execute("""
         INSERT INTO Actividades (CodigoServicio, NumeroCorrelativoActividad, DescripcionActividad) 
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?)
         """, (1, 2, "Cambiar filtro de aceite"))
         print("✓ Actividades insertadas")
         
@@ -253,10 +254,7 @@ def seed_tables():
         # 24. Empleados en Órdenes
         empleadosordenes =  [
             ('V-12345678', 1),
-            ('V-12345670', 1),
-            ('V-12345670', 2),
-            ('V-12345670', 3),
-            ('V-12345670', 5)
+            ('V-12345670', 1)
         ]
 
         cursor.executemany("""

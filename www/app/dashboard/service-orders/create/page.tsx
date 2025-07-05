@@ -51,7 +51,6 @@ const validationSchema = Yup.object().shape({
   HoraSalidaEstimada: Yup.string().required("Hora de salida estimada es requerida"),
   CodigoVehiculo: Yup.number().required("Vehículo es requerido"),
   EmpleadosAsignados: Yup.array().min(1, "Debe asignar al menos un empleado"),
-  Comentario: Yup.string().optional(),
 });
 
 export default function CreateServiceOrderPage() {
@@ -206,7 +205,6 @@ export default function CreateServiceOrderPage() {
           FechaSalidaEstimada: values.FechaSalidaEstimada.toISOString().split('T')[0],
           HoraSalidaEstimada: values.HoraSalidaEstimada,
           CodigoVehiculo: values.CodigoVehiculo,
-          Comentario: values.Comentario,
           EmpleadosAsignados: values.EmpleadosAsignados
         }),
       });
@@ -481,20 +479,6 @@ export default function CreateServiceOrderPage() {
                     </div>
                   );
                 }}
-              </FormField>
-
-              <Divider />
-
-              <FormField label="Comentario" help="Comentarios adicionales sobre la orden">
-                {({ className }) => (
-                  <Field
-                    name="Comentario"
-                    as="textarea"
-                    rows={4}
-                    className={className}
-                    placeholder="Descripción del trabajo a realizar..."
-                  />
-                )}
               </FormField>
 
               <Divider />

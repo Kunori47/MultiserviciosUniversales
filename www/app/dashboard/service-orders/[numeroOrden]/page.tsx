@@ -132,7 +132,7 @@ export default function EmployeeOrderDetailPage() {
       await fetch(`http://127.0.0.1:8000/vehicle_maintenances/create?Vehiculo=${order.CodigoVehiculo}&FechaMantenimiento=${fechaSalidaReal}&DescripcionMantenimiento=${comentario || `Mantenimiento realizado en orden de servicio #${numeroOrden}`}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order.CodigoVehiculo),
+        body: JSON.stringify(order),
       });
       
       alert("Salida registrada y datos guardados correctamente");

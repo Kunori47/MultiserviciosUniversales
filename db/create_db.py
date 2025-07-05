@@ -322,9 +322,9 @@ def crear_base_datos():
             IDorden int,
             CodigoServicio INT,
             NumeroCorrelativoActividad INT,
-            Costo_Act DECIMAL(10, 2) NOT NULL CHECK (Costo_Act >= 0),
+            Costo_Act DECIMAL(10, 2) CHECK (Costo_Act >= 0),
             PRIMARY KEY (IDorden, CodigoServicio, NumeroCorrelativoActividad),
-            FOREIGN KEY (IDorden) REFERENCES OrdenesServicio(ID),
+            FOREIGN KEY (IDorden) REFERENCES OrdenesServicio(ID)
                 ON DELETE CASCADE
                 ON UPDATE CASCADE,
             FOREIGN KEY (CodigoServicio, NumeroCorrelativoActividad) REFERENCES Actividades(CodigoServicio, NumeroCorrelativoActividad)

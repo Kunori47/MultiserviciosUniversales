@@ -972,22 +972,22 @@ async def get_vehicle_maintenances():
     return GetController().get_all(table_name="MantenimientosVehiculos")
 
 @router.get("/vehicle_maintenances/{vehiculo}/{fecha_mantenimiento}", tags=["Mantenimiento de Vehículos"], response_model=VehicleMaintenance)
-async def get_vehicle_maintenance_by_code(vehiculo: int, fecha_mantenimiento: date):
+async def get_vehicle_maintenance_by_code(vehiculo: int, fecha_mantenimiento: str):
     vehicle_maintenance = GetController().get_by_id(table_name="MantenimientosVehiculos", Vehiculo=vehiculo, FechaMantenimiento=fecha_mantenimiento)
     if not vehicle_maintenance:
         raise HTTPException(status_code=404, detail="Mantenimiento de Vehículo not found")
     return vehicle_maintenance
 
 @router.post("/vehicle_maintenances/create", tags=["Mantenimiento de Vehículos"], response_model=dict)
-async def create_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: date, DescripcionMantenimiento: str):
+async def create_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: str, DescripcionMantenimiento: str):
     return PostController().post_data(table_name="MantenimientosVehiculos", data={
         "Vehiculo": Vehiculo,
         "FechaMantenimiento": FechaMantenimiento,
-        "Descripcion": DescripcionMantenimiento
+        "DescripcionMantenimiento": DescripcionMantenimiento
         })
 
 @router.delete("/vehicle_maintenances/delete", tags=["Mantenimiento de Vehículos"], response_model=dict)
-async def delete_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: date):
+async def delete_vehicle_maintenance(Vehiculo: int, FechaMantenimiento: str):
     return DeleteController().delete_data(table_name="MantenimientosVehiculos", Vehiculo=Vehiculo, FechaMantenimiento=FechaMantenimiento)
 
 
