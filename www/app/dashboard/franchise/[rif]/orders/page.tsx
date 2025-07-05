@@ -7,6 +7,7 @@ import {
   mdiCalendar,
   mdiPlus,
   mdiTrashCan,
+  mdiReceipt,
 } from "@mdi/js";
 import Button from "../../../../_components/Button";
 import Divider from "../../../../_components/Divider";
@@ -130,7 +131,9 @@ export default function OrdersPage() {
   };
 
   const getStatusColor = (status: string) => {
-    return status === "Completado" ? "success" : "warning";
+    if (status === "Completado") return "success";
+    if (status === "A Facturar") return "info";
+    return "warning";
   };
 
   const formatDate = (dateString: string) => {
@@ -220,6 +223,7 @@ export default function OrdersPage() {
                   >
                     <option value="todos">Todos</option>
                     <option value="En Proceso">En Proceso</option>
+                    <option value="A Facturar">A Facturar</option>
                     <option value="Completado">Completado</option>
                   </select>
                 </div>
@@ -237,7 +241,7 @@ export default function OrdersPage() {
 
           {/* Estadísticas */}
           {orderStats && estado === "todos" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <CardBox className="text-center bg-blue-50">
                 <h4 className="text-lg font-semibold text-blue-800 mb-2">Total Órdenes</h4>
                 <div className="text-2xl font-bold text-blue-600">
@@ -248,6 +252,12 @@ export default function OrdersPage() {
                 <h4 className="text-lg font-semibold text-green-800 mb-2">Órdenes Completadas</h4>
                 <div className="text-2xl font-bold text-green-600">
                   {orderStats.OrdenesCompletadas || 0}
+                </div>
+              </CardBox>
+              <CardBox className="text-center bg-cyan-50">
+                <h4 className="text-lg font-semibold text-cyan-800 mb-2">A Facturar</h4>
+                <div className="text-2xl font-bold text-cyan-600">
+                  {orderStats.OrdenesAFacturar || 0}
                 </div>
               </CardBox>
               <CardBox className="text-center bg-yellow-50">
@@ -308,6 +318,8 @@ export default function OrdersPage() {
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             order.Estado === "Completado" 
                               ? "bg-green-100 text-green-800" 
+                              : order.Estado === "A Facturar"
+                              ? "bg-blue-100 text-blue-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}>
                             {order.Estado}
@@ -328,6 +340,16 @@ export default function OrdersPage() {
                               href={`/dashboard/franchise/${rif}/orders/${order.NumeroOrden}`}
                               icon={mdiInformation}
                             />
+                            {order.Estado === "A Facturar" && (
+                              <Button
+                                color="success"
+                                outline
+                                small
+                                href={`/dashboard/franchise/${rif}/orders/${order.NumeroOrden}/generate-invoice`}
+                                icon={mdiReceipt}
+                                label="Generar Factura"
+                              />
+                            )}
                             {(!order.FechaSalidaReal && !order.HoraSalidaReal) && (
                               <Button
                                 color="danger"

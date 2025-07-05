@@ -311,6 +311,13 @@ async def customer_frequency(mes: Optional[int] = None, anio: Optional[int] = No
 async def customer_total_frequency():
     return GetController().get_customer_total_frequency()
 
+@router.get("/customer/{CI}/frequency_last_3_months", tags=["Cliente"])
+async def customer_frequency_last_3_months(CI: str):
+    """
+    Get customer visit frequency for the last 3 months
+    """
+    return {"frequency": GetController().get_customer_frequency_last_3_months(CI)}
+
 @router.get("/customer/{CI}", tags=["Cliente"], response_model=Customer)
 async def read_customer_by_ci(CI: str):
     customer = GetController().get_by_id(table_name="Clientes", CI=CI)
@@ -635,6 +642,13 @@ async def get_pending_service_orders_by_employee(CI: str):
     """
     return GetController().get_pending_service_orders_by_employee(CI)
 
+@router.get("/service_order/{NumeroOrden}/services", tags=["Orden de Servicio"])
+async def get_services_by_order(NumeroOrden: int):
+    """
+    Devuelve todos los servicios y actividades de una orden específica con sus precios y subtotales.
+    """
+    return GetController().get_services_by_order(NumeroOrden)
+
 
 " Factura Endpoints "
 
@@ -659,6 +673,19 @@ async def create_invoice(factura: Invoice):
         "OrdenServicioID": factura.OrdenServicioID,
         "FranquiciaRIF": factura.FranquiciaRIF
     })
+
+@router.post("/invoice/create_with_payments", tags=["Factura"], response_model=dict)
+async def create_invoice_with_payments(invoice_data: dict):
+    """
+    Create an invoice with multiple payment methods
+    invoice_data should contain:
+    - NumeroOrden: int
+    - FranquiciaRIF: string
+    - FechaFactura: string
+    - MontoTotal: float
+    - MetodosPago: list of dict with Metodo, Cantidad, Descripcion
+    """
+    return PostController().create_invoice_with_payments(invoice_data)
 
 @router.get("/invoice/franchise/{FranquiciaRIF}", tags=["Factura"])
 async def get_invoices_by_franchise(FranquiciaRIF: str, mes: Optional[int] = None, anio: Optional[int] = None):

@@ -136,6 +136,20 @@ export default function ProfitabilityPage() {
     return invoices.reduce((total, invoice) => total + (invoice.Descuento || 0), 0);
   };
 
+  const getDiscountSummary = () => {
+    const discountCounts = invoices.reduce((acc, invoice) => {
+      const discount = invoice.Descuento || 0;
+      if (discount > 0) {
+        acc[discount] = (acc[discount] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<number, number>);
+    
+    return Object.entries(discountCounts)
+      .map(([percentage, count]) => `${percentage}%: ${count} facturas`)
+      .join(', ');
+  };
+
   const fetchInvoiceDetails = async (numeroFactura: number) => {
     setLoadingDetails(true);
     try {
@@ -259,9 +273,9 @@ export default function ProfitabilityPage() {
                 </div>
               </CardBox>
               <CardBox className="text-center bg-purple-50">
-                <h4 className="text-lg font-semibold text-purple-800 mb-2">Total Descuentos</h4>
-                <div className="text-2xl font-bold text-purple-600">
-                  {formatCurrency(calculateTotalDiscount())}
+                <h4 className="text-lg font-semibold text-purple-800 mb-2">Resumen de Descuentos</h4>
+                <div className="text-sm font-semibold text-purple-600">
+                  {getDiscountSummary() || 'Sin descuentos aplicados'}
                 </div>
               </CardBox>
             </div>
@@ -326,7 +340,7 @@ export default function ProfitabilityPage() {
                           {formatCurrency(invoice.IVA)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
-                          {formatCurrency(invoice.Descuento)}
+                          {invoice.Descuento > 0 ? `${invoice.Descuento}%` : '0%'}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
                           #{invoice.NumeroOrden}
@@ -396,7 +410,7 @@ export default function ProfitabilityPage() {
                         </div>
                         <div>
                           <span className="text-sm font-medium text-gray-600">Descuento:</span>
-                          <p className="text-lg font-semibold text-red-600">{formatCurrency(selectedInvoice.Descuento)}</p>
+                          <p className="text-lg font-semibold text-red-600">{selectedInvoice.Descuento > 0 ? `${selectedInvoice.Descuento}%` : '0%'}</p>
                         </div>
                       </div>
                     </CardBox>
@@ -464,6 +478,8 @@ export default function ProfitabilityPage() {
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             selectedInvoice.EstadoOrden === "Completado" 
                               ? "bg-green-100 text-green-800" 
+                              : selectedInvoice.EstadoOrden === "A Facturar"
+                              ? "bg-blue-100 text-blue-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}>
                             {selectedInvoice.EstadoOrden}

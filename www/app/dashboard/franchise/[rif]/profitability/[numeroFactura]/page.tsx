@@ -105,10 +105,10 @@ export default function InvoiceDetailsPage() {
                   <span className="text-sm font-medium text-gray-600">IVA:</span>
                   <p className="text-lg font-semibold">{formatCurrency(selectedInvoice.IVA)}</p>
                 </div>
-                <div>
-                  <span className="text-sm font-medium text-gray-600">Descuento:</span>
-                  <p className="text-lg font-semibold text-red-600">{formatCurrency(selectedInvoice.Descuento)}</p>
-                </div>
+                                        <div>
+                          <span className="text-sm font-medium text-gray-600">Descuento:</span>
+                          <p className="text-lg font-semibold text-red-600">{selectedInvoice.Descuento > 0 ? `${selectedInvoice.Descuento}%` : '0%'}</p>
+                        </div>
               </div>
             </CardBox>
 
@@ -175,6 +175,8 @@ export default function InvoiceDetailsPage() {
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     selectedInvoice.EstadoOrden === "Completado" 
                       ? "bg-green-100 text-green-800" 
+                      : selectedInvoice.EstadoOrden === "A Facturar"
+                      ? "bg-blue-100 text-blue-800"
                       : "bg-yellow-100 text-yellow-800"
                   }`}>
                     {selectedInvoice.EstadoOrden}

@@ -131,7 +131,7 @@ class Invoice(BaseModel):
     FechaEmision: str = Field(..., description="The issue date of the invoice")
     MontoTotal: float = Field(..., description="The total amount of the invoice")
     IVA: float = Field(..., description="The VAT amount of the invoice")
-    Descuento: float = Field(..., description="The discount amount of the invoice")
+    Descuento: int = Field(..., description="The discount percentage of the invoice")
     OrdenServicioID: int = Field(..., description="The service order ID associated with the invoice")
     FranquiciaRIF: str = Field(..., description="The franchise RIF associated with the invoice")
 

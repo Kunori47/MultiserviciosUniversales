@@ -597,7 +597,8 @@ def crear_base_datos():
         
         # Contar tablas creadas
         cursor.execute("SELECT COUNT(*) FROM sys.tables")
-        total_tablas = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        total_tablas = result[0] if result else 0
         
         print(f"\n Base de datos 'MultiserviciosUniversal' creada exitosamente con {total_tablas} tablas.")
         
@@ -622,6 +623,160 @@ def crear_base_datos():
         if 'conn' in locals():
             conn.close()
 
+def crear_roles_y_permisos():
+    """
+    Crea roles nativos de SQL Server y asigna permisos a las tablas
+    """
+    try:
+        conn = pyodbc.connect(
+            "Driver={SQL Server};"
+            "Server=KUNORI\SQLEXPRESS;"
+            "Database=MultiserviciosUniversal;"
+            "Trusted_Connection=yes;"
+        )
+        cursor = conn.cursor()
+        
+        print("\n Creando roles y asignando permisos...")
+        print("=" * 50)
+        
+        # 1. Crear roles
+        roles = [
+            ("Administrador", "Rol con acceso completo a todas las funcionalidades del sistema"),
+            ("Encargado", "Rol para gestión de empleados y operaciones diarias"),
+            ("Empleado", "Rol con acceso básico para realizar tareas asignadas")
+        ]
+        
+        for nombre_rol, descripcion in roles:
+            try:
+                cursor.execute(f"""
+                IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '{nombre_rol}')
+                CREATE ROLE [{nombre_rol}]
+                """)
+                print(f"✓ Rol '{nombre_rol}' creado")
+            except Exception as e:
+                print(f"⚠️  Error creando rol '{nombre_rol}': {e}")
+        
+        # 2. Asignar permisos por rol
+        
+        # Administrador - Acceso completo a todas las tablas
+        print("\n Asignando permisos al Administrador...")
+        tablas_completas = [
+            "Franquicias", "Empleados", "Especialidades", "Servicios", "LineasSuministro",
+            "Productos", "Proveedores", "Clientes", "Marcas", "Modelos", "Vehiculos",
+            "PlanesMantenimiento", "OrdenesServicio", "Facturas", "Compras", "ProductosFranquicia",
+            "Correcciones", "Actividades", "OrdenesActividades", "Pagos", "Suministros",
+            "AumentosInventario", "ServiciosFranquicias", "ProductosOrdenesServicio",
+            "EspecialidadesEmpleados", "ResponsabilidadesEmpleados", "EmpleadosOrdenes",
+            "TelefonosClientes", "MantenimientosVehiculos"
+        ]
+        
+        for tabla in tablas_completas:
+            try:
+                cursor.execute(f"GRANT SELECT, INSERT, UPDATE, DELETE ON [{tabla}] TO [Administrador]")
+            except Exception as e:
+                print(f"⚠️  Error asignando permisos a {tabla}: {e}")
+        
+        # Encargado - Permisos de gestión operativa
+        print(" Asignando permisos al Encargado...")
+        tablas_encargado = [
+            "Empleados", "ProductosFranquicia", "OrdenesServicio", "Facturas", 
+            "Compras", "AumentosInventario", "Correcciones", "EmpleadosOrdenes",
+            "Clientes", "Vehiculos", "Servicios", "Actividades", "Pagos"
+        ]
+        
+        for tabla in tablas_encargado:
+            try:
+                cursor.execute(f"GRANT SELECT, INSERT, UPDATE ON [{tabla}] TO [Encargado]")
+            except Exception as e:
+                print(f"⚠️  Error asignando permisos a {tabla}: {e}")
+        
+        # Empleado - Permisos básicos de lectura y algunas operaciones
+        print(" Asignando permisos al Empleado...")
+        tablas_empleado = [
+            "Empleados", "ProductosFranquicia", "OrdenesServicio", "Facturas", 
+            "Clientes", "Vehiculos", "Servicios", "Actividades", "Pagos"
+        ]
+        
+        for tabla in tablas_empleado:
+            try:
+                cursor.execute(f"GRANT SELECT ON [{tabla}] TO [Empleado]")
+                if tabla in ["OrdenesServicio", "Facturas", "Pagos"]:
+                    cursor.execute(f"GRANT INSERT, UPDATE ON [{tabla}] TO [Empleado]")
+            except Exception as e:
+                print(f"⚠️  Error asignando permisos a {tabla}: {e}")
+        
+        # 3. Asignar permisos a las vistas
+        print("\n Asignando permisos a las vistas...")
+        vistas = [
+            "Vista_GastoMensualPorFranquicia",
+            "Vista_MontoGeneradoPorFranquiciaMesAnio", 
+            "Vista_CantidadOrdenesPorFranquiciaMesAnio",
+            "Vista_ResumenMensualFranquiciaSimple"
+        ]
+        
+        for vista in vistas:
+            try:
+                cursor.execute(f"GRANT SELECT ON [{vista}] TO [Administrador]")
+                cursor.execute(f"GRANT SELECT ON [{vista}] TO [Encargado]")
+                cursor.execute(f"GRANT SELECT ON [{vista}] TO [Empleado]")
+            except Exception as e:
+                print(f"⚠️  Error asignando permisos a vista {vista}: {e}")
+        
+        # 4. Crear usuarios de prueba y asignar roles
+        print("\n Creando usuarios de prueba...")
+        usuarios_prueba = [
+            ("admin_user", "Administrador"),
+            ("juan_enc", "Encargado"),
+            ("maria_emp", "Empleado")
+        ]
+        
+        for username, rol in usuarios_prueba:
+            try:
+                # Crear login si no existe
+                cursor.execute(f"""
+                IF NOT EXISTS (SELECT name FROM sys.server_principals WHERE name = '{username}')
+                CREATE LOGIN [{username}] WITH PASSWORD = 'Password123!'
+                """)
+                
+                # Crear usuario en la base de datos
+                cursor.execute(f"""
+                IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = '{username}')
+                CREATE USER [{username}] FOR LOGIN [{username}]
+                """)
+                
+                # Asignar rol
+                cursor.execute(f"ALTER ROLE [{rol}] ADD MEMBER [{username}]")
+                print(f"✓ Usuario '{username}' creado y asignado al rol '{rol}'")
+                
+            except Exception as e:
+                print(f"⚠️  Error creando usuario '{username}': {e}")
+        
+        # Confirmar transacción
+        conn.commit()
+        print("\n✅ Roles y permisos creados exitosamente!")
+        
+        # Mostrar resumen de roles creados
+        cursor.execute("""
+        SELECT name, type_desc 
+        FROM sys.database_principals 
+        WHERE type = 'R' AND name NOT LIKE 'db_%'
+        ORDER BY name
+        """)
+        roles_creados = cursor.fetchall()
+        
+        print(f"\n Roles creados ({len(roles_creados)}):")
+        for rol in roles_creados:
+            print(f"  - {rol[0]}")
+        
+        conn.close()
+        
+    except Exception as e:
+        print(f"❌ Error creando roles y permisos: {e}")
+        if 'conn' in locals():
+            conn.rollback()
+            conn.close()
+        raise
+
 def verificar_base_datos():
     """
     Verifica que la base de datos se haya creado correctamente
@@ -645,7 +800,8 @@ def verificar_base_datos():
             SUM(size) * 8 / 1024 as SizeMB
         FROM sys.database_files
         """)
-        size_mb = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        size_mb = result[0] if result else 0
         
         print(f"\n✅ Verificación exitosa:")
         print(f"Base de datos: MultiserviciosUniversal")
@@ -665,6 +821,7 @@ if __name__ == "__main__":
     
     try:
         crear_base_datos()
+        crear_roles_y_permisos()
         verificar_base_datos()
         print("=" * 70)
         print("\n✅ Proceso de creacion completado exitosamente!")

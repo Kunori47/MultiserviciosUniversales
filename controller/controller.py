@@ -140,6 +140,9 @@ class GetController:
     def get_customer_total_frequency(self):
         return self.get_service.getCustomerTotalFrequency()
 
+    def get_customer_frequency_last_3_months(self, customer_ci: str):
+        return self.get_service.getCustomerFrequencyLast3Months(customer_ci)
+
     def get_orders_by_vehicle(self, codigo_vehiculo: int):
         return self.get_service.getOrdersByVehicle(codigo_vehiculo)
 
@@ -154,6 +157,9 @@ class GetController:
 
     def get_activities_by_order(self, id_orden: int):
         return self.get_service.getActivitiesByOrder(id_orden)
+
+    def get_services_by_order(self, numero_orden: int):
+        return self.get_service.getServicesByOrder(numero_orden)
 
 class PostController:
     def __init__(self):
@@ -184,6 +190,11 @@ class PostController:
         if not service_order_data:
             raise HTTPException(status_code=400, detail="No service order data provided")
         return self.post_service.createServiceOrderWithEmployees(service_order_data)
+
+    def create_invoice_with_payments(self, invoice_data: dict):
+        if not invoice_data:
+            raise HTTPException(status_code=400, detail="No invoice data provided")
+        return self.post_service.createInvoiceWithPayments(invoice_data)
 
 class UpdateController:
     def __init__(self):

@@ -285,7 +285,8 @@ class GetService:
                     c.CI as CI_Cliente,
                     c.NombreCompleto as NombreCliente,
                     CASE 
-                        WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL THEN 'A Facturar'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL THEN 'Completado'
                         ELSE 'En Proceso'
                     END as Estado
                 FROM EmpleadosOrdenes eo
@@ -293,6 +294,7 @@ class GetService:
                 INNER JOIN Empleados e ON eo.EmpleadoCI = e.CI
                 INNER JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
                 INNER JOIN Clientes c ON v.CedulaCliente = c.CI
+                LEFT JOIN Facturas f ON os.ID = f.OrdenServicioID
                 WHERE e.FranquiciaRIF = ?
             """
             params = [franquicia_rif]
@@ -303,7 +305,9 @@ class GetService:
             
             if estado is not None:
                 if estado == "Completado":
-                    query += " AND os.FechaSalidaReal IS NOT NULL"
+                    query += " AND os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL"
+                elif estado == "A Facturar":
+                    query += " AND os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL"
                 elif estado == "En Proceso":
                     query += " AND os.FechaSalidaReal IS NULL"
             
@@ -322,11 +326,13 @@ class GetService:
             query = """
                 SELECT 
                     COUNT(DISTINCT os.ID) as TotalOrdenes,
-                    COUNT(DISTINCT CASE WHEN os.FechaSalidaReal IS NOT NULL THEN os.ID END) as OrdenesCompletadas,
+                    COUNT(DISTINCT CASE WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL THEN os.ID END) as OrdenesCompletadas,
+                    COUNT(DISTINCT CASE WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL THEN os.ID END) as OrdenesAFacturar,
                     COUNT(DISTINCT CASE WHEN os.FechaSalidaReal IS NULL THEN os.ID END) as OrdenesEnProceso
                 FROM EmpleadosOrdenes eo
                 INNER JOIN OrdenesServicio os ON eo.OrdenServicioID = os.ID
                 INNER JOIN Empleados e ON eo.EmpleadoCI = e.CI
+                LEFT JOIN Facturas f ON os.ID = f.OrdenServicioID
                 WHERE e.FranquiciaRIF = ?
             """
             params = [franquicia_rif]
@@ -340,7 +346,7 @@ class GetService:
             columns = [column[0] for column in database.description]
             result = database.fetchone()
             if not result:
-                return {"TotalOrdenes": 0, "OrdenesCompletadas": 0, "OrdenesEnProceso": 0}
+                return {"TotalOrdenes": 0, "OrdenesCompletadas": 0, "OrdenesAFacturar": 0, "OrdenesEnProceso": 0}
             return dict(zip(columns, result))
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error fetching order stats: {str(e)}")
@@ -363,7 +369,8 @@ class GetService:
                     c.NombreCompleto as NombreCliente,
                     v.Placa,
                     CASE 
-                        WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL THEN 'A Facturar'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL THEN 'Completado'
                         ELSE 'En Proceso'
                     END as Estado
                 FROM EmpleadosOrdenes eo
@@ -371,6 +378,7 @@ class GetService:
                 INNER JOIN Empleados e ON eo.EmpleadoCI = e.CI
                 INNER JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
                 INNER JOIN Clientes c ON v.CedulaCliente = c.CI
+                LEFT JOIN Facturas f ON os.ID = f.OrdenServicioID
                 WHERE e.FranquiciaRIF = ? AND os.ID = ?
             """
             
@@ -503,7 +511,8 @@ class GetService:
                     m.DescripcionModelo,
                     b.Nombre as NombreMarca,
                     CASE 
-                        WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f2.NumeroFactura IS NULL THEN 'A Facturar'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f2.NumeroFactura IS NOT NULL THEN 'Completado'
                         ELSE 'En Proceso'
                     END as EstadoOrden
                 FROM Facturas f
@@ -514,6 +523,7 @@ class GetService:
                 INNER JOIN Modelos m ON v.CodigoMarca = m.CodigoMarca AND v.NumeroCorrelativoModelo = m.NumeroCorrelativoModelo
                 INNER JOIN Marcas b ON m.CodigoMarca = b.CodigoMarca
                 INNER JOIN Clientes c ON v.CedulaCliente = c.CI
+                LEFT JOIN Facturas f2 ON os.ID = f2.OrdenServicioID
                 WHERE f.FranquiciaRIF = ? AND f.NumeroFactura = ?
             """
             
@@ -886,6 +896,27 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error fetching customer total frequency: {str(e)}")
 
+    def getCustomerFrequencyLast3Months(self, customer_ci: str):
+        """
+        Get customer visit frequency for the last 3 months
+        Returns the total number of visits in the last 3 months
+        """
+        try:
+            query = '''
+                SELECT COUNT(os.ID) AS FrecuenciaUltimos3Meses
+                FROM Clientes c
+                LEFT JOIN Vehiculos v ON c.CI = v.CedulaCliente
+                LEFT JOIN OrdenesServicio os ON v.CodigoVehiculo = os.CodigoVehiculo
+                WHERE c.CI = ? 
+                  AND os.FechaEntrada >= DATEADD(MONTH, -3, GETDATE())
+                  AND os.FechaEntrada <= GETDATE()
+            '''
+            database.execute(query, (customer_ci,))
+            result = database.fetchone()
+            return result[0] if result else 0
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching customer frequency for last 3 months: {str(e)}")
+
     def getOrdersByVehicle(self, codigo_vehiculo: int):
         try:
             query = '''
@@ -901,12 +932,14 @@ class GetService:
                        c.CI as CI_Cliente,
                        c.NombreCompleto as NombreCliente,
                        CASE 
-                           WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                           WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL THEN 'A Facturar'
+                           WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL THEN 'Completado'
                            ELSE 'En Proceso'
                        END as Estado
                 FROM OrdenesServicio os
                 INNER JOIN Vehiculos v ON os.CodigoVehiculo = v.CodigoVehiculo
                 INNER JOIN Clientes c ON v.CedulaCliente = c.CI
+                LEFT JOIN Facturas f ON os.ID = f.OrdenServicioID
                 WHERE os.CodigoVehiculo = ?
                 ORDER BY os.FechaEntrada DESC
             '''
@@ -981,11 +1014,13 @@ class GetService:
                     os.HoraSalidaEstimada,
                     os.Comentario,
                     CASE 
-                        WHEN os.FechaSalidaReal IS NOT NULL THEN 'Completado'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NULL THEN 'A Facturar'
+                        WHEN os.FechaSalidaReal IS NOT NULL AND f.NumeroFactura IS NOT NULL THEN 'Completado'
                         ELSE 'En Proceso'
                     END as Estado
                 FROM EmpleadosOrdenes eo
                 INNER JOIN OrdenesServicio os ON eo.OrdenServicioID = os.ID
+                LEFT JOIN Facturas f ON os.ID = f.OrdenServicioID
                 WHERE eo.EmpleadoCI = ?
                   AND os.FechaSalidaReal IS NULL
                   AND os.HoraSalidaReal IS NULL
@@ -1014,6 +1049,28 @@ class GetService:
             return results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error obteniendo actividades de la orden: {str(e)}")
+
+    def getServicesByOrder(self, numero_orden: int):
+        try:
+            query = '''
+                SELECT 
+                    oa.NumeroCorrelativoActividad,
+                    oa.CodigoServicio,
+                    s.NombreServicio,
+                    oa.Costo_Act as PrecioUnitario,
+                    1 as Cantidad,
+                    oa.Costo_Act as Subtotal
+                FROM OrdenesActividades oa
+                INNER JOIN Servicios s ON oa.CodigoServicio = s.CodigoServicio
+                WHERE oa.IDorden = ?
+                ORDER BY s.NombreServicio, oa.NumeroCorrelativoActividad
+            '''
+            database.execute(query, (numero_orden,))
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error obteniendo servicios de la orden: {str(e)}")
 
 class PostService:
     def postData(self, table_name: str, data: dict):
@@ -1171,6 +1228,91 @@ class PostService:
             # Revertir transacción en caso de error
             database.execute("ROLLBACK")
             raise HTTPException(status_code=500, detail=f"Error creating service order: {str(e)}")
+
+    def createInvoiceWithPayments(self, invoice_data: dict):
+        try:
+            # Extraer datos de la factura
+            numero_orden = invoice_data.get('NumeroOrden')
+            franquicia_rif = invoice_data.get('FranquiciaRIF')
+            fecha_factura = invoice_data.get('FechaFactura')
+            monto_total = invoice_data.get('MontoTotal')
+            metodos_pago = invoice_data.get('MetodosPago', [])
+            porcentaje_descuento = invoice_data.get('PorcentajeDescuento', 0)  # Porcentaje de descuento
+            monto_iva = invoice_data.get('MontoIVA', 0)  # Monto del IVA calculado en el frontend
+
+            # Usar el IVA calculado en el frontend o calcularlo si no se proporciona
+            iva = monto_iva if monto_iva > 0 else (monto_total or 0) * 0.15
+            descuento = porcentaje_descuento  # Guardar el porcentaje de descuento
+
+            # Insertar la factura
+            database.execute("""
+                INSERT INTO Facturas (FechaEmision, MontoTotal, IVA, Descuento, OrdenServicioID, FranquiciaRIF)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (fecha_factura, monto_total, iva, descuento, numero_orden, franquicia_rif))
+            
+            # Obtener el número de factura recién creada
+            database.execute("SELECT @@IDENTITY")
+            result = database.fetchone()
+            numero_factura = result[0] if result else None
+            
+            # Verificar que se obtuvo un número de factura válido
+            if not numero_factura:
+                raise HTTPException(status_code=500, detail="No se pudo obtener el número de factura")
+            
+            # Insertar los métodos de pago
+            for i, metodo_pago in enumerate(metodos_pago):
+                numero_correlativo = i + 1
+                tipo = metodo_pago.get('Metodo')
+                cantidad = metodo_pago.get('Cantidad')
+                descripcion = metodo_pago.get('Descripcion', '')
+
+                # Determinar qué campos llenar según el tipo de pago según el modelo Pay
+                if tipo == 'Efectivo':
+                    # Campos específicos para pago en efectivo
+                    monto_efectivo = metodo_pago.get('MontoEfectivo', cantidad)
+                    moneda_efectivo = metodo_pago.get('MonedaEfectivo', 'Dolar')  # Sin acento según la constraint
+                    
+                    database.execute("""
+                        INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, MontoEfectivo, MonedaEfectivo)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (numero_factura, numero_correlativo, tipo, monto_efectivo, moneda_efectivo))
+                    
+                elif tipo == 'Tarjeta':
+                    # Campos específicos para pago con tarjeta
+                    fecha_tarjeta = metodo_pago.get('FechaTarjeta') or fecha_factura  # Usar fecha de factura si no hay fecha específica
+                    monto_tarjeta = metodo_pago.get('MontoTarjeta', cantidad)
+                    banco_tarjeta = metodo_pago.get('BancoTarjeta') or 'Banco Nacional'  # Valor por defecto
+                    modalidad_tarjeta = metodo_pago.get('ModalidadTarjeta') or 'Ahorro'  # Valor por defecto
+                    numero_tarjeta = metodo_pago.get('NumeroTarjeta') or '1234567890123456'  # Valor por defecto
+                    
+                    database.execute("""
+                        INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, FechaTarjeta, MontoTarjeta, BancoTarjeta, ModalidadTarjeta, NumeroTarjeta)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (numero_factura, numero_correlativo, tipo, fecha_tarjeta, monto_tarjeta, banco_tarjeta, modalidad_tarjeta, numero_tarjeta))
+                    
+                elif tipo == 'Pago Móvil':
+                    # Campos específicos para pago móvil
+                    fecha_pago_movil = metodo_pago.get('FechaPagoMovil') or fecha_factura  # Usar fecha de factura si no hay fecha específica
+                    telefono_pago_movil = metodo_pago.get('TelefonoPagoMovil') or '04121234567'  # Valor por defecto
+                    referencia_pago_movil = metodo_pago.get('ReferenciaPagoMovil') or 'REF001'  # Valor por defecto
+                    monto_pago_movil = metodo_pago.get('MontoPagoMovil', cantidad)
+                    
+                    database.execute("""
+                        INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, FechaPagoMovil, TelefonoPagoMovil, ReferenciaPagoMovil, MontoPagoMovil)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (numero_factura, numero_correlativo, tipo, fecha_pago_movil, telefono_pago_movil, referencia_pago_movil, monto_pago_movil))
+                    
+                else:  # Método no reconocido, usar efectivo como fallback
+                    database.execute("""
+                        INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, MontoEfectivo, MonedaEfectivo)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (numero_factura, numero_correlativo, tipo, cantidad, 'Dolar'))
+            
+            conn.commit()
+            return {"message": "Invoice created successfully", "numero_factura": numero_factura}
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error creating invoice: {str(e)}")
 
 class DeleteService:
     def deleteData(self, table_name: str, **filters):
