@@ -222,7 +222,7 @@ export default function InfoPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 <div className="text-center p-6 bg-blue-50 rounded-xl shadow-md">
-                  <h4 className="text-lg font-semibold text-blue-800 mb-3">Servicios Realizados</h4>
+                  <h4 className="text-lg font-semibold text-blue-800 mb-3">Ordenes de Servicio</h4>
                   <div className="text-3xl font-bold text-blue-600 mb-2">
                     {infofranq && infofranq.length > 0 ? infofranq[0].CantidadOrdenes : "0"}
                   </div>
@@ -239,7 +239,7 @@ export default function InfoPage() {
                 </div>
 
                 <div className="text-center p-6 bg-green-50 rounded-xl shadow-md">
-                  <h4 className="text-lg font-semibold text-green-800 mb-3">Dinero Generado</h4>
+                  <h4 className="text-lg font-semibold text-green-800 mb-3">Facturas</h4>
                   <div className="text-3xl font-bold text-green-600 mb-2">
                     ${infofranq && infofranq.length > 0 ? infofranq[0].MontoGenerado : "0"}
                   </div>
@@ -256,7 +256,7 @@ export default function InfoPage() {
                 </div>
 
                 <div className="text-center p-6 bg-red-50 rounded-xl shadow-md">
-                  <h4 className="text-lg font-semibold text-red-800 mb-3">Gastos en compras</h4>
+                  <h4 className="text-lg font-semibold text-red-800 mb-3">Compras</h4>
                   <div className="text-3xl font-bold text-red-600 mb-2">
                     ${infofranq && infofranq.length > 0 ? infofranq[0].GastoTotal : "0"}
                   </div>

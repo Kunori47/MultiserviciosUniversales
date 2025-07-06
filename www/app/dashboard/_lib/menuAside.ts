@@ -36,52 +36,47 @@ const menuAside: MenuAsideItem[] = [
   {
     href: "/dashboard",
     icon: mdiEarth,
-    label: "🌱 Dashboard Ecológico",
+    label: "Dashboard Ecológico",
   },
   {
     href: "/dashboard/franchise",
     icon: mdiStore,
-    label: "🏪 Franquicias",
+    label: "Franquicias",
   },
   {
     href: "/dashboard/products",
-    label: "🌿 Productos",
+    label: "Productos",
     icon: mdiPackageVariant,
   },
   {
     href: "/dashboard/brands",
-    label: "🚗 Marcas",
+    label: "Marcas",
     icon: mdiCarMultiple,
   },
   {
     href: "/dashboard/specialty",
-    label: "🏷️ Especialidades",
+    label: "Especialidades",
     icon: mdiTagOutline,
   },
   {
     href: "/dashboard/supplier-line",
-    label: "📦 Líneas de Suministro",
+    label: "Líneas de Suministro",
     icon: mdiPackage,
   },
   {
     href: "/dashboard/vendor",
-    label: "🚛 Proveedores",
+    label: "Proveedores",
     icon: mdiTruckDelivery,
   },
   {
     href: "/dashboard/customer",
-    label: "👥 Clientes",
+    label: "Clientes",
     icon: mdiAccountMultiple,
   },
   {
     href: "/dashboard/vehicle",
-    label: "🚙 Vehículos",
+    label: "Vehículos",
     icon: mdiCar,
-  },
-  {
-    href: "/dashboard/service-orders",
-    label: "🔧 Órdenes de Servicio",
-    icon: mdiWrench,
   },
 ];
 

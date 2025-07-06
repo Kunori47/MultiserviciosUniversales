@@ -464,8 +464,6 @@ export default function GenerateInvoicePage() {
                 <option value="">Seleccionar modalidad</option>
                 <option value="Ahorro">Ahorro</option>
                 <option value="Corriente">Corriente</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Débito">Débito</option>
               </select>
             </div>
             <div>

@@ -1,6 +1,6 @@
 from db.database import conn, cursor
 from db.insert_db import seed_tables
-from db.create_trigger import create_inventory_trigger, create_correction_trigger, create_service_order_trigger, create_franchise_manager_trigger
+from db.create_trigger import create_assign_franquicia_to_manager_trigger, create_inventory_trigger, create_correction_trigger, create_service_order_trigger, create_franchise_manager_trigger
 import pyodbc
 
 def crear_base_datos():
@@ -476,7 +476,7 @@ def crear_base_datos():
                         ON DELETE NO ACTION
                         ON UPDATE CASCADE,
                     FOREIGN KEY (OrdenServicioID) REFERENCES OrdenesServicio(ID)
-                        ON DELETE NO ACTION
+                        ON DELETE CASCADE
                         ON UPDATE CASCADE
                 )
             """),
@@ -824,6 +824,7 @@ if __name__ == "__main__":
         create_correction_trigger()
         create_service_order_trigger()
         create_franchise_manager_trigger()
+        create_assign_franquicia_to_manager_trigger()
         seed_tables()
         
         print("\n✅Proceso completado exitosamente!")

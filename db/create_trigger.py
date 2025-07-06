@@ -305,4 +305,5 @@ if __name__ == "__main__":
     create_inventory_trigger()
     create_correction_trigger()
     create_service_order_trigger()
-    create_franchise_manager_trigger() 
+    create_franchise_manager_trigger()
+    create_assign_franquicia_to_manager_trigger()

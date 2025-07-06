@@ -137,14 +137,11 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
           <tr>
             <th>Código</th>
             <th>Nombre del Servicio</th>
-            <th>Responsables</th>
             <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {servicesPaginated.map((service: Service) => {
-            const responsibilities = serviceResponsibilities[service.CodigoServicio] || [];
-            
             return (
             <tr key={service.CodigoServicio}>
               <td data-label="Código">
@@ -153,34 +150,6 @@ const TableServices = ({ services, rif, onDelete }: Props) => {
                 </span>
               </td>
               <td data-label="Nombre del Servicio">{service.NombreServicio}</td>
-                <td data-label="Responsables">
-                  {loadingResponsibilities ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                      <span className="text-sm text-gray-500">Cargando...</span>
-                    </div>
-                  ) : responsibilities.length === 0 ? (
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
-                      <span className="text-sm">Sin responsables</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      {responsibilities.map((resp, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <svg className="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {resp.NombreEmpleado || resp.EmpleadoCI}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
