@@ -742,63 +742,6 @@ export default function GenerateInvoicePage() {
           </CardBox>
         </div>
 
-          {/* Resumen de Pagos */}
-          <CardBox>
-            <h3 className="text-lg font-semibold mb-4">Resumen de Pagos</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium">Total Productos:</span>
-                <span className="text-sm text-gray-600">{formatCurrency(calculateTotalCost())}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Total Mano de Obra:</span>
-                <span className="text-sm text-sm text-gray-600">{formatCurrency(calculateTotalLaborCost())}</span>
-              </div>
-              <Divider />
-              <div className="flex justify-between">
-                <span className="font-medium">Subtotal:</span>
-                <span className="text-lg font-semibold">{formatCurrency(subtotal)}</span>
-              </div>
-              {discountPercentage > 0 && (
-                <>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Frecuencia del Cliente (últimos 3 meses):</span>
-                    <span className="text-sm text-blue-600 font-semibold">{customerFrequency} visitas</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Descuento ({discountPercentage}%):</span>
-                    <span className="text-lg font-semibold text-green-600">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Subtotal con Descuento:</span>
-                    <span className="text-sm text-gray-600">{formatCurrency(subtotal - discountAmount)}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between">
-                <span className="font-medium">IVA (16%):</span>
-                <span className="text-sm text-gray-600">{formatCurrency(ivaAmount)}</span>
-              </div>
-              <Divider />
-              <div className="flex justify-between">
-                <span className="font-medium">Total Factura:</span>
-                <span className="text-lg font-bold">{formatCurrency(grandTotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Total Pagado:</span>
-                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(totalPaid)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Diferencia:</span>
-                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(totalPaid - grandTotal)}
-                </span>
-              </div>
-            </div>
-          </CardBox>
-
         <Divider />
 
         {/* Actividades de la Orden */}
@@ -927,6 +870,65 @@ export default function GenerateInvoicePage() {
             )}
           </div>
         </CardBox>
+
+        <Divider />
+
+         {/* Resumen de Pagos */}
+         <CardBox>
+            <h3 className="text-lg font-semibold mb-4">Resumen de Pagos</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium">Total Productos:</span>
+                <span className="text-sm text-gray-600">{formatCurrency(calculateTotalCost())}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Total Mano de Obra:</span>
+                <span className="text-sm text-sm text-gray-600">{formatCurrency(calculateTotalLaborCost())}</span>
+              </div>
+              <Divider />
+              <div className="flex justify-between">
+                <span className="font-medium">Subtotal:</span>
+                <span className="text-lg font-semibold">{formatCurrency(subtotal)}</span>
+              </div>
+              {discountPercentage > 0 && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Frecuencia del Cliente (últimos 3 meses):</span>
+                    <span className="text-sm text-blue-600 font-semibold">{customerFrequency} visitas</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Descuento ({discountPercentage}%):</span>
+                    <span className="text-lg font-semibold text-green-600">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Subtotal con Descuento:</span>
+                    <span className="text-sm text-gray-600">{formatCurrency(subtotal - discountAmount)}</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between">
+                <span className="font-medium">IVA (16%):</span>
+                <span className="text-sm text-gray-600">{formatCurrency(ivaAmount)}</span>
+              </div>
+              <Divider />
+              <div className="flex justify-between">
+                <span className="font-medium">Total Factura:</span>
+                <span className="text-lg font-bold">{formatCurrency(grandTotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Total Pagado:</span>
+                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(totalPaid)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Diferencia:</span>
+                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(totalPaid - grandTotal)}
+                </span>
+              </div>
+            </div>
+          </CardBox>
 
         <Divider />
 
