@@ -165,8 +165,8 @@ export default function GenerateInvoicePage() {
       // Subtotal después del descuento
       const subtotalAfterDiscount = subtotalAmount - discountAmountValue;
 
-      // Calcular IVA (15%)
-      const ivaValue = subtotalAfterDiscount * 0.15;
+      // Calcular IVA (16%)
+      const ivaValue = subtotalAfterDiscount * 0.16;
       setIvaAmount(ivaValue);
 
       // Total de la factura = subtotal después del descuento + IVA
@@ -313,16 +313,31 @@ export default function GenerateInvoicePage() {
   };
 
   const generateInvoice = async () => {
-    // Usar una tolerancia para comparar números flotantes
-    const tolerance = 0.01; // 1 centavo de tolerancia
-    if (Math.abs(totalPaid - grandTotal) > tolerance) {
-      alert(`El total pagado (${formatCurrency(totalPaid)}) debe ser igual al total de la factura (${formatCurrency(grandTotal)})`);
-      return;
-    }
-
+    // Verificar si hay al menos un método de pago
     if (payments.length === 0) {
       alert("Debe agregar al menos un método de pago");
       return;
+    }
+
+    // Verificar si hay al menos un -1 o si los montos suman correctamente
+    const hayMenosUno = payments.some(p => p.cantidad === -1);
+    const totalPagosEspecificos = payments
+      .filter(p => p.cantidad !== -1)
+      .reduce((sum, p) => sum + p.cantidad, 0);
+    
+    if (!hayMenosUno) {
+      // Si no hay -1, verificar que los montos sumen correctamente
+      const tolerance = 0.01; // 1 centavo de tolerancia
+      if (Math.abs(totalPagosEspecificos - grandTotal) > tolerance) {
+        alert(`El total pagado (${formatCurrency(totalPagosEspecificos)}) debe ser igual al total de la factura (${formatCurrency(grandTotal)}) o usar -1 para pagar el restante`);
+        return;
+      }
+    } else {
+      // Si hay -1, verificar que no se exceda el total
+      if (totalPagosEspecificos > grandTotal) {
+        alert(`El total de pagos específicos (${formatCurrency(totalPagosEspecificos)}) no puede exceder el total de la factura (${formatCurrency(grandTotal)})`);
+        return;
+      }
     }
 
     try {
@@ -395,15 +410,34 @@ export default function GenerateInvoicePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Monto
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={payment.montoTarjeta || ""}
-                onChange={(e) => updatePayment(index, 'montoTarjeta', parseFloat(e.target.value) || 0)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                placeholder="0.00"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="-1"
+                  value={payment.montoTarjeta || ""}
+                  onChange={(e) => updatePayment(index, 'montoTarjeta', parseFloat(e.target.value) || 0)}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="0.00"
+                />
+                <button
+                  type="button"
+                  onClick={() => updatePayment(index, 'montoTarjeta', -1)}
+                  className={`px-3 py-2 rounded-lg border text-sm font-medium ${
+                    payment.montoTarjeta === -1 
+                      ? 'bg-blue-600 text-white border-blue-600' 
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                  }`}
+                  title="Usar -1 para pagar el restante"
+                >
+                  -1
+                </button>
+              </div>
+              {payment.montoTarjeta === -1 && (
+                <p className="text-xs text-blue-600 mt-1">
+                  💡 Pagará el monto restante de la factura
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -458,15 +492,34 @@ export default function GenerateInvoicePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Monto
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={payment.montoEfectivo || ""}
-                onChange={(e) => updatePayment(index, 'montoEfectivo', parseFloat(e.target.value) || 0)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                placeholder="0.00"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="-1"
+                  value={payment.montoEfectivo || ""}
+                  onChange={(e) => updatePayment(index, 'montoEfectivo', parseFloat(e.target.value) || 0)}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="0.00"
+                />
+                <button
+                  type="button"
+                  onClick={() => updatePayment(index, 'montoEfectivo', -1)}
+                  className={`px-3 py-2 rounded-lg border text-sm font-medium ${
+                    payment.montoEfectivo === -1 
+                      ? 'bg-blue-600 text-white border-blue-600' 
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                  }`}
+                  title="Usar -1 para pagar el restante"
+                >
+                  -1
+                </button>
+              </div>
+              {payment.montoEfectivo === -1 && (
+                <p className="text-xs text-blue-600 mt-1">
+                  💡 Pagará el monto restante de la factura
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -530,15 +583,34 @@ export default function GenerateInvoicePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Monto
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={payment.montoPagoMovil || ""}
-                onChange={(e) => updatePayment(index, 'montoPagoMovil', parseFloat(e.target.value) || 0)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                placeholder="0.00"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="-1"
+                  value={payment.montoPagoMovil || ""}
+                  onChange={(e) => updatePayment(index, 'montoPagoMovil', parseFloat(e.target.value) || 0)}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="0.00"
+                />
+                <button
+                  type="button"
+                  onClick={() => updatePayment(index, 'montoPagoMovil', -1)}
+                  className={`px-3 py-2 rounded-lg border text-sm font-medium ${
+                    payment.montoPagoMovil === -1 
+                      ? 'bg-blue-600 text-white border-blue-600' 
+                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                  }`}
+                  title="Usar -1 para pagar el restante"
+                >
+                  -1
+                </button>
+              </div>
+              {payment.montoPagoMovil === -1 && (
+                <p className="text-xs text-blue-600 mt-1">
+                  💡 Pagará el monto restante de la factura
+                </p>
+              )}
             </div>
           </div>
         );
@@ -704,7 +776,7 @@ export default function GenerateInvoicePage() {
                 </>
               )}
               <div className="flex justify-between">
-                <span className="font-medium">IVA (15%):</span>
+                <span className="font-medium">IVA (16%):</span>
                 <span className="text-sm text-gray-600">{formatCurrency(ivaAmount)}</span>
               </div>
               <Divider />
@@ -954,7 +1026,7 @@ export default function GenerateInvoicePage() {
               color="success"
               label="Generar Factura"
               icon={mdiReceipt}
-              disabled={Math.abs(totalPaid - grandTotal) > 0.01 || payments.length === 0}
+              disabled={payments.length === 0}
             />
             <Button
               type="button"

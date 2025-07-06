@@ -1259,18 +1259,58 @@ class PostService:
             if not numero_factura:
                 raise HTTPException(status_code=500, detail="No se pudo obtener el número de factura")
             
-            # Insertar los métodos de pago
-            for i, metodo_pago in enumerate(metodos_pago):
-                numero_correlativo = i + 1
-                tipo = metodo_pago.get('Metodo')
+            # Calcular montos reales para la base de datos cuando se usa -1
+            print(f"\n💰 CALCULANDO MONTOS REALES PARA BASE DE DATOS:")
+            print(f"   - Total factura: ${monto_total}")
+            
+            # Calcular el monto restante para los métodos con -1
+            total_pagado_especifico = 0
+            metodos_pago_procesados = []
+            
+            # Primera pasada: calcular total de montos específicos
+            for metodo_pago in metodos_pago:
                 cantidad = metodo_pago.get('Cantidad')
-                descripcion = metodo_pago.get('Descripcion', '')
+                if cantidad != -1:
+                    total_pagado_especifico += cantidad
+                    metodos_pago_procesados.append({
+                        **metodo_pago,
+                        'monto_real': cantidad
+                    })
+                else:
+                    metodos_pago_procesados.append({
+                        **metodo_pago,
+                        'monto_real': None  # Se calculará después
+                    })
+            
+            # Segunda pasada: calcular montos reales para -1
+            monto_restante = (monto_total or 0) - total_pagado_especifico
+            print(f"   - Total pagado específico: ${total_pagado_especifico}")
+            print(f"   - Monto restante: ${monto_restante}")
+            
+            for i, metodo_procesado in enumerate(metodos_pago_procesados):
+                if metodo_procesado['monto_real'] is None:
+                    metodo_procesado['monto_real'] = monto_restante
+                    print(f"   - Método {i+1} ({metodo_procesado['Metodo']}): -1 → ${monto_restante}")
+                    # Solo el primer -1 toma el restante completo
+                    monto_restante = 0
+            
+            # Insertar los métodos de pago con montos reales
+            for i, metodo_procesado in enumerate(metodos_pago_procesados):
+                numero_correlativo = i + 1
+                tipo = metodo_procesado.get('Metodo')
+                monto_real = metodo_procesado.get('monto_real', 0)
+                descripcion = metodo_procesado.get('Descripcion', '')
+
+                print(f"   📝 Insertando pago {numero_correlativo}: {tipo} - ${monto_real}")
 
                 # Determinar qué campos llenar según el tipo de pago según el modelo Pay
                 if tipo == 'Efectivo':
                     # Campos específicos para pago en efectivo
-                    monto_efectivo = metodo_pago.get('MontoEfectivo', cantidad)
-                    moneda_efectivo = metodo_pago.get('MonedaEfectivo', 'Dolar')  # Sin acento según la constraint
+                    # IMPORTANTE: Usar monto_real en lugar del campo original que puede tener -1
+                    monto_efectivo = monto_real  # Siempre usar el monto calculado
+                    moneda_efectivo = metodo_procesado.get('MonedaEfectivo', 'Dolar')  # Sin acento según la constraint
+                    
+                    print(f"     💾 BD: Insertando efectivo con monto real: ${monto_efectivo}")
                     
                     database.execute("""
                         INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, MontoEfectivo, MonedaEfectivo)
@@ -1279,11 +1319,14 @@ class PostService:
                     
                 elif tipo == 'Tarjeta':
                     # Campos específicos para pago con tarjeta
-                    fecha_tarjeta = metodo_pago.get('FechaTarjeta') or fecha_factura  # Usar fecha de factura si no hay fecha específica
-                    monto_tarjeta = metodo_pago.get('MontoTarjeta', cantidad)
-                    banco_tarjeta = metodo_pago.get('BancoTarjeta') or 'Banco Nacional'  # Valor por defecto
-                    modalidad_tarjeta = metodo_pago.get('ModalidadTarjeta') or 'Ahorro'  # Valor por defecto
-                    numero_tarjeta = metodo_pago.get('NumeroTarjeta') or '1234567890123456'  # Valor por defecto
+                    fecha_tarjeta = metodo_procesado.get('FechaTarjeta') or fecha_factura  # Usar fecha de factura si no hay fecha específica
+                    # IMPORTANTE: Usar monto_real en lugar del campo original que puede tener -1
+                    monto_tarjeta = monto_real  # Siempre usar el monto calculado
+                    banco_tarjeta = metodo_procesado.get('BancoTarjeta') or 'Banco Nacional'  # Valor por defecto
+                    modalidad_tarjeta = metodo_procesado.get('ModalidadTarjeta') or 'Ahorro'  # Valor por defecto
+                    numero_tarjeta = metodo_procesado.get('NumeroTarjeta') or '1234567890123456'  # Valor por defecto
+                    
+                    print(f"     💾 BD: Insertando tarjeta con monto real: ${monto_tarjeta}")
                     
                     database.execute("""
                         INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, FechaTarjeta, MontoTarjeta, BancoTarjeta, ModalidadTarjeta, NumeroTarjeta)
@@ -1292,10 +1335,13 @@ class PostService:
                     
                 elif tipo == 'Pago Móvil':
                     # Campos específicos para pago móvil
-                    fecha_pago_movil = metodo_pago.get('FechaPagoMovil') or fecha_factura  # Usar fecha de factura si no hay fecha específica
-                    telefono_pago_movil = metodo_pago.get('TelefonoPagoMovil') or '04121234567'  # Valor por defecto
-                    referencia_pago_movil = metodo_pago.get('ReferenciaPagoMovil') or 'REF001'  # Valor por defecto
-                    monto_pago_movil = metodo_pago.get('MontoPagoMovil', cantidad)
+                    fecha_pago_movil = metodo_procesado.get('FechaPagoMovil') or fecha_factura  # Usar fecha de factura si no hay fecha específica
+                    telefono_pago_movil = metodo_procesado.get('TelefonoPagoMovil') or '04121234567'  # Valor por defecto
+                    referencia_pago_movil = metodo_procesado.get('ReferenciaPagoMovil') or 'REF001'  # Valor por defecto
+                    # IMPORTANTE: Usar monto_real en lugar del campo original que puede tener -1
+                    monto_pago_movil = monto_real  # Siempre usar el monto calculado
+                    
+                    print(f"     💾 BD: Insertando pago móvil con monto real: ${monto_pago_movil}")
                     
                     database.execute("""
                         INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, FechaPagoMovil, TelefonoPagoMovil, ReferenciaPagoMovil, MontoPagoMovil)
@@ -1303,13 +1349,107 @@ class PostService:
                     """, (numero_factura, numero_correlativo, tipo, fecha_pago_movil, telefono_pago_movil, referencia_pago_movil, monto_pago_movil))
                     
                 else:  # Método no reconocido, usar efectivo como fallback
+                    print(f"     💾 BD: Insertando método no reconocido como efectivo con monto real: ${monto_real}")
+                    
                     database.execute("""
                         INSERT INTO Pagos (NumeroFactura, NumeroCorrelativoPago, Tipo, MontoEfectivo, MonedaEfectivo)
                         VALUES (?, ?, ?, ?, ?)
-                    """, (numero_factura, numero_correlativo, tipo, cantidad, 'Dolar'))
+                    """, (numero_factura, numero_correlativo, tipo, monto_real, 'Dolar'))
             
+            # Confirmar transacción en la base de datos
             conn.commit()
-            return {"message": "Invoice created successfully", "numero_factura": numero_factura}
+            
+            # --- IMPRESIÓN FISCAL AUTOMÁTICA ---
+            try:
+                print("\n" + "="*60)
+                print("🚀 INICIANDO IMPRESIÓN FISCAL AUTOMÁTICA")
+                print("="*60)
+                
+                # Importar el módulo de factura fiscal
+                from . import factura
+                
+                # Validar que los datos necesarios no sean None
+                if not franquicia_rif or not numero_orden:
+                    raise ValueError("franquicia_rif y numero_orden son requeridos para la impresión fiscal")
+                
+                print(f"📋 Datos de factura recibidos:")
+                print(f"   - Número de orden: {numero_orden}")
+                print(f"   - RIF Franquicia: {franquicia_rif}")
+                print(f"   - Monto total: {monto_total}")
+                print(f"   - Descuento: {porcentaje_descuento}%")
+                print(f"   - Métodos de pago: {len(metodos_pago)}")
+                
+                # Crear instancia de GetService para acceder a los métodos necesarios
+                get_service = GetService()
+                
+                # Obtener detalles de la orden
+                print(f"\n📋 Obteniendo detalles de la orden {numero_orden}...")
+                order_details = get_service.getOrderDetails(franquicia_rif, numero_orden)
+                print(f"✅ Detalles de orden obtenidos:")
+                print(f"   - Cliente: {order_details.get('order', {}).get('NombreCliente', 'N/A')}")
+                print(f"   - CI Cliente: {order_details.get('order', {}).get('CI_Cliente', 'N/A')}")
+                
+                # Obtener actividades de la orden
+                print(f"\n📋 Obteniendo actividades de la orden {numero_orden}...")
+                activities = get_service.getActivitiesByOrder(numero_orden)
+                print(f"✅ Actividades obtenidas: {len(activities)} actividades")
+                for i, activity in enumerate(activities):
+                    print(f"   {i+1}. {activity.get('NombreServicio', 'N/A')}: {activity.get('DescripcionActividad', 'N/A')} - ${activity.get('Costo_Act', 0)}")
+                
+                # Mostrar productos de la orden
+                products_from_order = order_details.get('products', [])
+                print(f"\n📦 Productos utilizados en la orden: {len(products_from_order)} productos")
+                for i, product in enumerate(products_from_order):
+                    print(f"   {i+1}. {product.get('NombreProducto', 'N/A')} - Cantidad: {product.get('CantidadUtilizada', 0)} - Precio: ${product.get('PrecioProducto', 0)}")
+                
+                # Generar JSON para mostrar en consola
+                print(f"\n📋 Generando JSON para impresora fiscal...")
+                json_factura = factura.generar_json_factura(
+                    invoice_data=invoice_data,
+                    order_details=order_details,
+                    activities=activities,
+                    franquicia_rif=franquicia_rif
+                )
+                
+                print(f"\n📄 JSON GENERADO PARA IMPRESORA FISCAL:")
+                print("-" * 60)
+                print(json_factura)
+                print("-" * 60)
+                
+                # Imprimir factura fiscal
+                print(f"\n🖨️ Enviando a impresora fiscal (COM8)...")
+                resultado_impresion = factura.imprimir_factura_fiscal(
+                    invoice_data=invoice_data,
+                    order_details=order_details,
+                    activities=activities,
+                    franquicia_rif=franquicia_rif,
+                    puerto_serial="COM8"  # Puerto por defecto
+                )
+                
+                # Agregar información de impresión al resultado
+                return {
+                    "message": "Invoice created successfully", 
+                    "numero_factura": numero_factura,
+                    "impresion_fiscal": resultado_impresion
+                }
+                
+            except Exception as e:
+                # Si hay error en la impresión, no fallar la creación de la factura
+                print(f"\n❌ ERROR EN IMPRESIÓN FISCAL:")
+                print(f"   - Error: {e}")
+                print(f"   - Tipo: {type(e).__name__}")
+                print(f"   - La factura se creó exitosamente en la base de datos")
+                print(f"   - Número de factura: {numero_factura}")
+                print("="*60)
+                return {
+                    "message": "Invoice created successfully (error en impresión fiscal)", 
+                    "numero_factura": numero_factura,
+                    "impresion_fiscal": {
+                        "success": False,
+                        "message": f"Error en impresión fiscal: {str(e)}"
+                    }
+                }
+                
         except Exception as e:
             conn.rollback()
             raise HTTPException(status_code=500, detail=f"Error creating invoice: {str(e)}")

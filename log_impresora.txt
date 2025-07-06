@@ -1,0 +1,1419 @@
+
+--- 2025-07-05 18:45:50.301281 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550",
+      "des02": "Lubricantes"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite - Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020",
+      "des02": "Actividad #1"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 5
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 237.84,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+[{"cmd":"encF","code":0,"dataD":0},{"cmd":"cliF","code":0,"dataD":0},{"cmd":"proF","code":0,"dataD":0},{"cmd":"proF","code":0,"dataD":0},{"cmd":"desPoF","code":0,"dataD":0},{"cmd":"subToF","code":0,"dataD":21765},{"cmd":"fpaF","code":0,"dataD":21528},{"cmd":"endFac","code":28,"dataD":21528}]
+------------------------------
+
+--- 2025-07-05 19:07:56.845011 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 23784,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:13:09.454883 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 23784,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:22:22.019417 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:28:23.640960 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:41:40.070209 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:45:09.340350 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:47:32.486359 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:49:53.482347 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 19:58:38.268234 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 20:13:09.868375 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 20:13:17.960047 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 20:19:30.853857 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 20:28:16.246118 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 1,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 1,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 21770,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta)
+------------------------------
+
+--- 2025-07-05 20:49:36.491306 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:05:29.309824 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:13:18.660321 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:42:51.585197 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "desPoF",
+    "data": 500
+  },
+  {
+    "cmd": "subToF",
+    "data": 1,
+    "valor": 0
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:46:35.503105 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:49:10.062186 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 20000,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:51:35.905826 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 20000,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 5
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
+
+--- 2025-07-05 21:55:08.472227 ---
+JSON enviado:
+[
+  {
+    "cmd": "encF",
+    "data": [
+      "Multiservicios Universal M&U ",
+      "RIF: J-1234567890",
+      "+ productos ecologico = - Contaminacion"
+    ]
+  },
+  {
+    "cmd": "cliF",
+    "data": {
+      "rifCI": "V34567891",
+      "razSoc": [
+        "Anto Torres"
+      ],
+      "LineAd": []
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "1000",
+      "des01": "Cambio de Aceite: Drenar aceite usado",
+      "imp": 2,
+      "pre": "9020"
+    }
+  },
+  {
+    "cmd": "proF",
+    "data": {
+      "cant": "5000",
+      "des01": "Aceite Motor 5W-30",
+      "imp": 2,
+      "pre": "2550"
+    }
+  },
+  {
+    "cmd": "subToF",
+    "data": 3,
+    "valor": 500
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": 20000,
+      "tasaConv": 0,
+      "tipo": 1
+    }
+  },
+  {
+    "cmd": "fpaF",
+    "data": {
+      "monto": -1,
+      "tasaConv": 0,
+      "tipo": 5
+    }
+  },
+  {
+    "cmd": "endFac",
+    "data": 1
+  }
+]
+Respuesta recibida:
+(sin respuesta después de 5 intentos)
+------------------------------
