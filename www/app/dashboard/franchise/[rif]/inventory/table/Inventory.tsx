@@ -1,6 +1,6 @@
 "use client";
 
-import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan } from "@mdi/js";
+import { mdiEye, mdiInformation, mdiTagEdit, mdiTrashCan, mdiLeaf, mdiTree, mdiRecycle } from "@mdi/js";
 import React, { useState } from "react";
 import Button from "../../../../../_components/Button";
 import Buttons from "../../../../../_components/Buttons";
@@ -53,10 +53,56 @@ const TableInventory = ({ inventory, rif, onInventoryUpdate }: Props) => {
     }
   };
 
+  // Función para determinar el estado del producto
+  const getProductStatus = (product: any) => {
+    const { Cantidad, CantidadMinima, CantidadMaxima } = product;
+    
+    if (Cantidad <= CantidadMinima) {
+      return {
+        text: '🌱 Escaso',
+        color: 'text-red-600',
+        bgColor: 'bg-red-100 text-red-800 border border-red-200'
+      };
+    } else if (Cantidad >= CantidadMaxima) {
+      return {
+        text: '♻️ Exceso',
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-100 text-orange-800 border border-orange-200'
+      };
+    } else if (Cantidad <= CantidadMinima + 5) {
+      return {
+        text: '⚠️ Bajo Stock',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+      };
+    } else {
+      return {
+        text: '✅ Disponible',
+        color: 'text-green-600',
+        bgColor: 'bg-green-100 text-green-800 border border-green-200'
+      };
+    }
+  };
+
+  // Función para determinar el color de la cantidad
+  const getQuantityColor = (product: any) => {
+    const { Cantidad, CantidadMinima, CantidadMaxima } = product;
+    
+    if (Cantidad <= CantidadMinima) {
+      return 'text-red-600 font-bold';
+    } else if (Cantidad >= CantidadMaxima) {
+      return 'text-orange-600 font-bold';
+    } else if (Cantidad <= CantidadMinima + 5) {
+      return 'text-yellow-600 font-bold';
+    } else {
+      return 'text-green-600 font-bold';
+    }
+  };
+
   return (
     <>
       <CardBoxModal
-        title="Por favor confirma"
+        title="🌿 Confirmar Acción Ecológica"
         buttonColor="danger"
         buttonLabel={isDeleting ? "Eliminando..." : "Confirmar"}
         isActive={isModalTrashActive}
@@ -66,81 +112,95 @@ const TableInventory = ({ inventory, rif, onInventoryUpdate }: Props) => {
           setSelectedProduct(null);
         }}
       >
-        <p>
-          ¿Estás seguro de que quieres <b>eliminar</b> este producto del inventario?
+        <p className="text-green-700">
+          ¿Estás seguro de que quieres <b>eliminar</b> este producto del inventario ecológico?
         </p>
+        <p className="text-sm text-green-600 mt-2">♻️ Esta acción no se puede deshacer</p>
       </CardBoxModal>
 
-      <table>
-        <thead>
+      <table className="w-full">
+        <thead className="bg-gradient-to-r from-green-100 to-blue-100">
           <tr>
-            <th className="text-center">Código</th>
-            <th className="text-center">Nombre del Producto</th>
-            <th className="text-center">Cantidad</th>
-            <th className="text-center">Precio</th>
-            <th className="text-center">Categoría</th>
-            <th className="text-center">Estado</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Código</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Nombre del Producto</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Cantidad</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Mínimo</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Máximo</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Precio</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Categoría</th>
+            <th className="text-center p-3 text-green-700 font-semibold">Estado</th>
           </tr>
         </thead>
-        <tbody>
-          {inventoryPaginated.map((product: any) => (
-            <tr key={`${product.FranquiciaRIF}-${product.CodigoProducto}`}>
-              <td data-label="Código" className="text-center">{product.CodigoProducto}</td>
-              <td data-label="Nombre" className="text-center">{product.NombreProducto}</td>
-              <td data-label="Cantidad" className="text-center">
-                <span className={`font-semibold ${product.Cantidad > 10 ? 'text-green-600' : product.Cantidad > 5 ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {product.Cantidad}
-                </span>
-              </td>
-              <td data-label="Precio" className="text-center">${product.Precio}</td>
-              <td data-label="Categoría" className="text-center">
-                <small className="text-gray-500 dark:text-slate-400">
-                  {product.Categoria}
-                </small>
-              </td>
-              <td data-label="Estado" className="text-center">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  product.Cantidad > 10 ? 'bg-green-100 text-green-800' : 
-                  product.Cantidad > 5 ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {product.Cantidad > 10 ? 'Disponible' : product.Cantidad > 5 ? 'Bajo Stock' : 'Agotándose'}
-                </span>
-              </td>
-              <td className="before:hidden lg:w-1 whitespace-nowrap">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button
-                    color="info"
-                    icon={mdiInformation}
-                    href={`/dashboard/franchise/${rif}/inventory/${product.CodigoProducto}`}
-                    small
-                    isGrouped
-                  />
-                  <Button
-                    color="contrast"
-                    icon={mdiTagEdit}
-                    href={`/dashboard/franchise/${rif}/inventory/update/${product.CodigoProducto}`}
-                    small
-                    isGrouped
-                  />
-                  <Button
-                    color="danger"
-                    icon={mdiTrashCan}
-                    onClick={() => {
-                      setIsModalTrashActive(true);
-                      setSelectedProduct(product);
-                    }}
-                    small
-                    isGrouped
-                    disabled={isDeleting}
-                  />
-                </Buttons>
-              </td>
-            </tr>
-          ))}
+        <tbody className="bg-white/80">
+          {inventoryPaginated.map((product: any) => {
+            const status = getProductStatus(product);
+            const quantityColor = getQuantityColor(product);
+            
+            return (
+              <tr key={`${product.FranquiciaRIF}-${product.CodigoProducto}`} className="border-b border-green-100 hover:bg-green-50/50 transition-colors">
+                <td data-label="Código" className="text-center p-3 text-green-700 font-medium">{product.CodigoProducto}</td>
+                <td data-label="Nombre" className="text-center p-3 text-green-700">{product.NombreProducto}</td>
+                <td data-label="Cantidad" className="text-center p-3">
+                  <span className={`${quantityColor}`}>
+                    {product.Cantidad}
+                  </span>
+                </td>
+                <td data-label="Mínimo" className="text-center p-3">
+                  <span className="text-green-600 font-medium">
+                    {product.CantidadMinima}
+                  </span>
+                </td>
+                <td data-label="Máximo" className="text-center p-3">
+                  <span className="text-green-600 font-medium">
+                    {product.CantidadMaxima}
+                  </span>
+                </td>
+                <td data-label="Precio" className="text-center p-3 text-green-700 font-semibold">${product.Precio}</td>
+                <td data-label="Categoría" className="text-center p-3">
+                  <small className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">
+                    {product.Categoria}
+                  </small>
+                </td>
+                <td data-label="Estado" className="text-center p-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.bgColor}`}>
+                    {status.text}
+                  </span>
+                </td>
+                <td className="before:hidden lg:w-1 whitespace-nowrap p-3">
+                  <Buttons type="justify-start lg:justify-end" noWrap>
+                    <Button
+                      color="info"
+                      icon={mdiInformation}
+                      href={`/dashboard/franchise/${rif}/inventory/${product.CodigoProducto}`}
+                      small
+                      isGrouped
+                    />
+                    <Button
+                      color="success"
+                      icon={mdiTagEdit}
+                      href={`/dashboard/franchise/${rif}/inventory/update/${product.CodigoProducto}`}
+                      small
+                      isGrouped
+                    />
+                    <Button
+                      color="danger"
+                      icon={mdiTrashCan}
+                      onClick={() => {
+                        setIsModalTrashActive(true);
+                        setSelectedProduct(product);
+                      }}
+                      small
+                      isGrouped
+                      disabled={isDeleting}
+                    />
+                  </Buttons>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      <div className="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800">
+      <div className="p-3 lg:px-6 border-t border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
         <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0">
           <Buttons>
             {pagesList.map((page) => (
@@ -148,15 +208,15 @@ const TableInventory = ({ inventory, rif, onInventoryUpdate }: Props) => {
                 key={page}
                 active={page === currentPage}
                 label={(page + 1).toString()}
-                color={page === currentPage ? "lightDark" : "whiteDark"}
+                color={page === currentPage ? "success" : "whiteDark"}
                 small
                 onClick={() => setCurrentPage(page)}
                 isGrouped
               />
             ))}
           </Buttons>
-          <small className="mt-6 md:mt-0">
-            Page {currentPage + 1} of {numPages}
+          <small className="mt-6 md:mt-0 text-green-600">
+            Página {currentPage + 1} de {numPages}
           </small>
         </div>
       </div>

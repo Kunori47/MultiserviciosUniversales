@@ -17,7 +17,7 @@ def get_connection():
         # Conectar a SQL Server local
         conn_master = pyodbc.connect(
             "Driver={SQL Server};"
-            "Server=SANTIAGO\SQLEXPRESS;"
+            "Server=KUNORI\SQLEXPRESS;"
             "Database=master;"
             "Trusted_Connection=yes;"
         )
@@ -42,7 +42,7 @@ def get_connection():
         # Conectar a la base de datos 
         conn = pyodbc.connect(
             "Driver={SQL Server};"
-            "Server=SANTIAGO\SQLEXPRESS;"
+            "Server=KUNORI\SQLEXPRESS;"
             "Database=MultiserviciosUniversal;"
             "Trusted_Connection=yes;"
         )

@@ -67,6 +67,11 @@ export default function UpdateFPage() {
         setSuggestions([]);
     }
   };
+
+  const validateRIF = (rif: string) => {
+    if (!rif) return true;
+    return rif.length === 12;
+  };
   return (
     <>
       <Head>
@@ -99,6 +104,10 @@ export default function UpdateFPage() {
             }}
             onSubmit={async (values, { resetForm }) => {
                 try {
+                if (!validateRIF(values.RIF)) {
+                  alert("El RIF debe tener exactamente 12 caracteres");
+                  return;
+                }
                 const res = await fetch("http://127.0.0.1:8000/franchise/update", {
                     method: "PUT",
                     headers: {
@@ -124,7 +133,7 @@ export default function UpdateFPage() {
                 }
             }}
           >
-            {({ setFieldValue }) =>
+            {({ setFieldValue, values }) =>
             <Form>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
                 <div>
@@ -134,12 +143,15 @@ export default function UpdateFPage() {
                         name="RIF"
                         id="RIF"
                         placeholder="RIF"
-                        className={`${className} bg-gray-100 text-gray-400 font-semibold`}
+                        className={`${className} bg-gray-100 text-gray-400 font-semibold ${values.RIF && !validateRIF(values.RIF) ? 'border-red-500' : ''}`}
                         required
                         readOnly
                       />
                     )}
                   </FormField>
+                  {values.RIF && !validateRIF(values.RIF) && (
+                    <p className="text-red-500 text-xs mt-1">El RIF debe tener exactamente 12 caracteres</p>
+                  )}
                 </div>
                 <div>
                   <FormField label="Nombre" labelFor="nombre" icon={mdiMail}>

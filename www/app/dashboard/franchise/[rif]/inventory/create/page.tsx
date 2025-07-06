@@ -78,6 +78,18 @@ export default function CreateProductPage() {
     if (!values.CantidadMaxima || values.CantidadMaxima < 0) {
       errors.CantidadMaxima = "La cantidad máxima no puede ser negativa";
     }
+    // Validar que la cantidad inicial esté entre mínima y máxima
+    if (
+      values.Cantidad !== "" && values.CantidadMinima !== "" && values.CantidadMaxima !== "" &&
+      !isNaN(Number(values.Cantidad)) && !isNaN(Number(values.CantidadMinima)) && !isNaN(Number(values.CantidadMaxima))
+    ) {
+      const cantidad = Number(values.Cantidad);
+      const min = Number(values.CantidadMinima);
+      const max = Number(values.CantidadMaxima);
+      if (cantidad < min || cantidad > max) {
+        errors.Cantidad = "La cantidad inicial debe estar entre la cantidad mínima y máxima";
+      }
+    }
     return errors;
   };
 

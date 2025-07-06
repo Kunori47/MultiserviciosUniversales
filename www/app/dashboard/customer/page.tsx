@@ -70,7 +70,7 @@ export default function CustomerListPage() {
 
   const handleDelete = async (ci: string) => {
     if (!confirm("¿Seguro que deseas eliminar este cliente?")) return;
-    const res = await fetch(`http://127.0.0.1:8000/customer/delete?CI=${ci}`, { method: "DELETE" });
+    const res = await fetch(`http://127.0.0.1:8000/customer/delete_with_phones?CI=${ci}`, { method: "DELETE" });
     if (res.ok) {
       setCustomers(customers.filter(c => c.CI !== ci));
     } else {

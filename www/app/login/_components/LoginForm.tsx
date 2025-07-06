@@ -36,6 +36,10 @@ export default function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Interceptar error de cédula no encontrada
+        if (data.detail && data.detail.includes("No data found in Empleados")) {
+          throw new Error("Cédula inválida");
+        }
         throw new Error(data.detail || "Error de autenticación");
       }
 

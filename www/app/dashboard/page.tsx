@@ -14,6 +14,25 @@ import {
   mdiStore,
   mdiCarMultiple,
   mdiTruckDelivery,
+  mdiLeaf,
+  mdiTree,
+  mdiWater,
+  mdiWeatherSunny,
+  mdiRecycle,
+  mdiEarth,
+  mdiSprout,
+  mdiSolarPanel,
+  mdiWeatherWindy,
+  mdiThermometer,
+  mdiGauge,
+  mdiChartLine,
+  mdiTrendingUp,
+  mdiWarehouse,
+  mdiPackageVariant,
+  mdiWrench,
+  mdiClipboardList,
+  mdiAccountGroup,
+  mdiTag,
 } from "@mdi/js";
 import Button from "../_components/Button";
 import SectionMain from "../_components/Section/Main";
@@ -29,6 +48,8 @@ import TableSampleClients from "./_components/Table/SampleClients";
 import { getPageTitle } from "../_lib/config";
 import { clients, transactions } from "./_lib/sampleData";
 import ChartLineSampleComponentBlock from "./_components/ChartLineSample/ComponentBlock";
+import Icon from "../_components/Icon";
+import EcoBanner from "./_components/EcoBanner";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -458,24 +479,32 @@ export default function DashboardPage() {
   return (
     <SectionMain>
       <SectionTitleLineWithButton
-        icon={mdiChartTimelineVariant}
-        title="Dashboard General - Administrador"
+        icon={mdiEarth}
+        title="🌱 Dashboard Ecológico - Administrador"
         main
       >
         <Button
           href="/dashboard/franchise"
-          color="info"
+          color="success"
           label="Ver Franquicias"
           roundedFull
         />
       </SectionTitleLineWithButton>
+
+      <EcoBanner 
+        type="info" 
+        title="Sistema de Gestión Ecológica"
+        className="mb-6"
+      >
+        🌍 Bienvenido al sistema de gestión ecológica. Aquí podrás monitorear y administrar todos los aspectos de tu negocio con un enfoque sostenible y respetuoso con el medio ambiente.
+      </EcoBanner>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
         <CardBoxWidget
           trendLabel="Total"
           trendType="up"
           trendColor="success"
-          icon={mdiAccountMultiple}
+          icon={mdiAccountGroup}
           iconColor="success"
           number={customerCountLoading ? 0 : customerCount}
           label="Clientes"
@@ -501,52 +530,48 @@ export default function DashboardPage() {
       </div>
 
       {/* Estadísticas de Servicios */}
-      <SectionTitleLineWithButton icon={mdiChartBar} title="Estadísticas de Servicios" />
+      <SectionTitleLineWithButton icon={mdiWrench} title="🔧 Estadísticas de Servicios" />
 
-      <CardBox className="mb-6">
+      <CardBox className="mb-6 bg-gradient-to-br from-green-50 to-blue-50 border border-green-200">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-lg font-medium text-gray-900">Servicios Más Solicitados</h4>
+            <h4 className="text-lg font-medium text-green-700">Servicios Más Solicitados</h4>
             <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <span className="text-sm text-gray-500">Ordenados por demanda</span>
+              <Icon path={mdiChartLine} className="w-5 h-5 text-green-500" />
+              <span className="text-sm text-green-600">Ordenados por demanda</span>
             </div>
           </div>
 
           {serviceStatsLoading ? (
             <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              <span className="ml-2 text-gray-600">Cargando estadísticas...</span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+              <span className="ml-2 text-green-600">Cargando estadísticas...</span>
             </div>
           ) : serviceStats.length === 0 ? (
             <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <p className="mt-2 text-sm text-gray-500">No hay datos de servicios disponibles</p>
+              <Icon path={mdiChartBar} className="mx-auto h-12 w-12 text-green-400" />
+              <p className="mt-2 text-sm text-green-600">No hay datos de servicios disponibles</p>
             </div>
           ) : (
             <div className="space-y-3">
               {serviceStats.map((service, index) => (
-                <div key={service.CodigoServicio} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={service.CodigoServicio} className="flex items-center justify-between p-4 bg-white/70 rounded-lg hover:bg-white transition-colors border border-green-100">
                   <div className="flex items-center space-x-4">
                     <div className={`flex items-center justify-center w-8 h-8 rounded-full text-white font-bold text-sm ${
                       index === 0 ? 'bg-yellow-500' : 
                       index === 1 ? 'bg-gray-400' : 
-                      index === 2 ? 'bg-orange-500' : 'bg-blue-500'
+                      index === 2 ? 'bg-orange-500' : 'bg-green-500'
                     }`}>
                       {index + 1}
                     </div>
                     <div>
-                      <h5 className="font-medium text-gray-900">{service.NombreServicio}</h5>
-                      <p className="text-sm text-gray-500">Código: #{service.CodigoServicio}</p>
+                      <h5 className="font-medium text-green-700">{service.NombreServicio}</h5>
+                      <p className="text-sm text-green-600">Código: #{service.CodigoServicio}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">{service.CantidadSolicitudes}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-2xl font-bold text-green-600">{service.CantidadSolicitudes}</div>
+                    <div className="text-sm text-green-500">
                       {service.CantidadSolicitudes === 1 ? 'solicitud' : 'solicitudes'}
                     </div>
                   </div>
@@ -558,24 +583,22 @@ export default function DashboardPage() {
       </CardBox>
 
       {/* Comparación entre Franquicias */}
-      <SectionTitleLineWithButton icon={mdiStore} title="Comparación entre Franquicias" />
+      <SectionTitleLineWithButton icon={mdiStore} title="🏪 Comparación entre Franquicias" />
 
-      <CardBox className="mb-6">
+      <CardBox className="mb-6 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-lg font-medium text-gray-900">Rendimiento por Franquicia</h4>
+            <h4 className="text-lg font-medium text-blue-700">Rendimiento por Franquicia</h4>
             <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-              <span className="text-sm text-gray-500">Ordenadas por facturación total</span>
+              <Icon path={mdiTrendingUp} className="w-5 h-5 text-blue-500" />
+              <span className="text-sm text-blue-600">Ordenadas por facturación total</span>
             </div>
           </div>
 
           {franchiseComparisonLoading ? (
             <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-              <span className="ml-2 text-gray-600">Cargando comparación...</span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <span className="ml-2 text-blue-600">Cargando comparación...</span>
             </div>
           ) : franchiseComparison.length === 0 ? (
             <div className="text-center py-8">

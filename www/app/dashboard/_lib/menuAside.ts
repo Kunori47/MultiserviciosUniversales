@@ -16,56 +16,73 @@ import {
   mdiTruck,
   mdiAccountGroup,
   mdiBallotOutline,
+  mdiEarth,
+  mdiTree,
+  mdiLeaf,
+  mdiRecycle,
+  mdiSprout,
+  mdiWarehouse,
+  mdiWrench,
+  mdiClipboardList,
+  mdiCarMultiple,
+  mdiTagOutline,
+  mdiPackageVariant,
+  mdiTruckDelivery,
+  mdiAccountMultiple,
 } from "@mdi/js";
 import { MenuAsideItem } from "../../_interfaces";
 
 const menuAside: MenuAsideItem[] = [
   {
     href: "/dashboard",
-    icon: mdiMonitor,
-    label: "Dashboard",
+    icon: mdiEarth,
+    label: "🌱 Dashboard Ecológico",
   },
   {
     href: "/dashboard/franchise",
     icon: mdiStore,
-    label: "Franquicia",
+    label: "🏪 Franquicias",
   },
   {
     href: "/dashboard/products",
-    label: "Productos",
-    icon: mdiRoomService,
+    label: "🌿 Productos",
+    icon: mdiPackageVariant,
   },
   {
     href: "/dashboard/brands",
-    label: "Marcas",
-    icon: mdiCar,
+    label: "🚗 Marcas",
+    icon: mdiCarMultiple,
   },
   {
     href: "/dashboard/specialty",
-    label: "Especialidades",
-    icon: mdiTag,
+    label: "🏷️ Especialidades",
+    icon: mdiTagOutline,
   },
   {
     href: "/dashboard/supplier-line",
-    label: "Linea de Suministros",
+    label: "📦 Líneas de Suministro",
     icon: mdiPackage,
   },
   {
     href: "/dashboard/vendor",
-    label: "Proveedores",
-    icon: mdiTruck,
+    label: "🚛 Proveedores",
+    icon: mdiTruckDelivery,
   },
   {
     href: "/dashboard/customer",
-    label: "Clientes",
-    icon: mdiAccountGroup,
+    label: "👥 Clientes",
+    icon: mdiAccountMultiple,
   },
   {
     href: "/dashboard/vehicle",
-    label: "Vehículos",
+    label: "🚙 Vehículos",
     icon: mdiCar,
   },
-
+  {
+    href: "/dashboard/service-orders",
+    label: "🔧 Órdenes de Servicio",
+    icon: mdiWrench,
+  },
 ];
 
 export default menuAside;

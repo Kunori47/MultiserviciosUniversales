@@ -66,6 +66,11 @@ export default function CreateProductPage() {
 
     setIsSubmitting(true);
     try {
+      if (form.Tipo === "No contaminante") {
+        form.NivelContaminante = "0";
+        form.Tratamiento = "";
+      }
+      
       const res = await fetch("http://127.0.0.1:8000/product/create?NombreProducto=" + form.NombreProducto + "&DescripcionProducto=" + form.DescripcionProducto + "&LineaSuministro=" + form.LineaSuministro + "&Tipo=" + form.Tipo + "&NivelContaminante=" + form.NivelContaminante + "&Tratamiento=" + form.Tratamiento, {
         method: 'POST',
         headers: {

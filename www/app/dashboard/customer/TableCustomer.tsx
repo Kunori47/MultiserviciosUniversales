@@ -1,7 +1,7 @@
 "use client";
 
-import { mdiPencil, mdiTrashCan, mdiEye, mdiTagEdit, mdiMagnify } from "@mdi/js";
-import React, { useState } from "react";
+import { mdiPencil, mdiTrashCan, mdiEye, mdiTagEdit, mdiMagnify, mdiPhone } from "@mdi/js";
+import React, { useState, useEffect } from "react";
 import Button from "../../_components/Button";
 import Buttons from "../../_components/Buttons";
 import CardBoxModal from "../../_components/CardBox/Modal";
@@ -20,6 +20,31 @@ const TableCustomer = ({ customers, frequency = {}, onDelete }: Props) => {
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [customerPhones, setCustomerPhones] = useState<Record<string, string[]>>({});
+
+  // Cargar teléfonos de todos los clientes
+  useEffect(() => {
+    const fetchPhones = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/customer_phone");
+        const phonesData = await response.json();
+        
+        const phonesMap: Record<string, string[]> = {};
+        phonesData.forEach((phone: any) => {
+          if (!phonesMap[phone.Cliente]) {
+            phonesMap[phone.Cliente] = [];
+          }
+          phonesMap[phone.Cliente].push(phone.Telefono);
+        });
+        
+        setCustomerPhones(phonesMap);
+      } catch (error) {
+        console.error("Error cargando teléfonos:", error);
+      }
+    };
+
+    fetchPhones();
+  }, []);
 
   // Filtrar clientes por nombre completo
   const filteredCustomers = customers.filter((customer) =>
@@ -49,6 +74,15 @@ const TableCustomer = ({ customers, frequency = {}, onDelete }: Props) => {
   React.useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
+
+  const formatPhone = (phone: string) => {
+    // Mostrar como XXXX-XXXXXXX (4 dígitos, guion, 7 dígitos)
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 12) {
+      return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    }
+    return phone;
+  };
 
   return (
     <>
@@ -92,6 +126,7 @@ const TableCustomer = ({ customers, frequency = {}, onDelete }: Props) => {
             <th>CI</th>
             <th>Nombre Completo</th>
             <th>Email</th>
+            <th>Teléfonos</th>
             <th>Frecuencia (mes)</th>
             <th className="text-center">Acciones</th>
           </tr>
@@ -102,6 +137,20 @@ const TableCustomer = ({ customers, frequency = {}, onDelete }: Props) => {
               <td data-label="CI">{c.CI}</td>
               <td data-label="Nombre Completo">{c.NombreCompleto}</td>
               <td data-label="Email">{c.Email}</td>
+              <td data-label="Teléfonos">
+                {customerPhones[c.CI] && customerPhones[c.CI].length > 0 ? (
+                  <div className="space-y-1">
+                    {customerPhones[c.CI].map((phone, index) => (
+                      <div key={index} className="flex items-center text-sm">
+                        <i className="mdi mdi-phone text-blue-600 mr-1"></i>
+                        <span className="font-mono">{formatPhone(phone)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-400 text-sm">Sin teléfonos</span>
+                )}
+              </td>
               <td data-label="Frecuencia (mes)">{frequency[c.CI] ?? 0}</td>
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>

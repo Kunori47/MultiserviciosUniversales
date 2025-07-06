@@ -109,6 +109,10 @@ export default function EmployeeUpdatePage() {
             enableReinitialize={true}
             onSubmit={async (values, { resetForm }) => {
                 try {
+                    if (specialtyRows.length === 0 || specialtyRows.filter(s => s).length === 0) {
+                      alert("El empleado debe tener al menos una especialidad");
+                      return;
+                    }
                 const res = await fetch("http://127.0.0.1:8000/employee/update", {
                     method: "PUT",
                     headers: {
@@ -277,6 +281,9 @@ export default function EmployeeUpdatePage() {
                     />
                   </div>
                 </div>
+                {specialtyRows.length === 0 || specialtyRows.filter(s => s).length === 0 ? (
+                  <p className="text-red-500 text-xs mb-2 ml-2">El empleado debe tener al menos una especialidad</p>
+                ) : null}
                 {isLoading ? (
                   <div className="flex justify-center items-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

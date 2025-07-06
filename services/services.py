@@ -242,6 +242,58 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error searching inventory: {str(e)}")
     
+    def getScarceProductsByFranchise(self, franquicia_rif: str):
+        try:
+            database.execute("""
+                SELECT 
+                    pf.FranquiciaRIF,
+                    pf.CodigoProducto,
+                    p.NombreProducto,
+                    pf.Cantidad,
+                    pf.Precio,
+                    pf.CantidadMinima,
+                    pf.CantidadMaxima,
+                    p.LineaSuministro,
+                    ls.DescripcionLinea as Categoria
+                FROM ProductosFranquicia pf
+                INNER JOIN Productos p ON pf.CodigoProducto = p.CodigoProducto
+                INNER JOIN LineasSuministro ls ON p.LineaSuministro = ls.CodigoLinea
+                WHERE pf.FranquiciaRIF = ? AND pf.Cantidad <= pf.CantidadMinima
+                ORDER BY pf.Cantidad ASC
+            """, (franquicia_rif,))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching scarce products: {str(e)}")
+    
+    def getExcessProductsByFranchise(self, franquicia_rif: str):
+        try:
+            database.execute("""
+                SELECT 
+                    pf.FranquiciaRIF,
+                    pf.CodigoProducto,
+                    p.NombreProducto,
+                    pf.Cantidad,
+                    pf.Precio,
+                    pf.CantidadMinima,
+                    pf.CantidadMaxima,
+                    p.LineaSuministro,
+                    ls.DescripcionLinea as Categoria
+                FROM ProductosFranquicia pf
+                INNER JOIN Productos p ON pf.CodigoProducto = p.CodigoProducto
+                INNER JOIN LineasSuministro ls ON p.LineaSuministro = ls.CodigoLinea
+                WHERE pf.FranquiciaRIF = ? AND pf.Cantidad >= pf.CantidadMaxima
+                ORDER BY pf.Cantidad DESC
+            """, (franquicia_rif,))
+            
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error fetching excess products: {str(e)}")
+    
     def getProductByFranchiseAndCode(self, franquicia_rif: str, codigo_producto: int):
         try:
             database.execute("""

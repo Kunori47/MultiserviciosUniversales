@@ -10,9 +10,10 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   employee: Employee[];
+  onRefresh?: () => void;
 };
 
-const TableEmployee = ({ employee }: Props) => {
+const TableEmployee = ({ employee, onRefresh }: Props) => {
   const perPage = 5;
   const router = useRouter();
   const [employeeWithOrders, setEmployeeWithOrders] = useState<any[]>([]);
@@ -73,6 +74,7 @@ const TableEmployee = ({ employee }: Props) => {
       if (!res.ok) throw new Error("Error al eliminar empleado");
       setIsModalTrashActive(false);
       setSelectedCI(null);
+      if (onRefresh) onRefresh();
     } catch (err) {
       alert("No se pudo eliminar el empleado");
     }

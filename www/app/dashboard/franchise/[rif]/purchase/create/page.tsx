@@ -54,6 +54,7 @@ export default function CreatePurchasePage() {
   const [purchaseItems, setPurchaseItems] = useState<PurchaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [purchaseErrors, setPurchaseErrors] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     if (rif) {
@@ -127,6 +128,20 @@ export default function CreatePurchasePage() {
         updatedItems[index].Categoria = selectedProduct.Categoria;
       }
     }
+
+    // Validación: CantidadPedida no puede ser mayor que CantidadDisponible
+    const errors = { ...purchaseErrors };
+    const item = updatedItems[index];
+    if (
+      typeof item.CantidadPedida === 'number' &&
+      typeof item.CantidadDisponible === 'number' &&
+      item.CantidadPedida > item.CantidadDisponible
+    ) {
+      errors[index] = 'La cantidad pedida no puede superar la cantidad disponible';
+    } else {
+      delete errors[index];
+    }
+    setPurchaseErrors(errors);
 
     setPurchaseItems(updatedItems);
   };
@@ -293,7 +308,7 @@ export default function CreatePurchasePage() {
                   </div>
                   <Button
                     onClick={handleSubmit}
-                    disabled={saving || !selectedSupplier || purchaseItems.length === 0}
+                    disabled={saving || !selectedSupplier || purchaseItems.length === 0 || Object.keys(purchaseErrors).length > 0}
                     color="success"
                     icon={mdiContentSave}
                     label={saving ? "Guardando..." : "Crear Compra"}
@@ -357,8 +372,11 @@ export default function CreatePurchasePage() {
                             min="1"
                             value={item.CantidadPedida}
                             onChange={(e) => updatePurchaseItem(index, 'CantidadPedida', parseInt(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            className={`w-full border-2 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none ${purchaseErrors[index] ? 'border-red-500' : 'border-gray-300'}`}
                           />
+                          {purchaseErrors[index] && (
+                            <div className="text-red-600 text-xs mt-1">{purchaseErrors[index]}</div>
+                          )}
                         </div>
 
                         <div>

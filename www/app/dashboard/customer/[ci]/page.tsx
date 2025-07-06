@@ -7,7 +7,7 @@ import CardBox from "../../../_components/CardBox";
 import Divider from "../../../_components/Divider";
 import SectionMain from "../../../_components/Section/Main";
 import SectionTitleLineWithButton from "../../../_components/Section/TitleLineWithButton";
-import { mdiAccount, mdiArrowLeft, mdiCar } from "@mdi/js";
+import { mdiAccount, mdiArrowLeft, mdiCar, mdiPhone } from "@mdi/js";
 
 export default function CustomerInfoPage() {
   const params = useParams();
@@ -15,24 +15,50 @@ export default function CustomerInfoPage() {
   const ci = params?.ci as string;
   const [customer, setCustomer] = useState<any>(null);
   const [vehicles, setVehicles] = useState<any[]>([]);
+  const [phones, setPhones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
+  const [loadingPhones, setLoadingPhones] = useState(true);
 
   useEffect(() => {
     if (!ci) return;
-    fetch(`http://127.0.0.1:8000/customer/${ci}`)
-      .then(res => res.json())
-      .then(data => {
-        setCustomer(data);
+    
+    const fetchCustomerData = async () => {
+      try {
+        // Cargar datos del cliente
+        const customerRes = await fetch(`http://127.0.0.1:8000/customer/${ci}`);
+        const customerData = await customerRes.json();
+        setCustomer(customerData);
         setLoading(false);
-      });
-    fetch(`http://127.0.0.1:8000/vehicle`)
-      .then(res => res.json())
-      .then(data => {
-        setVehicles(Array.isArray(data) ? data.filter((v: any) => v.CedulaCliente === ci) : []);
+
+        // Cargar vehículos
+        const vehiclesRes = await fetch(`http://127.0.0.1:8000/vehicle`);
+        const vehiclesData = await vehiclesRes.json();
+        setVehicles(Array.isArray(vehiclesData) ? vehiclesData.filter((v: any) => v.CedulaCliente === ci) : []);
         setLoadingVehicles(false);
-      });
+
+        // Cargar teléfonos
+        const phonesRes = await fetch(`http://127.0.0.1:8000/customer_phone/${ci}`);
+        const phonesData = await phonesRes.json();
+        setPhones(phonesData);
+        setLoadingPhones(false);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+        setLoading(false);
+        setLoadingVehicles(false);
+        setLoadingPhones(false);
+      }
+    };
+
+    fetchCustomerData();
   }, [ci]);
+
+  const formatPhone = (phone: string) => {
+    if (phone.length === 12) {
+      return `${phone.slice(0, 4)}-${phone.slice(4, 7)}-${phone.slice(7, 10)}-${phone.slice(10)}`;
+    }
+    return phone;
+  };
 
   if (loading || !customer) {
     return (
@@ -80,6 +106,39 @@ export default function CustomerInfoPage() {
           </div>
         </div>
       </CardBox>
+
+      {/* Sección de Teléfonos */}
+      <CardBox className="mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl font-bold text-gray-800 dark:text-gray-200">Teléfonos del Cliente</span>
+          <span className="text-gray-500">({phones.length})</span>
+        </div>
+        {loadingPhones ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <span className="ml-2 text-gray-600">Cargando teléfonos...</span>
+          </div>
+        ) : phones.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">Este cliente no tiene teléfonos registrados</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {phones.map((phone, index) => (
+              <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2">
+                  <i className="mdi mdi-phone text-blue-600"></i>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    Teléfono {index + 1}
+                  </span>
+                </div>
+                <p className="font-mono text-lg text-gray-900 dark:text-gray-100 mt-1">
+                  {formatPhone(phone.Telefono)}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardBox>
+
       <CardBox>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl font-bold text-gray-800 dark:text-gray-200">Vehículos del Cliente</span>

@@ -85,6 +85,20 @@ export default function VehicleEditPage() {
     }
   };
 
+  const validatePlate = (plate: string) => {
+    // Placa venezolana: 7 caracteres, puede ser ABC-123, ABC12D, etc.
+    // Aceptar solo letras y números y guion opcional en la posición 4
+    if (!plate) return true;
+    // Quitar guion para validar longitud
+    const clean = plate.replace(/-/g, "");
+    if (clean.length !== 7) return false;
+    // Validar formato: solo letras y números
+    if (!/^[A-Za-z0-9]+$/.test(clean)) return false;
+    // Si hay guion, debe estar en la posición 4
+    if (plate.includes("-") && plate.indexOf("-") !== 3) return false;
+    return true;
+  };
+
   if (loading || !vehicle) {
     return (
       <SectionMain>
@@ -126,6 +140,11 @@ export default function VehicleEditPage() {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
+              if (!validatePlate(values.Placa)) {
+                alert("La placa debe tener 7 caracteres alfanuméricos (ej: ABC123D)");
+                setSubmitting(false);
+                return;
+              }
               const res = await fetch(`http://127.0.0.1:8000/vehicle/update`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -166,10 +185,13 @@ export default function VehicleEditPage() {
                   <Field 
                     name="Placa" 
                     id="Placa" 
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2" 
+                    className={`w-full border-2 rounded-lg px-3 py-2 ${!validatePlate(values.Placa) && values.Placa ? 'border-red-500' : 'border-gray-300'}`}
                     required 
-                    placeholder="ABC-1234"
+                    placeholder="ABC123D"
                   />
+                  {values.Placa && !validatePlate(values.Placa) && (
+                    <p className="text-red-500 text-xs mt-1">La placa debe tener 7 caracteres alfanuméricos (ej: ABC123D)</p>
+                  )}
                 </div>
 
                 {/* Marca */}

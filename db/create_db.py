@@ -93,19 +93,12 @@ def crear_base_datos():
             DescripcionProducto VARCHAR(100) NOT NULL,
             LineaSuministro INT,
             Tipo VARCHAR(50) NOT NULL CHECK(Tipo IN ('Contaminante', 'No contaminante')),
-            NivelContaminante INT CHECK (NivelContaminante BETWEEN 1 AND 5),
+            NivelContaminante INT CHECK (NivelContaminante BETWEEN 0 AND 5),
             Tratamiento VARCHAR(100),
             PRIMARY KEY(CodigoProducto),
             FOREIGN KEY (LineaSuministro) REFERENCES LineasSuministro(CodigoLinea)
                 ON DELETE NO ACTION
-                ON UPDATE CASCADE,
-            CONSTRAINT CHK_Productos CHECK((Tipo = 'Contaminante' 
-                    AND NivelContaminante IS NOT NULL 
-                    AND Tratamiento IS NOT NULL) 
-                OR 
-                    (Tipo = 'No contaminante' 
-                        AND NivelContaminante IS NULL 
-                        AND Tratamiento IS NULL))
+                ON UPDATE CASCADE
         )
         """)
         print("✓ Tabla 'Productos' creada")
@@ -355,7 +348,7 @@ def crear_base_datos():
             MontoPagoMovil DECIMAL(10, 2) CHECK (MontoPagoMovil >= 0),
             PRIMARY KEY(NumeroFactura, NumeroCorrelativoPago),
             FOREIGN KEY (NumeroFactura) REFERENCES Facturas(NumeroFactura)
-                ON DELETE NO ACTION
+                ON DELETE CASCADE
                 ON UPDATE CASCADE,
             CONSTRAINT CHK_Pagos CHECK ((Tipo = 'Tarjeta'
                     AND FechaTarjeta IS NOT NULL
@@ -459,8 +452,10 @@ def crear_base_datos():
                     EmpleadoCI VARCHAR(10),
                     CodigoEspecialidad INT,
                     PRIMARY KEY (EmpleadoCI, CodigoEspecialidad),
-                    FOREIGN KEY (EmpleadoCI) REFERENCES Empleados(CI),
+                    FOREIGN KEY (EmpleadoCI) REFERENCES Empleados(CI)
+                    ON DELETE CASCADE ON UPDATE CASCADE,
                     FOREIGN KEY (CodigoEspecialidad) REFERENCES Especialidades(CodigoEspecialidad)
+                        ON DELETE CASCADE ON UPDATE CASCADE
                 )
             """),
             ("ResponsabilidadesEmpleados", """
@@ -491,7 +486,7 @@ def crear_base_datos():
                     Telefono CHAR(12) CHECK (LEN(Telefono) = 12),
                     PRIMARY KEY(Cliente, Telefono),
                     FOREIGN KEY(Cliente) REFERENCES Clientes(CI)
-                        ON DELETE NO ACTION
+                        ON DELETE CASCADE
                         ON UPDATE CASCADE
                 )
             """),

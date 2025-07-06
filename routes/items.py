@@ -325,6 +325,37 @@ async def read_customer_by_ci(CI: str):
         raise HTTPException(status_code=404, detail="Cliente not found")
     return customer
 
+@router.post("/customer/create_with_phones", tags=["Cliente"], response_model=dict)
+async def create_customer_with_phones(customer_data: dict):
+    """
+    Create a customer with multiple phone numbers in a single transaction
+    customer_data should contain:
+    - CI: string
+    - NombreCompleto: string
+    - Email: string
+    - phones: list of phone numbers (optional)
+    """
+    try:
+        # Crear el cliente
+        customer_result = PostController().post_data(table_name="Clientes", data={
+            "CI": customer_data["CI"],
+            "NombreCompleto": customer_data["NombreCompleto"],
+            "Email": customer_data["Email"]
+        })
+
+        # Crear los teléfonos si existen
+        phones = customer_data.get("phones", [])
+        for phone in phones:
+            if phone.strip():  # Solo crear si el teléfono no está vacío
+                PostController().post_data(table_name="TelefonosClientes", data={
+                    "Cliente": customer_data["CI"],
+                    "Telefono": phone
+                })
+
+        return customer_result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating customer with phones: {str(e)}")
+
 @router.post("/customer/create", tags=["Cliente"], response_model=dict)
 async def create_customer(cliente: Customer):
     return PostController().post_data(table_name="Clientes", data={
@@ -333,9 +364,65 @@ async def create_customer(cliente: Customer):
         "Email": cliente.Email
     })
 
+@router.delete("/customer/delete_with_phones", tags=["Cliente"], response_model=dict)
+async def delete_customer_with_phones(CI: str):
+    """
+    Delete a customer and all their phone numbers in a single transaction
+    """
+    try:
+        # Eliminar todos los teléfonos del cliente (si existen)
+        try:
+            existing_phones = GetController().get_by_filter(table_name="TelefonosClientes", Cliente=CI)
+        except Exception:
+            existing_phones = []
+        if existing_phones:
+            for phone in existing_phones:
+                DeleteController().delete_data(table_name="TelefonosClientes", Cliente=CI, Telefono=phone[1])
+
+        # Eliminar el cliente
+        return DeleteController().delete_data(table_name="Clientes", CI=CI)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting customer with phones: {str(e)}")
+
 @router.delete("/customer/delete", tags=["Cliente"], response_model=dict)
 async def delete_customer(CI: str):
     return DeleteController().delete_data(table_name="Clientes", CI=CI)
+
+@router.put("/customer/update_with_phones", tags=["Cliente"], response_model=dict)
+async def update_customer_with_phones(customer_data: dict):
+    """
+    Update a customer with multiple phone numbers in a single transaction
+    customer_data should contain:
+    - CI: string
+    - NombreCompleto: string
+    - Email: string
+    - phones: list of phone numbers (optional)
+    """
+    try:
+        # Actualizar el cliente
+        customer_result = UpdateController().put_data(table_name="Clientes", CI=customer_data["CI"], data={
+            "NombreCompleto": customer_data["NombreCompleto"],
+            "Email": customer_data["Email"]
+        })
+
+        # Eliminar todos los teléfonos existentes
+        existing_phones = GetController().get_by_filter(table_name="TelefonosClientes", Cliente=customer_data["CI"])
+        for phone in existing_phones:
+            # phone[1] es el teléfono si el orden es (Cliente, Telefono)
+            DeleteController().delete_data(table_name="TelefonosClientes", Cliente=customer_data["CI"], Telefono=phone[1])
+
+        # Crear los nuevos teléfonos
+        phones = customer_data.get("phones", [])
+        for phone in phones:
+            if phone.strip():  # Solo crear si el teléfono no está vacío
+                PostController().post_data(table_name="TelefonosClientes", data={
+                    "Cliente": customer_data["CI"],
+                    "Telefono": phone
+                })
+
+        return customer_result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating customer with phones: {str(e)}")
 
 @router.put("/customer/update", tags=["Cliente"], response_model=dict)
 async def update_customer(cliente: Customer):
@@ -758,6 +845,20 @@ async def get_inventory_by_franchise(FranquiciaRIF: str):
 async def search_inventory_by_franchise(FranquiciaRIF: str, q: str):
     return GetController().search_inventory_by_franchise(FranquiciaRIF, q)
 
+@router.get("/product_franchise/franchise/{FranquiciaRIF}/scarce", tags=["Producto Franquicia"])
+async def get_scarce_products_by_franchise(FranquiciaRIF: str):
+    """
+    Get all scarce products (quantity <= minimum quantity) for a specific franchise
+    """
+    return GetController().get_scarce_products_by_franchise(FranquiciaRIF)
+
+@router.get("/product_franchise/franchise/{FranquiciaRIF}/excess", tags=["Producto Franquicia"])
+async def get_excess_products_by_franchise(FranquiciaRIF: str):
+    """
+    Get all excess products (quantity >= maximum quantity) for a specific franchise
+    """
+    return GetController().get_excess_products_by_franchise(FranquiciaRIF)
+
 @router.get("/product_franchise/product", tags=["Producto Franquicia"])
 async def get_product_by_franchise_and_code(FranquiciaRIF: str, CodigoProducto: int):
     return GetController().get_product_by_franchise_and_code(FranquiciaRIF, CodigoProducto)
@@ -914,6 +1015,16 @@ async def create_pay(pago: Pay):
 @router.get("/customer_phone", tags=["TelefonosCliente"], response_model=list[CustomerPhone])
 async def read_customer_phone():
     return GetController().get_all(table_name="TelefonosClientes")
+
+@router.get("/customer_phone/{cliente}", tags=["TelefonosCliente"])
+async def get_customer_phones(cliente: str):
+    """
+    Get all phone numbers for a specific customer
+    """
+    rows = GetController().get_by_filter(table_name="TelefonosClientes", Cliente=cliente)
+    columns = ["Cliente", "Telefono"]
+    result = [dict(zip(columns, row)) for row in rows]
+    return result
 
 @router.get("/customer_phone/{cliente}/{telefono}", tags=["TelefonosCliente"], response_model=CustomerPhone)
 async def read_customer_phone_by_code(cliente: int):

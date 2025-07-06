@@ -13,6 +13,7 @@ import SectionTitleLineWithButton from "../../../../../_components/Section/Title
 import FieldLabel from "../../../../../_components/FormField/FieldLabel";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Field, Formik, Form } from "formik";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -58,6 +59,13 @@ export default function InfoEmployeePage() {
             .catch(error => console.error('Error loading specialties:', error));
       }}
     , [employee, isLoading]);
+
+      // Validación de teléfono
+      const validatePhone = (phone: string) => {
+        if (!phone) return true;
+        const digits = phone.replace(/\D/g, "");
+        return digits.length === 11;
+      };
 
       if (isLoading) {
         return (

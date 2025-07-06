@@ -106,6 +106,22 @@ export default function FormsPage() {
     }
   };
 
+  const validateRIF = (rif: string) => {
+    if (!rif) return true;
+    return rif.length === 12;
+  };
+
+  // Validación para CI y Teléfono del encargado
+  const validateCI = (ci: string) => {
+    if (!ci) return true;
+    return ci.length === 10;
+  };
+  const validatePhone = (phone: string) => {
+    if (!phone) return true;
+    const digits = phone.replace(/\D/g, "");
+    return digits.length === 11;
+  };
+
   return (
     <>
       <Head>
@@ -137,6 +153,11 @@ export default function FormsPage() {
             }}
             onSubmit={async (values, { resetForm }) => {
                 try {
+                if (!validateRIF(values.RIF)) {
+                  alert("El RIF debe tener exactamente 12 caracteres");
+                  return;
+                }
+                console.log(encargadoInput);
                 const res = await fetch("http://127.0.0.1:8000/franchise/create", {
                     method: "POST",
                     headers: {
@@ -146,7 +167,7 @@ export default function FormsPage() {
                     RIF: values.RIF,
                     Nombre: values.nombre,
                     Ciudad: values.ciudad,
-                    CI_Encargado: values.encargado,
+                    CI_Encargado: encargadoInput,
                     FechaInicioEncargado: values.fechaInicioEncargado,
                     Estatus: "Activo",
                     }),
@@ -164,7 +185,63 @@ export default function FormsPage() {
                 }
             }}
           >
-            {({ setFieldValue }) => (
+            {({ setFieldValue, values }) => {
+              // Redefinir createNewEncargado aquí para tener acceso a setFieldValue
+              const createNewEncargado = async () => {
+                if (!newEncargadoData.CI || !newEncargadoData.NombreCompleto || !newEncargadoData.Direccion || 
+                    !newEncargadoData.Telefono || !newEncargadoData.Salario) {
+                  alert("Por favor complete todos los campos requeridos");
+                  return;
+                }
+                if (parseFloat(newEncargadoData.Salario) <= 0) {
+                  alert("El salario debe ser mayor a 0");
+                  return;
+                }
+                // Validar CI y Teléfono antes de crear encargado
+                if (!validateCI(newEncargadoData.CI)) {
+                  alert("La cédula debe tener exactamente 10 caracteres");
+                  return;
+                }
+                if (!validatePhone(newEncargadoData.Telefono)) {
+                  alert("El teléfono debe tener exactamente 11 dígitos");
+                  return;
+                }
+                try {
+                  const res = await fetch("http://127.0.0.1:8000/employee/create", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      CI: newEncargadoData.CI,
+                      NombreCompleto: newEncargadoData.NombreCompleto,
+                      Direccion: newEncargadoData.Direccion,
+                      Telefono: newEncargadoData.Telefono,
+                      Salario: parseFloat(newEncargadoData.Salario),
+                      FranquiciaRIF: null,
+                      Rol: "Encargado",
+                    }),
+                  });
+                  if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.detail || "Error al crear el encargado");
+                  }
+                  setEncargadoInput(newEncargadoData.CI);
+                  setFieldValue("encargado", newEncargadoData.CI);
+                  setShowCreateEncargado(false);
+                  setNewEncargadoData({
+                    CI: "",
+                    NombreCompleto: "",
+                    Direccion: "",
+                    Telefono: "",
+                    Salario: "",
+                  });
+                  alert("Encargado creado correctamente");
+                } catch (err) {
+                  alert("Error: " + err.message);
+                }
+              };
+            return (
             <Form>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
                 <div>
@@ -174,11 +251,14 @@ export default function FormsPage() {
                         name="RIF"
                         id="RIF"
                         placeholder="RIF"
-                        className={className}
+                        className={`${className} ${values.RIF && !validateRIF(values.RIF) ? 'border-red-500' : ''}`}
                         required
                       />
                     )}
                   </FormField>
+                  {values.RIF && !validateRIF(values.RIF) && (
+                    <p className="text-red-500 text-xs mt-1">El RIF debe tener exactamente 12 caracteres</p>
+                  )}
                 </div>
                 <div>
                   <FormField label="Nombre" labelFor="nombre" icon={mdiMail}>
@@ -308,7 +388,9 @@ export default function FormsPage() {
                 />
               </Buttons>
             </Form>
-            )}
+            );
+          }
+          }
           </Formik>
         </CardBox>
 
@@ -335,13 +417,16 @@ export default function FormsPage() {
                         type="text"
                         id="newCI"
                         placeholder="CI"
-                        className={className}
+                        className={`${className} ${newEncargadoData.CI && !validateCI(newEncargadoData.CI) ? 'border-red-500' : ''}`}
                         value={newEncargadoData.CI}
                         onChange={(e) => setNewEncargadoData({...newEncargadoData, CI: e.target.value})}
                         required
                       />
                     )}
                   </FormField>
+                  {newEncargadoData.CI && !validateCI(newEncargadoData.CI) && (
+                    <p className="text-red-500 text-xs mt-1">La cédula debe tener exactamente 10 caracteres</p>
+                  )}
                 </div>
                 <div>
                   <FormField label="Nombre Completo" labelFor="newNombreCompleto" icon={mdiMail}>
@@ -383,13 +468,20 @@ export default function FormsPage() {
                         type="text"
                         id="newTelefono"
                         placeholder="Teléfono"
-                        className={className}
+                        className={`${className} ${newEncargadoData.Telefono && !validatePhone(newEncargadoData.Telefono) ? 'border-red-500' : ''}`}
                         value={newEncargadoData.Telefono}
-                        onChange={(e) => setNewEncargadoData({...newEncargadoData, Telefono: e.target.value})}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/[^0-9-]/g, "");
+                          if (val.length === 4 && !val.includes("-")) val = val + "-";
+                          setNewEncargadoData({...newEncargadoData, Telefono: val.slice(0, 12)});
+                        }}
                         required
                       />
                     )}
                   </FormField>
+                  {newEncargadoData.Telefono && !validatePhone(newEncargadoData.Telefono) && (
+                    <p className="text-red-500 text-xs mt-1">El teléfono debe tener exactamente 11 dígitos</p>
+                  )}
                 </div>
               </div>
 

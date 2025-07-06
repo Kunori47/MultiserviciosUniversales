@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { useState } from "react";
-import { mdiForwardburger, mdiBackburger, mdiMenu, mdiLogout } from "@mdi/js";
+import { mdiForwardburger, mdiBackburger, mdiMenu, mdiLogout, mdiLeaf } from "@mdi/js";
 import menuAside from "./_lib/menuAside";
 import menuNavBar from "./_lib/menuNavBar";
 import { getFilteredMenu } from "./_lib/menuAsideFiltered";
@@ -15,6 +15,8 @@ import Button from "../_components/Button";
 import { Field, Form, Formik } from "formik";
 import { useAuth } from "../_hooks/useAuth";
 import { useRouteProtection } from "../_hooks/useRouteProtection";
+import { ecoClasses } from "../_lib/ecoTheme";
+import "../css/eco-theme.css";
 
 type Props = {
   children: ReactNode;
@@ -41,9 +43,12 @@ export default function LayoutAuthenticated({ children }: Props) {
   // Mostrar loading mientras verifica autenticación
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span className="ml-2 text-gray-600">Verificando autenticación...</span>
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-cyan-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <span className="text-green-700 font-medium">Verificando autenticación...</span>
+          <div className="mt-2 text-sm text-green-600">🌱 Cargando sistema ecológico</div>
+        </div>
       </div>
     );
   }
@@ -58,11 +63,11 @@ export default function LayoutAuthenticated({ children }: Props) {
       <div
         className={`${layoutAsidePadding} ${
           isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""
-        } pt-14 min-h-screen w-screen transition-position lg:w-auto bg-gray-50 dark:bg-slate-800 dark:text-slate-100`}
+        } pt-14 min-h-screen w-screen transition-position lg:w-auto bg-gradient-to-br from-green-50 via-blue-50 to-cyan-50 dark:from-green-900 dark:via-blue-900 dark:to-cyan-900 dark:text-slate-100`}
       >
         <NavBar
           menu={menuNavBar}
-          className={`${layoutAsidePadding} ${isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""}`}
+          className={`${layoutAsidePadding} ${isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""} bg-white/80 backdrop-blur-sm border-b border-green-200 dark:bg-gray-800/80 dark:border-green-700`}
         >
           <NavBarItemPlain
             display="flex lg:hidden"
@@ -71,13 +76,18 @@ export default function LayoutAuthenticated({ children }: Props) {
             <Icon
               path={isAsideMobileExpanded ? mdiBackburger : mdiForwardburger}
               size="24"
+              className="text-green-600 hover:text-green-700 transition-colors"
             />
           </NavBarItemPlain>
           <NavBarItemPlain
             display="hidden lg:flex xl:hidden"
             onClick={() => setIsAsideLgActive(true)}
           >
-            <Icon path={mdiMenu} size="24" />
+            <Icon 
+              path={mdiMenu} 
+              size="24" 
+              className="text-green-600 hover:text-green-700 transition-colors"
+            />
           </NavBarItemPlain>
         </NavBar>
         <AsideMenu
@@ -87,8 +97,16 @@ export default function LayoutAuthenticated({ children }: Props) {
           onAsideLgClose={() => setIsAsideLgActive(false)}
           onRouteChange={handleRouteChange}
         />
-        {children}
-
+        <div className="relative">
+          {/* Elementos decorativos ecológicos */}
+          <div className="absolute top-0 left-0 w-full h-32 pointer-events-none">
+            <div className="absolute top-4 left-4 w-8 h-8 bg-green-200 rounded-full opacity-30 animate-pulse"></div>
+            <div className="absolute top-8 right-8 w-6 h-6 bg-blue-200 rounded-full opacity-30 animate-pulse delay-1000"></div>
+            <div className="absolute top-16 left-1/4 w-4 h-4 bg-cyan-200 rounded-full opacity-30 animate-pulse delay-2000"></div>
+          </div>
+          
+          {children}
+        </div>
       </div>
     </div>
   );

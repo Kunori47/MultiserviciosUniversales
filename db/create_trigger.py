@@ -216,6 +216,38 @@ def create_franchise_manager_trigger():
         print(f"❌ Error creating franchise manager trigger: {str(e)}")
         conn.rollback()
 
+def create_assign_franquicia_to_manager_trigger():
+    """
+    Create trigger to assign FranquiciaRIF to the manager (encargado) after a franchise is created
+    """
+    try:
+        # Create the trigger for SQL Server
+        trigger_sql = """
+        IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'assign_franquicia_to_manager')
+        BEGIN
+            EXEC('
+                CREATE TRIGGER assign_franquicia_to_manager
+                ON Franquicias
+                AFTER INSERT
+                AS
+                BEGIN
+                    SET NOCOUNT ON;
+                    -- Asignar el RIF de la franquicia al encargado (empleado)
+                    UPDATE Empleados
+                    SET FranquiciaRIF = inserted.RIF
+                    FROM Empleados e
+                    INNER JOIN inserted ON e.CI = inserted.CI_Encargado;
+                END
+            ')
+        END
+        """
+        cursor.execute(trigger_sql)
+        conn.commit()
+        print("✅ Trigger 'assign_franquicia_to_manager' created successfully!")
+    except Exception as e:
+        print(f"❌ Error creating assign_franquicia_to_manager trigger: {str(e)}")
+        conn.rollback()
+
 def drop_inventory_trigger():
     """
     Drop the inventory trigger if needed

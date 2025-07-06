@@ -75,6 +75,17 @@ export default function EmployeeCreatePage() {
         );
     };
 
+    // Validación para CI y Teléfono
+    const validateCI = (ci: string) => {
+      if (!ci) return true;
+      return ci.length === 10;
+    };
+    const validatePhone = (phone: string) => {
+      if (!phone) return true;
+      const digits = phone.replace(/\D/g, "");
+      return digits.length === 11;
+    };
+
   return (
     <>
 
@@ -106,6 +117,18 @@ export default function EmployeeCreatePage() {
             }}
             onSubmit={async (values, { resetForm }) => {
                 try {
+                    if (!validateCI(values.CI)) {
+                      alert("La cédula debe tener exactamente 10 caracteres");
+                      return;
+                    }
+                    if (!validatePhone(values.Telefono)) {
+                      alert("El teléfono debe tener exactamente 11 dígitos");
+                      return;
+                    }
+                    if (specialtyRows.length === 0 || specialtyRows.filter(s => s).length === 0) {
+                      alert("El empleado debe tener al menos una especialidad");
+                      return;
+                    }
                 const res = await fetch("http://127.0.0.1:8000/employee/create", {
                     method: "POST",
                     headers: {
@@ -145,6 +168,7 @@ export default function EmployeeCreatePage() {
                 }
             }}
           >
+          {({ values, setFieldValue }) => (
             <Form>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
                 <div>
@@ -154,11 +178,14 @@ export default function EmployeeCreatePage() {
                         name="CI"
                         id="CI"
                         placeholder="CI"
-                        className={className}
+                        className={`${className} ${values.CI && !validateCI(values.CI) ? 'border-red-500' : ''}`}
                         required
                       />
                     )}
                   </FormField>
+                  {values.CI && !validateCI(values.CI) && (
+                    <p className="text-red-500 text-xs mt-1">La cédula debe tener exactamente 10 caracteres</p>
+                  )}
                 </div>
                 <div>
                   <FormField label="NombreCompleto" labelFor="NombreCompleto" icon={mdiMail}>
@@ -198,16 +225,25 @@ export default function EmployeeCreatePage() {
                 <div>
                     <FormField label="Telefono" labelFor="Telefono" icon={mdiPhone}>
                     {({ className }) => (
-                    <Field
+                      <Field
                         name="Telefono"
                         id="Telefono"
-                        className={className}
-                        placeholder="Telefono"
+                        placeholder="0412-1234567"
+                        className={`${className} ${values.Telefono && !validatePhone(values.Telefono) ? 'border-red-500' : ''}`}
+                        maxLength={12}
                         required
-                    />
+                        onChange={e => {
+                          let val = e.target.value.replace(/[^0-9-]/g, "");
+                          if (val.length === 4 && !val.includes("-")) val = val + "-";
+                          setFieldValue("Telefono", val.slice(0, 12));
+                        }}
+                      />
                     )}
-                </FormField>
-              </div>
+                  </FormField>
+                  {values.Telefono && !validatePhone(values.Telefono) && (
+                    <p className="text-red-500 text-xs mt-1">El teléfono debe tener exactamente 11 dígitos</p>
+                  )}
+                </div>
               </div>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-12 last:mb-0">
@@ -251,6 +287,9 @@ export default function EmployeeCreatePage() {
                     />
                   </div>
                 </div>
+                {specialtyRows.length === 0 || specialtyRows.filter(s => s).length === 0 ? (
+                  <p className="text-red-500 text-xs mb-2 ml-2">El empleado debe tener al menos una especialidad</p>
+                ) : null}
                 {isLoading ? (
                   <div className="flex justify-center items-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -317,6 +356,7 @@ export default function EmployeeCreatePage() {
                 />
               </Buttons>
             </Form>
+          )}
           </Formik>
         </CardBox>
       </SectionMain>

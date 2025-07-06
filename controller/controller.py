@@ -68,6 +68,12 @@ class GetController:
     def search_inventory_by_franchise(self, franquicia_rif: str, query: str):
         return self.get_service.searchInventoryByFranchise(franquicia_rif, query)
     
+    def get_scarce_products_by_franchise(self, franquicia_rif: str):
+        return self.get_service.getScarceProductsByFranchise(franquicia_rif)
+    
+    def get_excess_products_by_franchise(self, franquicia_rif: str):
+        return self.get_service.getExcessProductsByFranchise(franquicia_rif)
+    
     def get_product_by_franchise_and_code(self, franquicia_rif: str, codigo_producto: int):
         return self.get_service.getProductByFranchiseAndCode(franquicia_rif, codigo_producto)
     

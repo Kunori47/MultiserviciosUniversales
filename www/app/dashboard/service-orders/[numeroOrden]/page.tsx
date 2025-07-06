@@ -49,6 +49,7 @@ export default function EmployeeOrderDetailPage() {
   const [selectedActivity, setSelectedActivity] = useState<string>("");
   const [orderProducts, setOrderProducts] = useState<any[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [productErrors, setProductErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (numeroOrden) {
@@ -153,6 +154,46 @@ export default function EmployeeOrderDetailPage() {
     setActivities(prev => prev.map((a, i) => i === idx ? { ...a, Costo_Act: value } : a));
   };
 
+  const handleAddProduct = () => {
+    if (!selectedActivity || !producto || cantidad <= 0) return;
+    const selected = franchiseProducts.find(p => String(p.CodigoProducto) === String(producto));
+    if (!selected) return;
+    
+    // Validación: Cantidad utilizada no puede superar la cantidad disponible en inventario
+    if (cantidad > selected.Cantidad) {
+      setProductErrors(prev => ({
+        ...prev,
+        [producto]: `La cantidad utilizada (${cantidad}) no puede superar la cantidad disponible en inventario (${selected.Cantidad})`
+      }));
+      return;
+    }
+    
+    // Limpiar error si existe
+    setProductErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[producto];
+      return newErrors;
+    });
+    
+    const [codigoServicio, numeroCorrelativoActividad] = selectedActivity.split("|");
+    setOrderProducts(prev => ([
+      ...prev,
+      {
+        CodigoOrdenServicio: numeroOrden,
+        CodigoServicio: Number(codigoServicio),
+        NumeroCorrelativoActividad: Number(numeroCorrelativoActividad),
+        FranquiciaRIF: selected.FranquiciaRIF,
+        CodigoProducto: selected.CodigoProducto,
+        CantidadUtilizada: cantidad,
+        PrecioProducto: selected.Precio,
+        NombreProducto: selected.NombreProducto
+      }
+    ]));
+    setProducto("");
+    setCantidad(1);
+    setSelectedActivity("");
+  };
+
   if (authLoading || !franchise) {
     return <SectionMain><div className="text-center py-8">Cargando...</div></SectionMain>;
   }
@@ -255,29 +296,39 @@ export default function EmployeeOrderDetailPage() {
                 </option>
               ))}
             </select>
-            <input type="number" min={1} value={cantidad || 1} onChange={e => setCantidad(Number(e.target.value) || 1)} className="border rounded px-2 py-1 w-20" />
-            <Button color="info" label="Agregar Producto" onClick={() => {
-              if (!selectedActivity || !producto || cantidad <= 0) return;
-              const selected = franchiseProducts.find(p => String(p.CodigoProducto) === String(producto));
-              if (!selected) return;
-              const [codigoServicio, numeroCorrelativoActividad] = selectedActivity.split("|");
-              setOrderProducts(prev => ([
-                ...prev,
-                {
-                  CodigoOrdenServicio: numeroOrden,
-                  CodigoServicio: Number(codigoServicio),
-                  NumeroCorrelativoActividad: Number(numeroCorrelativoActividad),
-                  FranquiciaRIF: selected.FranquiciaRIF,
-                  CodigoProducto: selected.CodigoProducto,
-                  CantidadUtilizada: cantidad,
-                  PrecioProducto: selected.Precio,
-                  NombreProducto: selected.NombreProducto
+            <input 
+              type="number" 
+              min={1} 
+              value={cantidad || 1} 
+              onChange={e => {
+                const val = Number(e.target.value) || 1;
+                setCantidad(val);
+                // Validación en tiempo real
+                const selected = franchiseProducts.find(p => String(p.CodigoProducto) === String(producto));
+                if (selected && val > selected.Cantidad) {
+                  setProductErrors(prev => ({
+                    ...prev,
+                    [producto]: `La cantidad utilizada (${val}) no puede superar la cantidad disponible en inventario (${selected.Cantidad})`
+                  }));
+                } else {
+                  setProductErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[producto];
+                    return newErrors;
+                  });
                 }
-              ]));
-              setProducto("");
-              setCantidad(1);
-              setSelectedActivity("");
-            }} disabled={!selectedActivity || !producto || cantidad <= 0} />
+              }} 
+              className={`border rounded px-2 py-1 w-20 ${productErrors[producto] ? 'border-red-500' : ''}`} 
+            />
+            {productErrors[producto] && (
+              <div className="text-red-600 text-xs mt-1">{productErrors[producto]}</div>
+            )}
+            <Button 
+              color="info" 
+              label="Agregar Producto" 
+              onClick={handleAddProduct} 
+              disabled={!selectedActivity || !producto || cantidad <= 0 || !!productErrors[producto]} 
+            />
           </div>
           <table className="w-full">
             <thead>

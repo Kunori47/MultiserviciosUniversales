@@ -69,6 +69,20 @@ export default function VehicleCreatePage() {
     }
   };
 
+  const validatePlate = (plate: string) => {
+    // Placa venezolana: 7 caracteres, puede ser ABC-123, ABC12D, etc.
+    // Aceptar solo letras y números y guion opcional en la posición 4
+    if (!plate) return true;
+    // Quitar guion para validar longitud
+    const clean = plate.replace(/-/g, "");
+    if (clean.length !== 7) return false;
+    // Validar formato: solo letras y números
+    if (!/^[A-Za-z0-9]+$/.test(clean)) return false;
+    // Si hay guion, debe estar en la posición 4
+    if (plate.includes("-") && plate.indexOf("-") !== 3) return false;
+    return true;
+  };
+
   if (loading) {
     return (
       <SectionMain>
@@ -108,6 +122,10 @@ export default function VehicleCreatePage() {
           }}
           onSubmit={async (values, { resetForm }) => {
             try {
+              if (!validatePlate(values.Placa)) {
+                alert("La placa debe tener 7 caracteres alfanuméricos (ej: ABC-123 o ABC12D)");
+                return;
+              }
               const res = await fetch(`http://127.0.0.1:8000/vehicle/create?CodigoMarca=${values.CodigoMarca}&NumeroCorrelativoModelo=${values.NumeroCorrelativoModelo}&Placa=${values.Placa}&FechaAdquisicion=${values.FechaAdquisicion}&TipoAceite=${values.TipoAceite}&CedulaCliente=${values.CedulaCliente}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -181,10 +199,13 @@ export default function VehicleCreatePage() {
                   <Field 
                     name="Placa" 
                     id="Placa" 
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2" 
+                    className={`w-full border-2 rounded-lg px-3 py-2 ${!validatePlate(values.Placa) && values.Placa ? 'border-red-500' : 'border-gray-300'}`}
                     required 
-                    placeholder="ABC-1234"
+                    placeholder="ABC123D"
                   />
+                  {values.Placa && !validatePlate(values.Placa) && (
+                    <p className="text-red-500 text-xs mt-1">La placa debe tener 7 caracteres alfanuméricos (ej: ABC-123 o ABC12D)</p>
+                  )}
                 </div>
 
                 {/* Fecha de Adquisición */}

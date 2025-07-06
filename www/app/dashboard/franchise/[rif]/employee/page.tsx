@@ -34,16 +34,19 @@ export default function TablesPage() {
 
       
       useEffect(() => {
+        const loadEmployees = () => {
           fetchEmployeeNameByFranchise(rif).then(data => {
             if (!data) {
-            setEmployee([]);
+              setEmployee([]);
             } else if (Array.isArray(data)) {
-            setEmployee(data);
+              setEmployee(data);
             } else {
-            setEmployee([data]);
+              setEmployee([data]);
             }
-        });
-        }, [rif]);
+          });
+        };
+        loadEmployees();
+      }, [rif]);
     
         // Función para buscar sugerencias de RIF
       const fetchCiSuggestions = async (query: string) => {
@@ -128,7 +131,17 @@ export default function TablesPage() {
       </SectionTitleLineWithButton>
 
       <CardBox className="mb-6" hasTable>
-        <TableEmployee employee={employee} />
+        <TableEmployee employee={employee} onRefresh={() => {
+          fetchEmployeeNameByFranchise(rif).then(data => {
+            if (!data) {
+              setEmployee([]);
+            } else if (Array.isArray(data)) {
+              setEmployee(data);
+            } else {
+              setEmployee([data]);
+            }
+          });
+        }} />
       </CardBox>
     </SectionMain>
   );
