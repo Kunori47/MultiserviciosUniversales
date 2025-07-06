@@ -10,6 +10,7 @@ def seed_tables():
 
         # 1. Empleados
         empleados = [
+            ('Despedido', 'Empleado Despedido', 'N/A', '0000-0000000', 0.00, None, 'Empleado'),
             ('V-12345670', 'Puta el Cat', 'Calle 2', '0412-0000000', 2500.00, None, 'Encargado'),
             ('V-12345678', 'Juan Pérez', 'Calle 1', '0412-0000000', 1500.00, None, 'Encargado'),
             ('V-87654321', 'María Gómez', 'Calle 2', '0412-0000001', 1200.00, None, 'Empleado'),

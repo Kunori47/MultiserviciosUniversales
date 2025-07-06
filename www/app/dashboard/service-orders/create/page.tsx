@@ -66,6 +66,7 @@ export default function CreateServiceOrderPage() {
   const [orderActivities, setOrderActivities] = useState<OrderActivity[]>([]);
   const [selectedService, setSelectedService] = useState<number | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
+  const [activityError, setActivityError] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -191,6 +192,12 @@ export default function CreateServiceOrderPage() {
   };
 
   const handleSubmit = async (values: any) => {
+    if (orderActivities.length === 0) {
+      setActivityError("Debe agregar al menos un servicio con su actividad.");
+      return;
+    } else {
+      setActivityError("");
+    }
     setSubmitting(true);
     try {
       // Crear la orden de servicio
@@ -562,6 +569,11 @@ export default function CreateServiceOrderPage() {
               </CardBox>
 
               <Divider />
+
+              {/* Mostrar error si no hay actividades */}
+              {activityError && (
+                <div className="text-red-600 font-semibold mb-4">{activityError}</div>
+              )}
 
               <div className="flex justify-end space-x-4">
                 <Button

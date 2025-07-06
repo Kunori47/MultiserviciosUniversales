@@ -300,6 +300,59 @@ def drop_franchise_manager_trigger():
         print(f"❌ Error dropping franchise manager trigger: {str(e)}")
         conn.rollback()
 
+def create_employee_deletion_trigger():
+    """
+    Create trigger to handle employee deletion and ensure EmpleadosOrdenes maintains referential integrity
+    """
+    try:
+        # Create the trigger for SQL Server
+        trigger_sql = """
+        IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'handle_employee_deletion')
+        BEGIN
+            EXEC('
+                CREATE TRIGGER handle_employee_deletion
+                ON Empleados
+                AFTER DELETE
+                AS
+                BEGIN
+                    SET NOCOUNT ON;
+                    
+                    -- Log the deletion for audit purposes
+                    INSERT INTO EmpleadosOrdenes (EmpleadoCI, OrdenServicioID)
+                    SELECT 
+                        N''Despedido'', 
+                        eo.OrdenServicioID
+                    FROM deleted d
+                    INNER JOIN EmpleadosOrdenes eo ON d.CI = eo.EmpleadoCI;
+                    
+                    -- The ON DELETE SET DEFAULT will automatically set EmpleadoCI to ''Despedido''
+                    -- for all related records in EmpleadosOrdenes
+                END
+            ')
+        END
+        """
+        
+        cursor.execute(trigger_sql)
+        conn.commit()
+        print("✅ Trigger 'handle_employee_deletion' created successfully!")
+        
+    except Exception as e:
+        print(f"❌ Error creating employee deletion trigger: {str(e)}")
+        conn.rollback()
+
+def drop_employee_deletion_trigger():
+    """
+    Drop the employee deletion trigger if needed
+    """
+    try:
+        cursor.execute("DROP TRIGGER IF EXISTS handle_employee_deletion")
+        conn.commit()
+        print("✅ Trigger 'handle_employee_deletion' dropped successfully!")
+        
+    except Exception as e:
+        print(f"❌ Error dropping employee deletion trigger: {str(e)}")
+        conn.rollback()
+
 if __name__ == "__main__":
     print("Creating inventory triggers...")
     create_inventory_trigger()
@@ -307,3 +360,4 @@ if __name__ == "__main__":
     create_service_order_trigger()
     create_franchise_manager_trigger()
     create_assign_franquicia_to_manager_trigger()
+    create_employee_deletion_trigger()

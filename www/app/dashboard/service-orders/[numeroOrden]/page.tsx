@@ -50,6 +50,8 @@ export default function EmployeeOrderDetailPage() {
   const [orderProducts, setOrderProducts] = useState<any[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [productErrors, setProductErrors] = useState<{ [key: string]: string }>({});
+  const [activityProductError, setActivityProductError] = useState<string>("");
+  const [activityCostError, setActivityCostError] = useState<string>("");
 
   useEffect(() => {
     if (numeroOrden) {
@@ -97,6 +99,28 @@ export default function EmployeeOrderDetailPage() {
   };
 
   const handleSaveSalida = async () => {
+    // Validación: cada actividad debe tener al menos un producto utilizado
+    const missingProducts = activities.filter(act =>
+      !orderProducts.some(prod =>
+        prod.CodigoServicio === act.CodigoServicio &&
+        prod.NumeroCorrelativoActividad === act.NumeroCorrelativoActividad
+      )
+    );
+    if (missingProducts.length > 0) {
+      setActivityProductError("Cada actividad debe tener al menos un producto utilizado.");
+      setActivityCostError("");
+      return;
+    } else {
+      setActivityProductError("");
+    }
+    // Validación: cada actividad debe tener un costo de mano de obra mayor a 0
+    const missingCost = activities.filter(act => !act.Costo_Act || act.Costo_Act <= 0);
+    if (missingCost.length > 0) {
+      setActivityCostError("Cada actividad debe tener un costo de mano de obra mayor a 0.");
+      return;
+    } else {
+      setActivityCostError("");
+    }
     try {
       // 1. Guardar/actualizar actividades en OrdenesActividades
       for (const act of activities) {
@@ -272,6 +296,14 @@ export default function EmployeeOrderDetailPage() {
         <Divider />
         <CardBox>
           <h3 className="font-bold mb-2">Productos Utilizados</h3>
+          {/* Mostrar error si falta producto en alguna actividad */}
+          {activityProductError && (
+            <div className="text-red-600 font-semibold mb-4">{activityProductError}</div>
+          )}
+          {/* Mostrar error si falta costo en alguna actividad */}
+          {activityCostError && (
+            <div className="text-red-600 font-semibold mb-4">{activityCostError}</div>
+          )}
           <div className="mb-4 flex gap-2 items-end">
             <select
               value={selectedActivity}

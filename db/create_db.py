@@ -1,6 +1,6 @@
 from db.database import conn, cursor
 from db.insert_db import seed_tables
-from db.create_trigger import create_assign_franquicia_to_manager_trigger, create_inventory_trigger, create_correction_trigger, create_service_order_trigger, create_franchise_manager_trigger
+from db.create_trigger import create_assign_franquicia_to_manager_trigger, create_inventory_trigger, create_correction_trigger, create_service_order_trigger, create_franchise_manager_trigger, create_employee_deletion_trigger
 import pyodbc
 
 def crear_base_datos():
@@ -27,7 +27,7 @@ def crear_base_datos():
         cursor.execute("""
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Empleados' AND xtype='U')
         CREATE TABLE Empleados(
-            CI VARCHAR(10),
+            CI VARCHAR(10) DEFAULT 'Despedido',
             NombreCompleto VARCHAR(100) NOT NULL,
             Direccion VARCHAR(100) NOT NULL,
             Telefono CHAR(12) NOT NULL CHECK(LEN(Telefono) = 12),
@@ -341,7 +341,7 @@ def crear_base_datos():
             NumeroTarjeta CHAR(16) CHECK (LEN(NumeroTarjeta) = 16),
             BancoTarjeta VARCHAR(50),
             MontoEfectivo DECIMAL(10, 2) CHECK (MontoEfectivo >= 0),
-            MonedaEfectivo VARCHAR(50) CHECK (MonedaEfectivo IN ('Bolívar', 'Dólar', 'Euro')),
+            MonedaEfectivo VARCHAR(50),
             FechaPagoMovil DATE,
             TelefonoPagoMovil CHAR(12) CHECK (LEN(TelefonoPagoMovil) = 12),
             ReferenciaPagoMovil VARCHAR(50),
@@ -469,11 +469,11 @@ def crear_base_datos():
             """),
             ("EmpleadosOrdenes", """
                 CREATE TABLE EmpleadosOrdenes(
-                    EmpleadoCI VARCHAR(10),
+                    EmpleadoCI VARCHAR(10) DEFAULT 'Despedido',
                     OrdenServicioID INT,
                     PRIMARY KEY(EmpleadoCI, OrdenServicioID),
                     FOREIGN KEY (EmpleadoCI) REFERENCES Empleados(CI)
-                        ON DELETE NO ACTION
+                        ON DELETE SET DEFAULT
                         ON UPDATE CASCADE,
                     FOREIGN KEY (OrdenServicioID) REFERENCES OrdenesServicio(ID)
                         ON DELETE CASCADE
@@ -825,6 +825,7 @@ if __name__ == "__main__":
         create_service_order_trigger()
         create_franchise_manager_trigger()
         create_assign_franquicia_to_manager_trigger()
+        create_employee_deletion_trigger()
         seed_tables()
         
         print("\n✅Proceso completado exitosamente!")
