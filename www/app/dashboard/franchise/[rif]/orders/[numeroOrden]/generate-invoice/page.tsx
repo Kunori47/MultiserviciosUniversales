@@ -915,16 +915,30 @@ export default function GenerateInvoicePage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-medium">Total Pagado:</span>
-                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(totalPaid)}
+                <span className={`text-lg font-bold ${Math.abs((payments.some(p => (p.metodo === "Efectivo" && p.montoEfectivo === -1) || (p.metodo === "Tarjeta" && p.montoTarjeta === -1) || (p.metodo === "Pago Móvil" && p.montoPagoMovil === -1)) ? grandTotal : totalPaid) - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(
+                    payments.some(p =>
+                      (p.metodo === "Efectivo" && p.montoEfectivo === -1) ||
+                      (p.metodo === "Tarjeta" && p.montoTarjeta === -1) ||
+                      (p.metodo === "Pago Móvil" && p.montoPagoMovil === -1)
+                    ) ? grandTotal : totalPaid
+                  )}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Diferencia:</span>
-                <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(totalPaid - grandTotal)}
-                </span>
-              </div>
+              {/* Mostrar diferencia solo si ningún pago tiene -1 */}
+              {payments.every(p => {
+                if (p.metodo === "Efectivo") return p.montoEfectivo !== -1;
+                if (p.metodo === "Tarjeta") return p.montoTarjeta !== -1;
+                if (p.metodo === "Pago Móvil") return p.montoPagoMovil !== -1;
+                return true;
+              }) && (
+                <div className="flex justify-between">
+                  <span className="font-medium">Diferencia:</span>
+                  <span className={`text-lg font-bold ${Math.abs(totalPaid - grandTotal) <= 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(totalPaid - grandTotal)}
+                  </span>
+                </div>
+              )}
             </div>
           </CardBox>
 
