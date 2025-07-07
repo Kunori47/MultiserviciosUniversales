@@ -126,16 +126,6 @@ const TableVendor = ({ vendors, onDelete }: Props) => {
                     small
                     isGrouped
                   />
-                  <Button
-                    color="danger"
-                    icon={mdiTrashCan}
-                    onClick={() => {
-                      setIsModalTrashActive(true);
-                      setSelectedVendor(v);
-                    }}
-                    small
-                    isGrouped
-                  />
                 </Buttons>
               </td>
             </tr>

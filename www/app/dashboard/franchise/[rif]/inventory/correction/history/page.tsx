@@ -234,7 +234,6 @@ export default function CorrectionHistoryPage() {
                       <tr className="border-b border-gray-200">
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Fecha</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Producto</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Categoría</th>
                         <th className="text-center py-3 px-4 font-semibold text-gray-700">Cantidad</th>
                         <th className="text-center py-3 px-4 font-semibold text-gray-700">Tipo de Ajuste</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Comentario</th>
@@ -251,9 +250,6 @@ export default function CorrectionHistoryPage() {
                               <p className="font-medium text-gray-800">{correction.NombreProducto}</p>
                               <p className="text-sm text-gray-500">Código: {correction.CodigoProducto}</p>
                             </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">
-                            {correction.Categoria}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className={`font-semibold ${getAdjustmentTypeColor(correction.TipoAjuste)}`}>

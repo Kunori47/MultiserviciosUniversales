@@ -81,7 +81,7 @@ export default function VendorEditPage() {
         main
       >
         <Button
-          href={`/dashboard/vendor/${rif}`}
+          href={`/dashboard/vendor`}
           color="info"
           label="Atras"
           icon={mdiArrowLeft}
@@ -242,35 +242,46 @@ export default function VendorEditPage() {
                     {supplyRows.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">No hay productos agregados</div>
                     ) : (
-                      supplyRows.map((selected, idx) => (
-                        <div key={idx} className="grid grid-cols-12 gap-2 items-center p-4 border-t border-gray-700 bg-gray-800">
-                          <div className="col-span-10">
-                            <select
-                              value={selected}
-                              onChange={e => updateSupplyRow(idx, e.target.value)}
-                              className="w-full border-2 border-gray-700 rounded-lg px-3 py-2 bg-gray-900 text-gray-100 focus:border-blue-500 focus:outline-none"
-                            >
-                              <option value="">Seleccione un producto</option>
-                              {products.map(p => (
-                                <option key={p.CodigoProducto} value={p.CodigoProducto}>
-                                  {p.NombreProducto}
-                                </option>
-                              ))}
-                            </select>
+                      supplyRows.map((selected, idx) => {
+                        // Calcula los productos seleccionados en otras filas
+                        const selectedProductIds = supplyRows
+                          .map((val, i) => i !== idx ? val : null)
+                          .filter((id) => id !== null && id !== "");
+                        const availableProducts = products.filter(
+                          (product) =>
+                            !selectedProductIds.includes(String(product.CodigoProducto)) ||
+                            String(product.CodigoProducto) === selected
+                        );
+                        return (
+                          <div key={idx} className="grid grid-cols-12 gap-2 items-center p-4 border-t border-gray-700 bg-gray-800">
+                            <div className="col-span-10">
+                              <select
+                                value={selected}
+                                onChange={e => updateSupplyRow(idx, e.target.value)}
+                                className="w-full border-2 border-gray-700 rounded-lg px-3 py-2 bg-gray-900 text-gray-100 focus:border-blue-500 focus:outline-none"
+                              >
+                                <option value="">Seleccione un producto</option>
+                                {availableProducts.map(p => (
+                                  <option key={p.CodigoProducto} value={p.CodigoProducto}>
+                                    {p.NombreProducto}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="col-span-2 flex justify-center">
+                              <Button
+                                type="button"
+                                onClick={() => removeSupplyRow(idx)}
+                                color="danger"
+                                outline
+                                icon={mdiTrashCan}
+                                small
+                                label="Eliminar"
+                              />
+                            </div>
                           </div>
-                          <div className="col-span-2 flex justify-center">
-                            <Button
-                              type="button"
-                              onClick={() => removeSupplyRow(idx)}
-                              color="danger"
-                              outline
-                              icon={mdiTrashCan}
-                              small
-                              label="Eliminar"
-                            />
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 )}

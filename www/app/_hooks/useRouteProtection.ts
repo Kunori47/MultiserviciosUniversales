@@ -26,6 +26,7 @@ const MANAGER_ONLY_ROUTES = [
 const EMPLOYEE_ONLY_ROUTES = [
   "/dashboard/service-orders",
   "/dashboard/vehicle",
+  "/dashboard/models",
 ];
 
 // Rutas que requieren que el usuario pertenezca a la franquicia específica
@@ -39,6 +40,9 @@ const FRANCHISE_SPECIFIC_ROUTES = [
   "/dashboard/franchise/[rif]/profitability",
   "/dashboard/franchise/[rif]/revenue",
 ];
+
+// Rutas permitidas para empleados y encargados (detalle de modelo)
+const MODEL_DETAIL_ROUTE = "/dashboard/brands/detail";
 
 export const useRouteProtection = () => {
   const { employee, userRole, loading } = useAuth();
@@ -77,6 +81,10 @@ export const useRouteProtection = () => {
 
     // Lógica de protección de rutas
     if (userRole === 'Encargado') {
+      // Permitir acceso a detalle de modelo
+      if (pathname.startsWith(MODEL_DETAIL_ROUTE)) {
+        return;
+      }
       console.log("Procesando Encargado - Ruta:", pathname);
       
       // 1. Encargado no puede acceder a rutas de administrador
@@ -105,6 +113,10 @@ export const useRouteProtection = () => {
     }
 
     if (userRole === 'Empleado') {
+      // Permitir acceso a detalle de modelo
+      if (pathname.startsWith(MODEL_DETAIL_ROUTE)) {
+        return;
+      }
       console.log("Procesando Empleado - Ruta:", pathname);
       
       // 1. Empleado solo puede acceder a órdenes de servicio

@@ -167,6 +167,9 @@ class GetController:
     def get_services_by_order(self, numero_orden: int):
         return self.get_service.getServicesByOrder(numero_orden)
 
+    def get_all_models_with_brand_name(self):
+        return self.get_service.getAllModelsWithBrandName()
+
 class PostController:
     def __init__(self):
         self.post_service = PostService()

@@ -53,9 +53,11 @@ export default function CustomerInfoPage() {
     fetchCustomerData();
   }, [ci]);
 
+  // Copia la función de formateo de TableCustomer.tsx
   const formatPhone = (phone: string) => {
-    if (phone.length === 12) {
-      return `${phone.slice(0, 4)}-${phone.slice(4, 7)}-${phone.slice(7, 10)}-${phone.slice(10)}`;
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 12) {
+      return `${digits.slice(0, 4)}-${digits.slice(4)}`;
     }
     return phone;
   };
@@ -118,11 +120,11 @@ export default function CustomerInfoPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             <span className="ml-2 text-gray-600">Cargando teléfonos...</span>
           </div>
-        ) : phones.length === 0 ? (
+        ) : (Array.isArray(phones) ? phones : []).length === 0 ? (
           <div className="text-center py-8 text-gray-500">Este cliente no tiene teléfonos registrados</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {phones.map((phone, index) => (
+            {(Array.isArray(phones) ? phones : []).map((phone, index) => (
               <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2">
                   <i className="mdi mdi-phone text-blue-600"></i>

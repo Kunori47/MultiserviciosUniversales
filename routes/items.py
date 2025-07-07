@@ -1355,3 +1355,13 @@ async def read_remenfranq(FranquiciaRIF: str, Anio: str, Mes: str):
     result = [dict(zip(columns, row)) for row in rows]
     return result
 
+@router.get("/models/all", tags=["Modelo"])
+async def get_all_models():
+    """
+    Devuelve todos los modelos de todas las marcas, incluyendo el nombre de la marca.
+    """
+    try:
+        return GetController().get_all_models_with_brand_name()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener los modelos: {str(e)}")
+

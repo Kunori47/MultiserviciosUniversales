@@ -229,6 +229,8 @@ export default function InventoryCorrectionPage() {
     );
   }
 
+  const selectedProductIds = correctionItems.map(item => item.CodigoProducto);
+
   return (
     <>
       <SectionMain>
@@ -324,107 +326,118 @@ export default function InventoryCorrectionPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {correctionItems.map((item, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Producto *
-                          </label>
-                          <select
-                            value={item.CodigoProducto}
-                            onChange={(e) => updateCorrectionItem(index, 'CodigoProducto', parseInt(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          >
-                            <option value={0}>Seleccione un producto</option>
-                            {products.map((product) => (
-                              <option 
-                                key={product.CodigoProducto} 
-                                value={product.CodigoProducto}
-                                disabled={isProductCorrected(product.CodigoProducto)}
-                              >
-                                {product.NombreProducto} - {product.Categoria}
-                                {isProductCorrected(product.CodigoProducto) && ' (Ya corregido este mes)'}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad Actual
-                          </label>
-                          <div className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
-                            {item.CantidadActual}
+                  {correctionItems.map((item, index) => {
+                    // Calcula los productos seleccionados en otras filas
+                    const selectedProductIds = correctionItems
+                      .map((ci, i) => i !== index ? ci.CodigoProducto : null)
+                      .filter((id) => id !== null && id !== 0);
+                    const availableProducts = products.filter(
+                      (product) =>
+                        !selectedProductIds.includes(product.CodigoProducto) ||
+                        product.CodigoProducto === item.CodigoProducto
+                    );
+                    return (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Producto *
+                            </label>
+                            <select
+                              value={item.CodigoProducto}
+                              onChange={(e) => updateCorrectionItem(index, 'CodigoProducto', parseInt(e.target.value))}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value={0}>Seleccione un producto</option>
+                              {availableProducts.map((product) => (
+                                <option
+                                  key={product.CodigoProducto}
+                                  value={product.CodigoProducto}
+                                  disabled={isProductCorrected(product.CodigoProducto)}
+                                >
+                                  {product.NombreProducto} - {product.Categoria}
+                                  {isProductCorrected(product.CodigoProducto) && ' (Ya corregido este mes)'}
+                                </option>
+                              ))}
+                            </select>
                           </div>
-                        </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Tipo de Ajuste
-                          </label>
-                          <select
-                            value={item.TipoAjuste}
-                            onChange={(e) => updateCorrectionItem(index, 'TipoAjuste', e.target.value as 'incremento' | 'decremento')}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          >
-                            <option value="incremento">Incremento (+)</option>
-                            <option value="decremento">Decremento (-)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad de Ajuste
-                          </label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.CantidadAjuste}
-                            onChange={(e) => updateCorrectionItem(index, 'CantidadAjuste', parseInt(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad Final
-                          </label>
-                          <div className={`w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50 font-semibold ${
-                            item.TipoAjuste === 'incremento' ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {item.TipoAjuste === 'incremento' 
-                              ? item.CantidadActual + item.CantidadAjuste 
-                              : item.CantidadActual - item.CantidadAjuste}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Cantidad Actual
+                            </label>
+                            <div className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
+                              {item.CantidadActual}
+                            </div>
                           </div>
-                        </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Comentario
-                          </label>
-                          <input
-                            type="text"
-                            value={item.Comentario}
-                            onChange={(e) => updateCorrectionItem(index, 'Comentario', e.target.value)}
-                            placeholder="Motivo del ajuste..."
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          />
-                        </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Tipo de Ajuste
+                            </label>
+                            <select
+                              value={item.TipoAjuste}
+                              onChange={(e) => updateCorrectionItem(index, 'TipoAjuste', e.target.value as 'incremento' | 'decremento')}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value="incremento">Incremento (+)</option>
+                              <option value="decremento">Decremento (-)</option>
+                            </select>
+                          </div>
 
-                        <div>
-                          <Button
-                            onClick={() => removeProductFromCorrection(index)}
-                            color="danger"
-                            outline
-                            icon={mdiMinus}
-                            small
-                            label="Eliminar"
-                          />
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Cantidad de Ajuste
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.CantidadAjuste}
+                              onChange={(e) => updateCorrectionItem(index, 'CantidadAjuste', parseInt(e.target.value))}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Cantidad Final
+                            </label>
+                            <div className={`w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50 font-semibold ${
+                              item.TipoAjuste === 'incremento' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {item.TipoAjuste === 'incremento' 
+                                ? item.CantidadActual + item.CantidadAjuste 
+                                : item.CantidadActual - item.CantidadAjuste}
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Comentario
+                            </label>
+                            <input
+                              type="text"
+                              value={item.Comentario}
+                              onChange={(e) => updateCorrectionItem(index, 'Comentario', e.target.value)}
+                              placeholder="Motivo del ajuste..."
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <Button
+                              onClick={() => removeProductFromCorrection(index)}
+                              color="danger"
+                              outline
+                              icon={mdiMinus}
+                              small
+                              label="Eliminar"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

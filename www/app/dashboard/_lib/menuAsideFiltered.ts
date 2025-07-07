@@ -1,7 +1,7 @@
 import { UserRole } from "../../_hooks/useAuth";
 import menuAside from "./menuAside";
 import { MenuAsideItem } from "../../_interfaces";
-import { mdiBallotOutline, mdiWrench } from "@mdi/js";
+import { mdiAutoMode, mdiBallotOutline, mdiCar, mdiWrench } from "@mdi/js";
 
 export const getFilteredMenu = (userRole: UserRole, franchiseRIF?: string): MenuAsideItem[] => {
   if (userRole === 'Administrador') {
@@ -18,11 +18,6 @@ export const getFilteredMenu = (userRole: UserRole, franchiseRIF?: string): Menu
         label: "Mi Franquicia",
       },
       {
-        href: `/dashboard/franchise/${franchiseRIF}/orders`,
-        icon: mdiBallotOutline,
-        label: "Órdenes de Servicio",
-      },
-      {
         href: `/dashboard/franchise/${franchiseRIF}/employee`,
         icon: menuAside.find(item => item.href === "/dashboard/customer")?.icon,
         label: "Empleados",
@@ -36,6 +31,11 @@ export const getFilteredMenu = (userRole: UserRole, franchiseRIF?: string): Menu
         href: `/dashboard/customer`,
         icon: menuAside.find(item => item.href === "/dashboard/customer")?.icon,
         label: "Clientes",
+      },
+      {
+        href: "/dashboard/models",
+        label: "Modelos",
+        icon: mdiAutoMode,
       },
       {
         href: `/dashboard/vehicle`,
@@ -69,6 +69,11 @@ export const getFilteredMenu = (userRole: UserRole, franchiseRIF?: string): Menu
         href: `/dashboard/service-orders`,
         icon: mdiBallotOutline,
         label: "Órdenes de Servicio",
+      },
+      {
+        href: "/dashboard/models",
+        label: "Modelos",
+        icon: mdiAutoMode,
       },
       {
         href: `/dashboard/vehicle`,

@@ -149,7 +149,7 @@ export default function PurchaseDetailsPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Número de Compra:</span>
-                    <span className="font-semibold">#{purchaseInfo.NumeroCompra}</span>
+                    <span className="font-semibold">#{purchaseInfo.Numero}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Fecha:</span>
@@ -184,7 +184,7 @@ export default function PurchaseDetailsPage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Dirección:</span>
-                    <span className="font-semibold">{purchaseInfo.DireccionProveedor}</span>
+                    <span className="font-semibold">{purchaseInfo.Direccion}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Contacto:</span>

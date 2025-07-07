@@ -298,35 +298,46 @@ export default function EmployeeUpdatePage() {
                     {specialtyRows.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">No hay especialidades agregadas</div>
                     ) : (
-                      specialtyRows.map((selected, idx) => (
-                        <div key={idx} className="grid grid-cols-12 gap-2 items-center p-4 border-t border-gray-700 bg-gray-800">
-                          <div className="col-span-10">
-                            <select
-                              value={selected}
-                              onChange={e => updateSpecialtyRow(idx, e.target.value)}
-                              className="w-full border-2 border-gray-700 rounded-lg px-3 py-2 bg-gray-900 text-gray-100 focus:border-blue-500 focus:outline-none"
-                            >
-                              <option value="">Seleccione una especialidad</option>
-                              {specialties.map(s => (
-                                <option key={s.CodigoEspecialidad} value={s.CodigoEspecialidad}>
-                                  {s.DescripcionEspecialidad}
-                                </option>
-                              ))}
-                            </select>
+                      specialtyRows.map((selected, idx) => {
+                        // Calcula las especialidades seleccionadas en otras filas
+                        const selectedSpecialtyIds = specialtyRows
+                          .map((val, i) => i !== idx ? val : null)
+                          .filter((id) => id !== null && id !== "");
+                        const availableSpecialties = specialties.filter(
+                          (specialty) =>
+                            !selectedSpecialtyIds.includes(String(specialty.CodigoEspecialidad)) ||
+                            String(specialty.CodigoEspecialidad) === selected
+                        );
+                        return (
+                          <div key={idx} className="grid grid-cols-12 gap-2 items-center p-4 border-t border-gray-700 bg-gray-800">
+                            <div className="col-span-10">
+                              <select
+                                value={selected}
+                                onChange={e => updateSpecialtyRow(idx, e.target.value)}
+                                className="w-full border-2 border-gray-700 rounded-lg px-3 py-2 bg-gray-900 text-gray-100 focus:border-blue-500 focus:outline-none"
+                              >
+                                <option value="">Seleccione una especialidad</option>
+                                {availableSpecialties.map(s => (
+                                  <option key={s.CodigoEspecialidad} value={s.CodigoEspecialidad}>
+                                    {s.DescripcionEspecialidad}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="col-span-2 flex justify-center">
+                              <Button
+                                type="button"
+                                onClick={() => removeSpecialtyRow(idx)}
+                                color="danger"
+                                outline
+                                icon={mdiTrashCan}
+                                small
+                                label="Eliminar"
+                              />
+                            </div>
                           </div>
-                          <div className="col-span-2 flex justify-center">
-                            <Button
-                              type="button"
-                              onClick={() => removeSpecialtyRow(idx)}
-                              color="danger"
-                              outline
-                              icon={mdiTrashCan}
-                              small
-                              label="Eliminar"
-                            />
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 )}

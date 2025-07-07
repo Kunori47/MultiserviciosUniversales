@@ -1124,6 +1124,21 @@ class GetService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error obteniendo servicios de la orden: {str(e)}")
 
+    def getAllModelsWithBrandName(self):
+        try:
+            query = (
+                "SELECT m.CodigoMarca, m.NumeroCorrelativoModelo, m.DescripcionModelo, m.CantidadPuestos, m.TipoRefrigerante, m.TipoGasolina, m.TipoAceite, m.Peso, b.Nombre as MarcaNombre "
+                "FROM Modelos m "
+                "JOIN Marcas b ON m.CodigoMarca = b.CodigoMarca "
+                "ORDER BY b.Nombre, m.NumeroCorrelativoModelo"
+            )
+            database.execute(query)
+            columns = [column[0] for column in database.description]
+            results = [dict(zip(columns, row)) for row in database.fetchall()]
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al obtener los modelos: {str(e)}")
+
 class PostService:
     def postData(self, table_name: str, data: dict):
         try:

@@ -9,6 +9,7 @@ import SectionTitleLineWithButton from '../../../../_components/Section/TitleLin
 import CardBox from '../../../../_components/CardBox';
 import { Field, Formik } from 'formik';
 import FormField from '../../../../_components/FormField';
+import { useAuth } from '../../../../_hooks/useAuth';
 
 interface Model {
   CodigoMarca: number;
@@ -27,6 +28,7 @@ interface Brand {
 }
 
 export default function BrandDetailPage() {
+  const { userRole } = useAuth();
   const [loading, setLoading] = useState(true);
   const [models, setModels] = useState<Model[]>([]);
   const [brand, setBrand] = useState<Brand | null>(null);
@@ -52,6 +54,7 @@ export default function BrandDetailPage() {
         const modelsResponse = await fetch(`http://127.0.0.1:8000/brand/${codigoMarca}/models`);
         if (modelsResponse.ok) {
           const modelsData = await modelsResponse.json();
+          // Si el usuario es empleado o encargado, mostrar todos los modelos
           setModels(modelsData);
         }
       } catch (error) {
@@ -62,7 +65,7 @@ export default function BrandDetailPage() {
     };
 
     fetchData();
-  }, [codigoMarca]);
+  }, [codigoMarca, userRole]);
 
   useEffect(() => {
     setFilteredModels(models);

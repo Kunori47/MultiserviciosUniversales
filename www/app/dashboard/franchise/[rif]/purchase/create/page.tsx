@@ -342,92 +342,103 @@ export default function CreatePurchasePage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {purchaseItems.map((item, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Producto *
-                          </label>
-                          <select
-                            value={item.CodigoProducto}
-                            onChange={(e) => updatePurchaseItem(index, 'CodigoProducto', parseInt(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          >
-                            <option value={0}>Seleccione un producto</option>
-                            {products.map((product) => (
-                              <option key={product.CodigoProducto} value={product.CodigoProducto}>
-                                {product.NombreProducto} - {product.Categoria}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                  {purchaseItems.map((item, index) => {
+                    // Calcula los productos seleccionados en otras filas
+                    const selectedProductIds = purchaseItems
+                      .map((ci, i) => i !== index ? ci.CodigoProducto : null)
+                      .filter((id) => id !== null && id !== 0);
+                    const availableProducts = products.filter(
+                      (product) =>
+                        !selectedProductIds.includes(product.CodigoProducto) ||
+                        product.CodigoProducto === item.CodigoProducto
+                    );
+                    return (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Producto *
+                            </label>
+                            <select
+                              value={item.CodigoProducto}
+                              onChange={(e) => updatePurchaseItem(index, 'CodigoProducto', parseInt(e.target.value))}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value={0}>Seleccione un producto</option>
+                              {availableProducts.map((product) => (
+                                <option key={product.CodigoProducto} value={product.CodigoProducto}>
+                                  {product.NombreProducto} - {product.Categoria}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad Pedida
-                          </label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.CantidadPedida}
-                            onChange={(e) => updatePurchaseItem(index, 'CantidadPedida', parseInt(e.target.value))}
-                            className={`w-full border-2 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none ${purchaseErrors[index] ? 'border-red-500' : 'border-gray-300'}`}
-                          />
-                          {purchaseErrors[index] && (
-                            <div className="text-red-600 text-xs mt-1">{purchaseErrors[index]}</div>
-                          )}
-                        </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Cantidad Pedida
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.CantidadPedida}
+                              onChange={(e) => updatePurchaseItem(index, 'CantidadPedida', parseInt(e.target.value))}
+                              className={`w-full border-2 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none ${purchaseErrors[index] ? 'border-red-500' : 'border-gray-300'}`}
+                            />
+                            {purchaseErrors[index] && (
+                              <div className="text-red-600 text-xs mt-1">{purchaseErrors[index]}</div>
+                            )}
+                          </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad Disponible
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={item.CantidadDisponible}
-                            onChange={(e) => updatePurchaseItem(index, 'CantidadDisponible', parseInt(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          />
-                        </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Cantidad Disponible
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={item.CantidadDisponible}
+                              onChange={(e) => updatePurchaseItem(index, 'CantidadDisponible', parseInt(e.target.value))}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            />
+                          </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Monto
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.Monto}
-                            onChange={(e) => updatePurchaseItem(index, 'Monto', parseFloat(e.target.value))}
-                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
-                          />
-                        </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Monto
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.Monto}
+                              onChange={(e) => updatePurchaseItem(index, 'Monto', parseFloat(e.target.value))}
+                              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none"
+                            />
+                          </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Precio Unitario
-                          </label>
-                          <div className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
-                            {item.CantidadPedida > 0 ? formatCurrency(item.Monto / item.CantidadPedida) : formatCurrency(0)}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Precio Unitario
+                            </label>
+                            <div className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
+                              {item.CantidadPedida > 0 ? formatCurrency(item.Monto / item.CantidadPedida) : formatCurrency(0)}
+                            </div>
+                          </div>
+
+                          <div>
+                            <Button
+                              onClick={() => removeProductFromPurchase(index)}
+                              color="danger"
+                              outline
+                              icon={mdiTrashCan}
+                              small
+                              label="Eliminar"
+                            />
                           </div>
                         </div>
-
-                        <div>
-                          <Button
-                            onClick={() => removeProductFromPurchase(index)}
-                            color="danger"
-                            outline
-                            icon={mdiTrashCan}
-                            small
-                            label="Eliminar"
-                          />
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

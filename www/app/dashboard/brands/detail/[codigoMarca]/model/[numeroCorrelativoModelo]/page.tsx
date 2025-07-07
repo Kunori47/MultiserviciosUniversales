@@ -9,6 +9,7 @@ import SectionTitleLineWithButton from '../../../../../../_components/Section/Ti
 import CardBox from '../../../../../../_components/CardBox';
 import FormField from '../../../../../../_components/FormField';
 import { Field, Form, Formik } from 'formik';
+import { useAuth } from '../../../../../../_hooks/useAuth';
 
 interface Model {
   CodigoMarca: number;
@@ -36,6 +37,7 @@ interface Brand {
 }
 
 export default function ModelDetailPage() {
+  const { userRole } = useAuth();
   const [loading, setLoading] = useState(true);
   const [model, setModel] = useState<Model | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
@@ -168,23 +170,27 @@ export default function ModelDetailPage() {
   return (
     <SectionMain>
       <SectionTitleLineWithButton icon={mdiCar} title={`Detalle del Modelo ${model.NumeroCorrelativoModelo} - ${brand.Nombre}`} main>
-        <Button
-          label="Editar Modelo"
-          icon={mdiPencil}
-          color="info"
-          href={`/dashboard/brands/detail/${codigoMarca}/model/${model.NumeroCorrelativoModelo}/edit`}
-        />
-        <Button
-          label="Agregar Plan de Mantenimiento"
-          icon={mdiPlus}
-          color="success"
-          href={`/dashboard/brands/detail/${codigoMarca}/model/${model.NumeroCorrelativoModelo}/maintenance-plan/new`}
-        />
+        {userRole === 'Administrador' && (
+          <>
+            <Button
+              label="Editar Modelo"
+              icon={mdiPencil}
+              color="info"
+              href={`/dashboard/brands/detail/${codigoMarca}/model/${model.NumeroCorrelativoModelo}/edit`}
+            />
+            <Button
+              label="Agregar Plan de Mantenimiento"
+              icon={mdiPlus}
+              color="success"
+              href={`/dashboard/brands/detail/${codigoMarca}/model/${model.NumeroCorrelativoModelo}/maintenance-plan/new`}
+            />
+          </>
+        )}
         <Button
           label="Volver"
           icon={mdiArrowLeft}
           color="info"
-          href={`/dashboard/brands/detail/${codigoMarca}`}
+          href={userRole === 'Administrador' ? `/dashboard/brands/detail/${codigoMarca}` : '/dashboard/models'}
         />
       </SectionTitleLineWithButton>
 

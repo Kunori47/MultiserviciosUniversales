@@ -6,6 +6,10 @@ import {
   mdiContentSave,
   mdiAccountPlus,
   mdiAccountRemove,
+  mdiPlus,
+  mdiPencil,
+  mdiDelete,
+  mdiListBox,
 } from "@mdi/js";
 import Button from "../../../../../../_components/Button";
 import CardBox from "../../../../../../_components/CardBox";
@@ -30,6 +34,12 @@ interface EmployeeResponsibility {
   CodigoServicio: number;
 }
 
+interface Activity {
+  CodigoServicio: number;
+  NumeroCorrelativoActividad: number;
+  DescripcionActividad: string;
+}
+
 export default function EditServicePage() {
   const params = useParams();
   const router = useRouter();
@@ -50,6 +60,16 @@ export default function EditServicePage() {
   const [currentResponsibilities, setCurrentResponsibilities] = useState<EmployeeResponsibility[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [loadingEmployees, setLoadingEmployees] = useState(false);
+  
+  // Estados para actividades
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
+  const [showAddActivity, setShowAddActivity] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [newActivity, setNewActivity] = useState({
+    NumeroCorrelativoActividad: 1,
+    DescripcionActividad: ""
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -76,10 +96,11 @@ export default function EditServicePage() {
       const franchiseData = await franchiseRes.json();
       setFranchise(franchiseData);
 
-      // Fetch employees and responsibilities
+      // Fetch employees, responsibilities and activities
       await Promise.all([
         fetchEmployees(),
-        fetchCurrentResponsibilities()
+        fetchCurrentResponsibilities(),
+        fetchActivities()
       ]);
     } catch (err) {
       console.error("Error:", err);
@@ -118,6 +139,21 @@ export default function EditServicePage() {
     } catch (err) {
       console.error("Error fetching responsibilities:", err);
       setCurrentResponsibilities([]);
+    }
+  };
+
+  const fetchActivities = async () => {
+    try {
+      setLoadingActivities(true);
+      const res = await fetch(`http://127.0.0.1:8000/activity/service/${codigoServicio}`);
+      if (!res.ok) throw new Error("Error cargando actividades");
+      const data = await res.json();
+      setActivities(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching activities:", err);
+      setActivities([]);
+    } finally {
+      setLoadingActivities(false);
     }
   };
 
@@ -172,6 +208,93 @@ export default function EditServicePage() {
     }
   };
 
+  // Funciones para manejar actividades
+  const handleAddActivity = async () => {
+    if (!service || !newActivity.DescripcionActividad.trim()) return;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/activity/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          CodigoServicio: service.CodigoServicio,
+          NumeroCorrelativoActividad: newActivity.NumeroCorrelativoActividad,
+          DescripcionActividad: newActivity.DescripcionActividad.trim()
+        }),
+      });
+
+      if (!res.ok) throw new Error("Error creando actividad");
+
+      // Actualizar la lista de actividades
+      await fetchActivities();
+      const maxNum = activities.length > 0
+        ? Math.max(...activities.map(a => a.NumeroCorrelativoActividad))
+        : 0;
+      setNewActivity({ NumeroCorrelativoActividad: maxNum + 1, DescripcionActividad: "" });
+      setShowAddActivity(false);
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Error al crear la actividad");
+    }
+  };
+
+  const handleUpdateActivity = async () => {
+    if (!service || !editingActivity || !editingActivity.DescripcionActividad.trim()) return;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/activity/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          CodigoServicio: editingActivity.CodigoServicio,
+          NumeroCorrelativoActividad: editingActivity.NumeroCorrelativoActividad,
+          DescripcionActividad: editingActivity.DescripcionActividad.trim()
+        }),
+      });
+
+      if (!res.ok) throw new Error("Error actualizando actividad");
+
+      // Actualizar la lista de actividades
+      await fetchActivities();
+      setEditingActivity(null);
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Error al actualizar la actividad");
+    }
+  };
+
+  const handleDeleteActivity = async (codigoServicio: number, numeroCorrelativoActividad: number) => {
+    if (!service) return;
+
+    if (!confirm("¿Estás seguro de que quieres eliminar esta actividad?")) return;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/activity/delete?CodigoServicio=${codigoServicio}&NumeroCorrelativoActividad=${numeroCorrelativoActividad}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error("Error eliminando actividad");
+
+      // Actualizar la lista de actividades
+      await fetchActivities();
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Error al eliminar la actividad");
+    }
+  };
+
+  const startEditingActivity = (activity: Activity) => {
+    setEditingActivity({ ...activity });
+  };
+
+  const cancelEditingActivity = () => {
+    setEditingActivity(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!service) return;
@@ -199,6 +322,17 @@ export default function EditServicePage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleShowAddActivity = () => {
+    const maxNum = activities.length > 0
+      ? Math.max(...activities.map(a => a.NumeroCorrelativoActividad))
+      : 0;
+    setNewActivity({
+      NumeroCorrelativoActividad: maxNum + 1,
+      DescripcionActividad: ""
+    });
+    setShowAddActivity(true);
   };
 
   // Show loading state until component is mounted
@@ -397,6 +531,187 @@ export default function EditServicePage() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Gestión de Actividades */}
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h5 className="text-lg font-medium text-gray-900">Actividades del Servicio</h5>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                  <span className="text-sm text-gray-500">Gestión de actividades del servicio</span>
+                </div>
+              </div>
+
+              {/* Agregar Nueva Actividad */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h6 className="text-sm font-medium text-gray-700">Agregar Nueva Actividad</h6>
+                  <Button
+                    color="success"
+                    icon={showAddActivity ? mdiArrowLeft : mdiPlus}
+                    label={showAddActivity ? "Cancelar" : "Nueva Actividad"}
+                    onClick={() => showAddActivity ? setShowAddActivity(false) : handleShowAddActivity()}
+                    small
+                  />
+                </div>
+
+                {showAddActivity && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Número de Actividad
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={newActivity.NumeroCorrelativoActividad}
+                          onChange={(e) => setNewActivity({
+                            ...newActivity,
+                            NumeroCorrelativoActividad: parseInt(e.target.value) || 1
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Descripción
+                        </label>
+                        <input
+                          type="text"
+                          value={newActivity.DescripcionActividad}
+                          onChange={(e) => setNewActivity({
+                            ...newActivity,
+                            DescripcionActividad: e.target.value
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder="Descripción de la actividad..."
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        color="success"
+                        icon={mdiPlus}
+                        label="Agregar Actividad"
+                        onClick={handleAddActivity}
+                        disabled={!newActivity.DescripcionActividad.trim()}
+                        small
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Lista de Actividades Actuales */}
+              <div>
+                <h6 className="text-sm font-medium text-gray-700 mb-3">Actividades Actuales</h6>
+                {loadingActivities ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
+                    <span className="ml-2 text-gray-600">Cargando actividades...</span>
+                  </div>
+                ) : activities.length === 0 ? (
+                  <div className="text-center py-6 bg-gray-50 rounded-lg">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500">No hay actividades definidas</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {activities.map((activity) => (
+                      <div key={`${activity.CodigoServicio}-${activity.NumeroCorrelativoActividad}`} className="bg-white border border-gray-200 rounded-lg p-4">
+                        {editingActivity && 
+                         editingActivity.CodigoServicio === activity.CodigoServicio && 
+                         editingActivity.NumeroCorrelativoActividad === activity.NumeroCorrelativoActividad ? (
+                          // Modo edición
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-green-100 rounded-full">
+                                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </div>
+                                <span className="text-sm font-medium text-gray-500">
+                                  Actividad #{activity.NumeroCorrelativoActividad}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Descripción
+                              </label>
+                              <input
+                                type="text"
+                                value={editingActivity.DescripcionActividad}
+                                onChange={(e) => setEditingActivity({
+                                  ...editingActivity,
+                                  DescripcionActividad: e.target.value
+                                })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                color="info"
+                                label="Cancelar"
+                                onClick={cancelEditingActivity}
+                                small
+                              />
+                              <Button
+                                color="success"
+                                icon={mdiContentSave}
+                                label="Guardar"
+                                onClick={handleUpdateActivity}
+                                disabled={!editingActivity.DescripcionActividad.trim()}
+                                small
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          // Modo visualización
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-green-100 rounded-full">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  Actividad #{activity.NumeroCorrelativoActividad}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {activity.DescripcionActividad}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button
+                                color="info"
+                                icon={mdiPencil}
+                                onClick={() => startEditingActivity(activity)}
+                                small
+                              />
+                              <Button
+                                color="danger"
+                                icon={mdiDelete}
+                                onClick={() => handleDeleteActivity(activity.CodigoServicio, activity.NumeroCorrelativoActividad)}
+                                small
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

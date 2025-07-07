@@ -250,6 +250,11 @@ export default function CreateServiceOrderPage() {
     );
   }
 
+  // Antes del render de las actividades, calcula las actividades ya seleccionadas:
+  const selectedActivityIds = orderActivities
+    .filter(a => a.CodigoServicio === selectedService)
+    .map(a => a.NumeroCorrelativoActividad);
+
   return (
     <SectionMain>
       <SectionTitleLineWithButton
@@ -516,9 +521,13 @@ export default function CreateServiceOrderPage() {
                       disabled={!selectedService}
                     >
                       <option value="">Selecciona una actividad</option>
-                      {activities.map(activity => (
-                        <option key={activity.NumeroCorrelativoActividad} value={activity.NumeroCorrelativoActividad}>{activity.DescripcionActividad}</option>
-                      ))}
+                      {activities
+                        .filter(activity => !selectedActivityIds.includes(activity.NumeroCorrelativoActividad))
+                        .map((activity) => (
+                          <option key={activity.NumeroCorrelativoActividad} value={activity.NumeroCorrelativoActividad}>
+                            {activity.DescripcionActividad}
+                          </option>
+                        ))}
                     </select>
                   </div>
                   <div>
