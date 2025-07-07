@@ -7,6 +7,10 @@ from datetime import date
 class GetService:
 
     def getAll(self, table_name: str):
+        """
+        Obtiene todos los registros de una tabla específica.
+        Útil para listar todos los elementos de cualquier tabla del sistema.
+        """
         try:
             database.execute(f"SELECT * FROM {table_name}")
             data = database.fetchall()
@@ -15,7 +19,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
         
     def getDataById(self, table_name: str, **filters):
-        
+        """
+        Obtiene un registro específico por filtros (generalmente ID).
+        Permite buscar registros usando múltiples criterios como clave primaria.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -28,6 +35,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
         
     def getDataByFilter(self, table_name: str, **filters):
+        """
+        Obtiene registros que coincidan con los filtros especificados.
+        Retorna múltiples registros que cumplan con los criterios de búsqueda.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -40,6 +51,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching data from {table_name}: {str(e)}")
         
     def getDataByView(self, table_name: str, **filters):
+        """
+        Obtiene datos de una vista con filtros específicos.
+        Similar a getDataByFilter pero optimizado para consultar vistas de la base de datos.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -53,7 +68,10 @@ class GetService:
         
 
     def searchDataEmployee(self, table_name: str, query: str):
-    
+        """
+        Busca empleados por CI o nombre completo.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 CI, NombreCompleto FROM {table_name} WHERE CI LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -63,6 +81,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
         
     def searchDataFranchise(self, table_name: str, query: str):
+        """
+        Busca franquicias por RIF.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE RIF LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -72,6 +94,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
         
     def searchDataBrand(self, table_name: str, query: str):
+        """
+        Busca marcas por nombre.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE Nombre LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -81,6 +107,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
         
     def searchDataFilters(self, table_name: str, q: str, **filters):
+        """
+        Busca datos con filtros adicionales y búsqueda por CI.
+        Combina filtros específicos con búsqueda por texto en el campo CI.
+        """
         try:
             where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
             values = tuple(filters.values())
@@ -92,6 +122,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataSupplierLines(self, table_name: str, query: str):
+        """
+        Busca líneas de suministro por descripción.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionLinea LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -101,6 +135,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataVendors(self, table_name: str, query: str):
+        """
+        Busca proveedores por razón social.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE RazonSocial LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -110,6 +148,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataMaintenancePlans(self, table_name: str, query: str):
+        """
+        Busca planes de mantenimiento por descripción.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionMantenimiento LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -119,6 +161,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataBrands(self, table_name: str, query: str):
+        """
+        Busca marcas por nombre (alias de searchDataBrand).
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE Nombre LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -128,6 +174,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataModels(self, table_name: str, query: str):
+        """
+        Busca modelos por descripción del modelo.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionModelo LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -137,6 +187,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataSpecialties(self, table_name: str, query: str):
+        """
+        Busca especialidades por descripción.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE DescripcionEspecialidad LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -146,6 +200,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
 
     def searchDataServices(self, table_name: str, query: str):
+        """
+        Busca servicios por nombre del servicio.
+        Retorna máximo 10 resultados para autocompletado en formularios.
+        """
         try:
             database.execute(f"SELECT TOP 10 * FROM {table_name} WHERE NombreServicio LIKE ?", f'%{query}%')
             columns = [column[0] for column in database.description]
@@ -155,6 +213,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching data in {table_name}: {str(e)}")
         
     def countData(self, table_name: str):
+        """
+        Cuenta el número total de registros en una tabla.
+        Útil para estadísticas y paginación.
+        """
         try:
             database.execute(f"SELECT COUNT(*) FROM {table_name}")
             data = database.fetchone()
@@ -163,6 +225,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error counting data in {table_name}: {str(e)}")
         
     def countDistinctData(self, table_name: str, column_name: str):
+        """
+        Cuenta valores únicos en una columna específica.
+        Útil para estadísticas de diversidad de datos.
+        """
         try:
             database.execute(f"SELECT COUNT(DISTINCT {table_name}.{column_name}) FROM {table_name}")
             data = database.fetchone()
@@ -171,6 +237,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error counting distinct data in {table_name}: {str(e)}")
         
     def countDistinctDataByFranchise(self, table_name: str, column_name: str, **filters):
+        """
+        Cuenta valores únicos en una columna específica filtrada por franquicia.
+        Útil para estadísticas específicas por franquicia.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -182,6 +252,10 @@ class GetService:
         
 
     def countDataByFranchise(self, table_name: str, **filters):
+        """
+        Cuenta registros filtrados por franquicia.
+        Útil para estadísticas específicas por franquicia.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -192,6 +266,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error counting data in {table_name}: {str(e)}")
         
     def getInventoryByFranchise(self, franquicia_rif: str):
+        """
+        Obtiene el inventario completo de una franquicia específica.
+        Incluye información del producto, cantidades, precios y categoría.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -217,6 +295,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching inventory: {str(e)}")
     
     def searchInventoryByFranchise(self, franquicia_rif: str, query: str):
+        """
+        Busca productos en el inventario de una franquicia por nombre o código.
+        Permite búsqueda por texto en nombre del producto o código numérico.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -243,6 +325,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error searching inventory: {str(e)}")
     
     def getScarceProductsByFranchise(self, franquicia_rif: str):
+        """
+        Obtiene productos con stock bajo (cantidad <= cantidad mínima).
+        Ordenados por cantidad ascendente para priorizar los más críticos.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -269,6 +355,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching scarce products: {str(e)}")
     
     def getExcessProductsByFranchise(self, franquicia_rif: str):
+        """
+        Obtiene productos con stock excesivo (cantidad >= cantidad máxima).
+        Ordenados por cantidad descendente para mostrar los más excedidos.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -295,6 +385,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching excess products: {str(e)}")
     
     def getProductByFranchiseAndCode(self, franquicia_rif: str, codigo_producto: int):
+        """
+        Obtiene un producto específico del inventario de una franquicia.
+        Retorna información completa del producto incluyendo stock y precios.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -322,6 +416,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching product: {str(e)}")
     
     def getOrdersByFranchise(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None, estado: Optional[str] = None):
+        """
+        Obtiene órdenes de servicio de una franquicia con filtros opcionales.
+        Permite filtrar por mes/año y estado (En Proceso, A Facturar, Completado).
+        """
         try:
             query = """
                 SELECT DISTINCT
@@ -374,6 +472,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
 
     def getOrdersStatsByFranchise(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
+        """
+        Obtiene estadísticas de órdenes de servicio por franquicia.
+        Cuenta total de órdenes, completadas, a facturar y en proceso.
+        """
         try:
             query = """
                 SELECT 
@@ -404,6 +506,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching order stats: {str(e)}")
 
     def getOrderDetails(self, franquicia_rif: str, numero_orden: int):
+        """
+        Obtiene detalles completos de una orden de servicio específica.
+        Incluye información de la orden, empleados asignados y productos utilizados.
+        """
         try:
             # Get order information
             order_query = """
@@ -498,6 +604,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching order details: {str(e)}")
 
     def getInvoicesByFranchise(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
+        """
+        Obtiene facturas de una franquicia con filtros opcionales por mes/año.
+        Incluye información del cliente, vehículo y orden asociada.
+        """
         try:
             query = """
                 SELECT DISTINCT
@@ -537,6 +647,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching invoices: {str(e)}")
 
     def getInvoiceDetails(self, franquicia_rif: str, numero_factura: int):
+        """
+        Obtiene detalles completos de una factura específica.
+        Incluye información del cliente, vehículo, marca, modelo y orden asociada.
+        """
         try:
             query = """
                 SELECT DISTINCT
@@ -590,6 +704,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching invoice details: {str(e)}")
 
     def getPurchasesByFranchise(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
+        """
+        Obtiene compras de una franquicia con filtros opcionales por mes/año.
+        Incluye información del proveedor y productos comprados.
+        """
         try:
             query = """
                 SELECT DISTINCT
@@ -629,6 +747,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching purchases: {str(e)}")
 
     def getPurchaseDetails(self, franquicia_rif: str, numero_compra: int):
+        """
+        Obtiene detalles completos de una compra específica.
+        Incluye información del proveedor y todos los productos de la compra.
+        """
         try:
             database.execute("""
                 SELECT c.Numero, c.Fecha, c.ProveedorRIF, p.RazonSocial, p.Direccion, p.TelefonoLocal, p.PersonaContacto,
@@ -652,7 +774,8 @@ class GetService:
 
     def getServicesByFranchise(self, franquicia_rif: str):
         """
-        Get all services that a specific franchise offers
+        Obtiene todos los servicios que ofrece una franquicia específica.
+        Útil para mostrar servicios disponibles en formularios de órdenes.
         """
         try:
             database.execute("""
@@ -673,7 +796,8 @@ class GetService:
 
     def getActivitiesByService(self, codigo_servicio: int):
         """
-        Get all activities for a specific service
+        Obtiene todas las actividades de un servicio específico.
+        Útil para mostrar actividades disponibles al seleccionar un servicio.
         """
         try:
             database.execute("""
@@ -693,7 +817,8 @@ class GetService:
 
     def checkCorrectionExists(self, franquicia_rif: str, codigo_producto: int):
         """
-        Check if a product has already been corrected in the current month and year
+        Verifica si un producto ya ha sido corregido en el mes y año actual.
+        Previene correcciones duplicadas en el mismo período.
         """
         current_date = date.today()
         current_month = current_date.month
@@ -722,6 +847,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error checking correction: {str(e)}")
 
     def getCorrectionHistory(self, franquicia_rif: str, mes: Optional[int] = None, anio: Optional[int] = None):
+        """
+        Obtiene el historial de correcciones de inventario de una franquicia.
+        Permite filtrar por mes/año y muestra información del producto corregido.
+        """
         try:
             query = """
                 SELECT 
@@ -753,6 +882,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching correction history: {str(e)}")
 
     def getModelsByBrand(self, codigo_marca: int):
+        """
+        Obtiene todos los modelos de una marca específica.
+        Ordenados por número correlativo del modelo.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -776,6 +909,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching models by brand: {str(e)}")
 
     def checkBrandHasModels(self, codigo_marca: int):
+        """
+        Verifica si una marca tiene modelos asociados.
+        Útil para validar antes de eliminar una marca.
+        """
         try:
             database.execute("""
                 SELECT COUNT(*) as model_count
@@ -790,7 +927,8 @@ class GetService:
 
     def getNextModelCorrelativeNumber(self, codigo_marca: int):
         """
-        Get the next correlative number for models of a specific brand
+        Obtiene el siguiente número correlativo para modelos de una marca específica.
+        Útil para auto-incrementar el número de modelo al crear uno nuevo.
         """
         try:
             database.execute("""
@@ -806,7 +944,8 @@ class GetService:
 
     def getMaintenancePlansByModel(self, codigo_marca: int, numero_correlativo_modelo: int):
         """
-        Get all maintenance plans for a specific model
+        Obtiene todos los planes de mantenimiento de un modelo específico.
+        Incluye información de tiempo de uso, kilometraje y descripción.
         """
         try:
             database.execute("""
@@ -828,6 +967,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching maintenance plans: {str(e)}")
 
     def getEmployeeSpecialties(self, empleado_ci: str):
+        """
+        Obtiene las especialidades de un empleado específico.
+        Útil para mostrar las habilidades del empleado en formularios.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -845,6 +988,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching employee specialties: {str(e)}")
 
     def getProductsByVendor(self, proveedor_rif: str):
+        """
+        Obtiene todos los productos que suministra un proveedor específico.
+        Incluye información detallada del producto y características técnicas.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -867,6 +1014,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching products by vendor: {str(e)}")
 
     def getPurchaseNumber(self, fecha: str, proveedor_rif: str):
+        """
+        Obtiene el siguiente número de compra para un proveedor en una fecha específica.
+        Útil para auto-incrementar el número de compra al crear una nueva.
+        """
         try:
             database.execute("""
                 SELECT COUNT(*) + 1
@@ -880,8 +1031,8 @@ class GetService:
 
     def getProductQuantity(self, franquicia_rif: str, codigo_producto: int):
         """
-        Get the current quantity of a product in franchise inventory
-        NOTE: This method is no longer used in purchase process due to database trigger
+        Obtiene la cantidad actual de un producto en el inventario de una franquicia.
+        NOTA: Este método ya no se usa en el proceso de compra debido al trigger de la base de datos.
         """
         try:
             database.execute("SELECT Cantidad FROM ProductosFranquicia WHERE FranquiciaRIF = ? AND CodigoProducto = ?", 
@@ -893,8 +1044,8 @@ class GetService:
 
     def updateProductQuantity(self, franquicia_rif: str, codigo_producto: int, new_quantity: int):
         """
-        Update the quantity of a product in franchise inventory
-        NOTE: This method is no longer used in purchase process due to database trigger
+        Actualiza la cantidad de un producto en el inventario de una franquicia.
+        NOTA: Este método ya no se usa en el proceso de compra debido al trigger de la base de datos.
         """
         try:
             database.execute("UPDATE ProductosFranquicia SET Cantidad = ? WHERE FranquiciaRIF = ? AND CodigoProducto = ?", 
@@ -904,8 +1055,8 @@ class GetService:
 
     def insertNewProductToFranchise(self, franquicia_rif: str, codigo_producto: int, cantidad: int):
         """
-        Insert a new product to franchise inventory
-        NOTE: This method is no longer used in purchase process due to database trigger
+        Inserta un nuevo producto al inventario de una franquicia.
+        NOTA: Este método ya no se usa en el proceso de compra debido al trigger de la base de datos.
         """
         try:
             database.execute("INSERT INTO ProductosFranquicia (FranquiciaRIF, CodigoProducto, Cantidad, Precio, CantidadMinima, CantidadMaxima) VALUES (?, ?, ?, ?, ?, ?)", 
@@ -914,6 +1065,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error inserting new product to franchise: {str(e)}")
 
     def getCustomerFrequency(self, mes, anio):
+        """
+        Obtiene la frecuencia de visitas de clientes por mes y año.
+        Útil para análisis de clientes frecuentes y marketing.
+        """
         try:
             query = '''
                 SELECT c.CI, c.NombreCompleto, c.Email, COUNT(os.ID) AS FrecuenciaMensual
@@ -932,6 +1087,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching customer frequency: {str(e)}")
 
     def getCustomerTotalFrequency(self):
+        """
+        Obtiene la frecuencia total de visitas de todos los clientes.
+        Útil para análisis histórico de clientes y lealtad.
+        """
         try:
             query = '''
                 SELECT c.CI, c.NombreCompleto, c.Email, COUNT(os.ID) AS FrecuenciaTotal
@@ -950,8 +1109,8 @@ class GetService:
 
     def getCustomerFrequencyLast3Months(self, customer_ci: str):
         """
-        Get customer visit frequency for the last 3 months
-        Returns the total number of visits in the last 3 months
+        Obtiene la frecuencia de visitas de un cliente en los últimos 3 meses.
+        Retorna el número total de visitas en los últimos 3 meses.
         """
         try:
             query = '''
@@ -970,6 +1129,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching customer frequency for last 3 months: {str(e)}")
 
     def getOrdersByVehicle(self, codigo_vehiculo: int):
+        """
+        Obtiene todas las órdenes de servicio de un vehículo específico.
+        Incluye información del cliente y estado de cada orden.
+        """
         try:
             query = '''
                 SELECT os.ID as NumeroOrden,
@@ -1003,6 +1166,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error getting orders by vehicle: {str(e)}")
 
     def getActiveEmployeesByFranchise(self, franquicia_rif: str):
+        """
+        Obtiene empleados activos de una franquicia específica.
+        Útil para asignar empleados a órdenes de servicio.
+        """
         try:
             database.execute("""
                 SELECT CI, NombreCompleto, Rol
@@ -1017,6 +1184,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching active employees: {str(e)}")
 
     def getAllServiceOrders(self):
+        """
+        Obtiene todas las órdenes de servicio del sistema.
+        Incluye información del cliente, vehículo y actividades de cada orden.
+        """
         try:
             database.execute("""
                 SELECT 
@@ -1056,6 +1227,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching all service orders: {str(e)}")
 
     def get_pending_service_orders_by_employee(self, CI: str):
+        """
+        Obtiene órdenes de servicio pendientes asignadas a un empleado específico.
+        Solo incluye órdenes que no han sido completadas (sin fecha de salida real).
+        """
         try:
             query = '''
                 SELECT DISTINCT
@@ -1086,6 +1261,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error fetching pending service orders: {str(e)}")
 
     def getActivitiesByOrder(self, id_orden: int):
+        """
+        Obtiene todas las actividades de una orden de servicio específica.
+        Incluye información del servicio y costo de cada actividad.
+        """
         try:
             query = '''
                 SELECT oa.CodigoServicio, s.NombreServicio, oa.NumeroCorrelativoActividad, a.DescripcionActividad, oa.Costo_Act
@@ -1103,6 +1282,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error obteniendo actividades de la orden: {str(e)}")
 
     def getServicesByOrder(self, numero_orden: int):
+        """
+        Obtiene servicios de una orden específica con información de precios.
+        Formatea los datos para mostrar en facturas con precio unitario y subtotal.
+        """
         try:
             query = '''
                 SELECT 
@@ -1125,6 +1308,10 @@ class GetService:
             raise HTTPException(status_code=500, detail=f"Error obteniendo servicios de la orden: {str(e)}")
 
     def getAllModelsWithBrandName(self):
+        """
+        Obtiene todos los modelos con el nombre de su marca asociada.
+        Ordenados por nombre de marca y número correlativo del modelo.
+        """
         try:
             query = (
                 "SELECT m.CodigoMarca, m.NumeroCorrelativoModelo, m.DescripcionModelo, m.CantidadPuestos, m.TipoRefrigerante, m.TipoGasolina, m.TipoAceite, m.Peso, b.Nombre as MarcaNombre "
@@ -1141,6 +1328,10 @@ class GetService:
 
 class PostService:
     def postData(self, table_name: str, data: dict):
+        """
+        Inserta datos en cualquier tabla del sistema.
+        Método genérico que construye dinámicamente la consulta INSERT.
+        """
         try:
             columns = ", ".join(data.keys())
             placeholders = ", ".join(["?" for _ in data])
@@ -1155,7 +1346,8 @@ class PostService:
 
     def postModelData(self, data: dict):
         """
-        Special method for creating models with auto-incrementing NumeroCorrelativoModelo
+        Método especial para crear modelos con auto-incremento del NumeroCorrelativoModelo.
+        Calcula automáticamente el siguiente número correlativo para la marca.
         """
         try:
             # Get the next NumeroCorrelativoModelo for the given CodigoMarca
@@ -1173,11 +1365,8 @@ class PostService:
         
     def createPurchaseWithInventory(self, purchase_data: dict):
         """
-        Create a purchase and update inventory in a single transaction
-        purchase_data should contain:
-        - Fecha: date
-        - ProveedorRIF: string
-        - items: list of dict with CodigoProducto, CantidadPedida, CantidadDisponible, Monto, FranquiciaRIF
+        Crea una compra y actualiza el inventario en una sola transacción.
+        Los triggers de la base de datos se encargan automáticamente de actualizar el inventario.
         """
         try:
             # Start transaction
@@ -1225,6 +1414,10 @@ class PostService:
             raise HTTPException(status_code=500, detail=f"Error creating purchase: {str(e)}")
 
     def createCorrectionWithInventory(self, correction_data: dict):
+        """
+        Crea una corrección de inventario.
+        El trigger de la base de datos se encarga automáticamente de actualizar el inventario.
+        """
         try:
             # Crear la corrección - el trigger se encargará de actualizar el inventario automáticamente
             current_date = date.today().isoformat()
@@ -1250,6 +1443,10 @@ class PostService:
             raise HTTPException(status_code=500, detail=f"Error creating correction: {str(e)}")
 
     def createServiceOrderWithEmployees(self, service_order_data: dict):
+        """
+        Crea una orden de servicio y asigna empleados en una sola transacción.
+        Obtiene automáticamente el ID de la orden creada para asignar empleados.
+        """
         try:
             # Iniciar transacción
             database.execute("BEGIN TRANSACTION")
@@ -1297,6 +1494,10 @@ class PostService:
             raise HTTPException(status_code=500, detail=f"Error creating service order: {str(e)}")
 
     def createInvoiceWithPayments(self, invoice_data: dict):
+        """
+        Crea una factura con múltiples métodos de pago en una sola transacción.
+        Incluye impresión fiscal automática y manejo de montos con valor -1 (restante).
+        """
         try:
             # Extraer datos de la factura
             numero_orden = invoice_data.get('NumeroOrden')
@@ -1523,6 +1724,10 @@ class PostService:
 
 class DeleteService:
     def deleteData(self, table_name: str, **filters):
+        """
+        Elimina datos de cualquier tabla del sistema usando filtros específicos.
+        Método genérico que construye dinámicamente la consulta DELETE.
+        """
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(filters.values())
         try:
@@ -1536,6 +1741,10 @@ class DeleteService:
 
 class UpdateService:
     def updateData(self, table_name: str, data: dict, **filters):
+        """
+        Actualiza datos en cualquier tabla del sistema usando filtros específicos.
+        Método genérico que construye dinámicamente la consulta UPDATE.
+        """
         set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
         where_clause = " AND ".join([f"{key} = ?" for key in filters.keys()])
         values = tuple(data.values()) + tuple(filters.values())
